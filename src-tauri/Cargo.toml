@@ -1,0 +1,100 @@
+[package]
+name = "dayflit"
+version = "1.0.0"
+description = "Dayflit — a floating desktop productivity companion for Windows"
+authors = ["Dayflit"]
+edition = "2021"
+rust-version = "1.80"
+
+[lib]
+name = "dayflit_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png", "protocol-asset", "devtools"] }
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-single-instance = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-os = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+uuid = { version = "1", features = ["v4", "serde"] }
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip", "stream"] }
+ical = "0.11"
+rrule = "0.14"
+scraper = "0.23"
+arboard = { version = "3", features = ["wayland-data-control"] }
+window-vibrancy = "0.6"
+crc32fast = "1"
+log = "0.4"
+parking_lot = "0.12"
+anyhow = "1"
+thiserror = "2"
+regex = "1"
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+sha2 = "0.10"
+rand = "0.8"
+url = "2"
+dirs = "6"
+zip = { version = "2", default-features = false, features = ["deflate"] }
+cpal = "0.15"
+hound = "3"
+whisper-rs = { version = "0.16", default-features = false }
+futures-util = "0.3"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+  "Win32_Foundation",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_UI_Shell",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_System_RemoteDesktop",
+  "Win32_System_Threading",
+  "Win32_System_DataExchange",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Power",
+  "Win32_System_SystemServices",
+  "Win32_Graphics_Gdi",
+  "Win32_Graphics_Dwm",
+  "Win32_Media_Audio",
+  "Win32_Storage_FileSystem",
+  "Win32_System_WinRT",
+  "Win32_System_Com",
+  "Win32_System_Com_StructuredStorage",
+  "Win32_System_Variant",
+  "Win32_Media_Audio_Endpoints",
+  "Win32_UI_HiDpi",
+  "Media_Control",
+  "Media_SpeechRecognition",
+  "Globalization",
+  "Foundation",
+  "Foundation_Collections",
+  "Storage_Streams",
+] }
+
+[features]
+default = []
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 1
+incremental = true

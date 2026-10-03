@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dayflit — the floating companion for your Windows day</title>
+    <meta name="description" content="Dayflit is a floating desktop companion for Windows: tasks in plain language, focus sessions, timeboxing, voice capture, journal, habits, calendar and clipboard capture. Local-first, beautiful, keyboard-fast." />
+    <meta property="og:title" content="Dayflit — the floating companion for your Windows day" />
+    <meta property="og:description" content="Capture, plan, focus and remember without leaving what you're doing." />
+    <meta property="og:image" content="./shots/today-dark.png" />
+    <meta name="theme-color" content="#0b1220" />
+    <link rel="icon" href="./icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="top" id="top">
+      <a class="brand" href="#top" aria-label="Dayflit home">
+        <span class="orb" aria-hidden="true"></span>
+        <span>Dayflit</span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#capture">Capture</a>
+        <a href="#focus">Focus</a>
+        <a href="#journal">Journal</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#download" class="btn btn-small btn-primary">Download</a>
+      </nav>
+      <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+      <a href="#features">Features</a>
+      <a href="#capture">Capture</a>
+      <a href="#focus">Focus</a>
+      <a href="#journal">Journal</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#download">Download</a>
+    </nav>
+
+    <main id="main">
+      <!-- ================= HERO ================= -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-bg" aria-hidden="true">
+          <div class="glow glow-a"></div>
+          <div class="glow glow-b"></div>
+          <div class="grid"></div>
+        </div>
+        <div class="hero-inner">
+          <div class="hero-copy reveal">
+            <p class="eyebrow"><span class="dot"></span> For Windows 10 &amp; 11 · free during early access</p>
+            <h1 id="hero-title">Your day, in one floating window.</h1>
+            <p class="lede">
+              Dayflit is a desktop companion that stays a keystroke away. Capture tasks in plain language, timebox your calendar, run
+              focus sessions with your music, dictate thoughts, keep a journal, and never lose what you copied. All of it local,
+              all of it fast.
+            </p>
+            <div class="cta-row">
+              <a href="#download" class="btn btn-primary btn-large" data-download>Download for Windows</a>
+              <a href="#demo" class="btn btn-ghost btn-large">Watch the 90-second tour</a>
+            </div>
+            <p class="fine" id="hero-release">Version <span data-version>1.0.0</span> · <span data-size>~3 MB</span> installer · no account required</p>
+            <ul class="hero-points" aria-label="Highlights">
+              <li><kbd>Alt</kbd><kbd>Space</kbd> shows Dayflit from anywhere</li>
+              <li>Hold <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>V</kbd> to speak a task</li>
+              <li>Everything stays on your PC</li>
+            </ul>
+          </div>
+          <div class="hero-visual reveal" aria-hidden="true">
+            <!-- animated mock of the floating window -->
+            <div class="float-window" id="demo-window">
+              <div class="fw-titlebar">
+                <span class="fw-orb"></span><span class="fw-title">Dayflit</span>
+                <span class="fw-chip" id="fw-timer">25:00</span>
+                <span class="fw-spacer"></span>
+                <span class="fw-ctl"></span><span class="fw-ctl"></span><span class="fw-ctl"></span>
+              </div>
+              <div class="fw-body">
+                <div class="fw-date">THURSDAY, 2 OCTOBER</div>
+                <div class="fw-greet">Good morning</div>
+                <div class="fw-input" id="fw-input"><span class="fw-plus">+</span><span class="fw-typed" id="fw-typed"></span><span class="fw-caret"></span></div>
+                <div class="fw-chips" id="fw-chips"></div>
+                <div class="fw-section">TODAY · <span id="fw-count">2</span></div>
+                <ul class="fw-list" id="fw-list">
+                  <li><span class="fw-check"></span><span>Review launch checklist</span><em>10:00 AM · 45m</em></li>
+                  <li><span class="fw-check"></span><span>Call Sam about the invoice</span><em>3 PM · high</em></li>
+                </ul>
+                <div class="fw-section">AGENDA</div>
+                <div class="fw-event"><span class="fw-bar"></span><span>Design review</span><em>2 PM – 3 PM</em><b>Join</b></div>
+                <div class="fw-section">HABITS · 1/3</div>
+                <div class="fw-habits"><span class="h done"></span><span class="h"></span><span class="h"></span></div>
+              </div>
+              <div class="fw-nav"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="float-bubble" aria-hidden="true"><span></span></div>
+            <div class="float-pip" aria-hidden="true"><b id="pip-time">24:58</b><small>Focus · 1/4</small><i></i></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= LOGOS / TRUST STRIP ================= -->
+      <section class="strip" aria-label="Works with">
+        <p>Plays nicely with</p>
+        <ul>
+          <li>Spotify</li><li>Google Calendar</li><li>Outlook 365</li><li>Google Meet</li><li>Zoom</li><li>Teams</li><li>Obsidian</li><li>OneDrive</li>
+        </ul>
+      </section>
+
+      <!-- ================= FEATURE OVERVIEW ================= -->
+      <section class="section" id="features" aria-labelledby="features-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Everything in one place</p>
+          <h2 id="features-title">Capture it. Plan it. Do it. Remember it.</h2>
+          <p class="sub">Most productivity apps want your whole screen. Dayflit is designed to sit beside your work, not on top of it.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="card reveal"><div class="ic">✓</div><h3>Tasks that understand you</h3><p>“Call Sam tomorrow 3pm #work !high every week for 30m” becomes a scheduled, prioritised, recurring task. Subtasks, estimates, snooze, someday, undo, and a full keyboard vocabulary.</p></article>
+          <article class="card reveal"><div class="ic">◷</div><h3>Focus sessions</h3><p>Pomodoro, deep work, custom or stopwatch. Timers run natively so they stay accurate while hidden. A floating timer, chimes, ambient soundscapes and Spotify controls built in.</p></article>
+          <article class="card reveal"><div class="ic">▤</div><h3>Calendar &amp; timeboxing</h3><p>Drag tasks onto your day, resize blocks, start focus from a block. Subscribe to any calendar feed or sync two-way with Google and Outlook. Meeting links detected, one click to join.</p></article>
+          <article class="card reveal"><div class="ic">◉</div><h3>Voice capture</h3><p>Hold a key, speak, release. Offline Whisper transcription or Windows speech turns it into a task, note or journal entry, with the original audio kept when you want it.</p></article>
+          <article class="card reveal"><div class="ic">▭</div><h3>Notes &amp; clipboard</h3><p>Markdown notes with checklists, link previews and pasted images. Clipboard history that remembers which app you copied from, and turns clips into tasks or notes.</p></article>
+          <article class="card reveal"><div class="ic">◫</div><h3>Journal</h3><p>Prompts, templates, moods, photos, voice memos, favourites and a PIN lock. Browse by date, revisit “on this day”, and keep a streak going.</p></article>
+          <article class="card reveal"><div class="ic">▦</div><h3>Habits</h3><p>Daily, specific days or times-per-week. Counts with units, streaks, a two-week grid and gentle reminders.</p></article>
+          <article class="card reveal"><div class="ic">▥</div><h3>Insights</h3><p>A consistency heatmap, a weekly review that compares this week with last, where your focus went, and what to carry forward.</p></article>
+          <article class="card reveal"><div class="ic">◌</div><h3>Distraction nudges</h3><p>When a game, Steam or a YouTube tab comes to the front during a focus block, a quiet reminder appears. Nothing is blocked, you stay in control.</p></article>
+        </div>
+      </section>
+
+      <!-- ================= CAPTURE (VOICE + PALETTE + CLIPS) ================= -->
+      <section class="section split" id="capture" aria-labelledby="capture-title">
+        <div class="split-copy reveal">
+          <p class="eyebrow">Capture anywhere</p>
+          <h2 id="capture-title">A thought shouldn’t have to wait for you to switch windows.</h2>
+          <p>Dayflit listens from the system tray. Press the global palette, type a few words, and it is filed. Hold the voice key while you are gaming, coding or on a call, and your words become a task, a note or a journal entry.</p>
+          <ul class="checks">
+            <li>Global command palette with fuzzy search across tasks, notes, journal, clips and calendar</li>
+            <li>Hold-to-talk voice with live levels, review step and smart destination (“remind me to…”, “note to self…”)</li>
+            <li>Clipboard capture with source app and window, images included</li>
+            <li>Quick task and quick note from any app, with natural-language dates</li>
+          </ul>
+        </div>
+        <div class="split-visual reveal">
+          <div class="demo-voice" id="demo-voice" aria-label="Voice capture demo">
+            <div class="dv-pill">
+              <span class="dv-mic"></span>
+              <div class="dv-text"><b>Listening… release to finish</b><span class="dv-bars" id="dv-bars"></span></div>
+            </div>
+            <div class="dv-result">
+              <p id="dv-transcript">Remind me to send the invoice to Sam tomorrow at 3pm</p>
+              <div class="dv-dest"><span class="on">Task</span><span>Note</span><span>Journal</span></div>
+            </div>
+          </div>
+          <figure class="shot shot-sm">
+            <img src="./shots/palette-dark.png" alt="The command palette parsing a task typed in plain language, showing date, priority and tag chips" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= FOCUS ================= -->
+      <section class="section split reverse" id="focus" aria-labelledby="focus-title">
+        <div class="split-copy reveal">
+          <p class="eyebrow">Focus, with your music</p>
+          <h2 id="focus-title">Start a block. Your playlist starts with it.</h2>
+          <p>Link a session to a task and Dayflit tracks the time against it. Start music when a block begins, pause it on breaks, pick ambient rain or café murmur, and keep a compact timer floating over your work.</p>
+          <ul class="checks">
+            <li>Windows media controls: Spotify, browsers, players. Optional Spotify API for playlists</li>
+            <li>Pause automatically when Windows locks, resume when you are back</li>
+            <li>Notifications respect Focus Assist and presentations</li>
+            <li>Floating timer, bubble ring and tray tooltip show time left</li>
+          </ul>
+        </div>
+        <div class="split-visual reveal">
+          <figure class="shot">
+            <img src="./shots/focus-running-dark.png" alt="A running focus session with a progress ring, task name and pause, skip and stop controls" loading="lazy" />
+          </figure>
+          <figure class="shot shot-float">
+            <img src="./shots/pip-dark.png" alt="The compact floating timer window" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= PLAN (CALENDAR) ================= -->
+      <section class="section split" id="plan" aria-labelledby="plan-title">
+        <div class="split-copy reveal">
+          <p class="eyebrow">Plan the day, not just the list</p>
+          <h2 id="plan-title">Drag a task onto 2 PM. Now it has a home.</h2>
+          <p>Timeboxing turns intentions into a schedule. Drop tasks onto the timeline, drag to move, pull to resize, press “Plan my day” to fit the rest into free gaps. Completing the block completes the task.</p>
+          <ul class="checks">
+            <li>Any .ics feed (Google, Outlook, iCloud, Fastmail) with recurring events and time zones</li>
+            <li>Two-way sync with Google Calendar and Microsoft 365: move, resize, create and delete from Dayflit</li>
+            <li>Meet, Zoom, Teams, Webex links detected. Join in one click, or let Dayflit auto-join</li>
+            <li>“Copy my available slots” for tomorrow or the week, ready to paste</li>
+          </ul>
+        </div>
+        <div class="split-visual reveal">
+          <figure class="shot">
+            <img src="./shots/calendar-dark.png" alt="Day timeline with a calendar event and a timeboxed task block" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= JOURNAL ================= -->
+      <section class="section split reverse" id="journal" aria-labelledby="journal-title">
+        <div class="split-copy reveal">
+          <p class="eyebrow">Life capture</p>
+          <h2 id="journal-title">Not just what you need to do. What you lived.</h2>
+          <p>A journal that is quick enough to use every day. Daily prompts, templates for reflection and gratitude, moods, photos and voice memos. Browse by calendar, filter by tag or favourite, and let “On this day” bring things back.</p>
+          <ul class="checks">
+            <li>Multiple journals (work, travel, dreams) with colours and icons</li>
+            <li>PIN lock with automatic relock</li>
+            <li>Streaks and word counts, woven into Insights</li>
+            <li>Export every entry as dated Markdown</li>
+          </ul>
+        </div>
+        <div class="split-visual reveal">
+          <figure class="shot">
+            <img src="./shots/journal-dark.png" alt="Journal view with a daily prompt, entries grouped by day and a month calendar" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= INSIGHTS ================= -->
+      <section class="section" id="insights" aria-labelledby="insights-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Insights</p>
+          <h2 id="insights-title">See consistency, not just totals.</h2>
+          <p class="sub">A heatmap of every day you completed a task, finished a block, wrote an entry or checked a habit. A weekly review that tells you what changed and what to carry into next week.</p>
+        </div>
+        <div class="insights-row reveal">
+          <div class="heat" id="demo-heat" aria-label="Animated consistency heatmap"></div>
+          <figure class="shot shot-sm">
+            <img src="./shots/insights-dark.png" alt="Consistency heatmap with a selected day inspector" loading="lazy" />
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= DESKTOP EXPERIENCE ================= -->
+      <section class="section" id="desktop" aria-labelledby="desktop-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Made for Windows</p>
+          <h2 id="desktop-title">Floating, docked, or just a bubble.</h2>
+          <p class="sub">A frameless acrylic window that docks to screen edges, remembers where it was on every monitor, and collapses into a tiny bubble that shows your timer.</p>
+        </div>
+        <div class="three reveal">
+          <article><h3>Native materials</h3><p>Acrylic, Mica, blur or solid. Light, dark and system themes, eight palettes, any accent.</p></article>
+          <article><h3>Tray, shortcuts, startup</h3><p>Global hotkeys for everything, single instance, start with Windows into the bubble, lock and power aware.</p></article>
+          <article><h3>Keyboard first</h3><p>j/k to move, x to complete, f to focus, t/m/w to reschedule. Ctrl+K for anything else.</p></article>
+        </div>
+        <div class="desktop-visual reveal" aria-hidden="true">
+          <img class="bubble-shot" src="./shots/bubble.png" alt="" />
+          <img class="voice-shot" src="./shots/voice-recording.png" alt="" />
+        </div>
+      </section>
+
+      <!-- ================= PRIVACY / DATA ================= -->
+      <section class="section split" id="privacy" aria-labelledby="privacy-title">
+        <div class="split-copy reveal">
+          <p class="eyebrow">Your data, your folder</p>
+          <h2 id="privacy-title">Local-first. Readable. Yours to move.</h2>
+          <p>Dayflit stores everything as plain JSON files with checksums in a folder you choose. Put it in OneDrive or Dropbox to carry it between PCs. Daily zip backups, corruption recovery, and a one-click Markdown export that opens as an Obsidian vault.</p>
+          <ul class="checks">
+            <li>No account, no server, no telemetry</li>
+            <li>Atomic writes that survive sync clients and crashes</li>
+            <li>Voice transcription runs offline on your CPU</li>
+            <li>Signed automatic updates, installed in place</li>
+          </ul>
+        </div>
+        <div class="split-visual reveal">
+          <div class="vault" aria-label="Export folder structure">
+            <div class="vault-line">Dayflit export</div>
+            <div class="vault-line in">Notes / Launch checklist.md</div>
+            <div class="vault-line in">Journal / 2026 / 2026-10-02.md</div>
+            <div class="vault-line in">Tasks / Open.md · Completed.md</div>
+            <div class="vault-line in">Habits / Habits.md</div>
+            <div class="vault-line in">Focus / Sessions.md</div>
+            <div class="vault-line in">attachments / photo.png · memo.wav</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEMO VIDEO ================= -->
+      <section class="section" id="demo" aria-labelledby="demo-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Tour</p>
+          <h2 id="demo-title">Ninety seconds with Dayflit</h2>
+        </div>
+        <div class="video reveal" data-video-placeholder>
+          <!-- Replace with a real <video> or an embed. Poster frame uses the Today screenshot. -->
+          <img src="./shots/today-dark.png" alt="Poster frame of the Dayflit tour video" />
+          <button class="play" aria-label="Play demo video (coming soon)"><span></span></button>
+          <p class="video-note">Demo video placeholder: drop <code>demo.mp4</code> into <code>public/</code> and set <code>DEMO_VIDEO_URL</code> in <code>src/config.js</code>.</p>
+        </div>
+      </section>
+
+      <!-- ================= GALLERY ================= -->
+      <section class="section" id="gallery" aria-labelledby="gallery-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Gallery</p>
+          <h2 id="gallery-title">Light or dark, it fits in.</h2>
+          <div class="toggle" role="group" aria-label="Theme">
+            <button class="on" data-theme-pick="dark">Dark</button>
+            <button data-theme-pick="light">Light</button>
+          </div>
+        </div>
+        <div class="gallery reveal" id="gallery-grid">
+          <figure><img data-shot="today" src="./shots/today-dark.png" alt="Today view" loading="lazy" /><figcaption>Today</figcaption></figure>
+          <figure><img data-shot="tasks" src="./shots/tasks-dark.png" alt="Tasks view" loading="lazy" /><figcaption>Tasks</figcaption></figure>
+          <figure><img data-shot="calendar" src="./shots/calendar-dark.png" alt="Calendar day timeline" loading="lazy" /><figcaption>Calendar</figcaption></figure>
+          <figure><img data-shot="focus" src="./shots/focus-dark.png" alt="Focus view" loading="lazy" /><figcaption>Focus</figcaption></figure>
+          <figure><img data-shot="journal" src="./shots/journal-dark.png" alt="Journal view" loading="lazy" /><figcaption>Journal</figcaption></figure>
+          <figure><img data-shot="habits" src="./shots/habits-dark.png" alt="Habits view" loading="lazy" /><figcaption>Habits</figcaption></figure>
+          <figure><img data-shot="insights" src="./shots/insights-dark.png" alt="Insights view" loading="lazy" /><figcaption>Insights</figcaption></figure>
+          <figure><img data-shot="palette" src="./shots/palette-dark.png" alt="Command palette" loading="lazy" /><figcaption>Palette</figcaption></figure>
+        </div>
+      </section>
+
+      <!-- ================= DOWNLOAD ================= -->
+      <section class="section download" id="download" aria-labelledby="download-title">
+        <div class="download-card reveal">
+          <div>
+            <p class="eyebrow">Download</p>
+            <h2 id="download-title">Get Dayflit for Windows</h2>
+            <p class="sub">Windows 10 (1809+) and Windows 11, 64-bit. Installs per user, no admin rights needed. The installer is signed and about 3 MB; voice models download on demand.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary btn-large" href="#" data-download>Download Dayflit <span data-version>1.0.0</span></a>
+              <a class="btn btn-ghost btn-large" href="#" data-releases>Release notes</a>
+            </div>
+            <p class="fine">SHA-256: <code data-sha>pending</code> · Released <span data-date>—</span></p>
+          </div>
+          <div class="versions">
+            <h3>All versions</h3>
+            <ul id="version-list">
+              <li><span>1.0.0</span><span class="muted">current</span><a href="#" data-download>x64 installer</a></li>
+              <li class="muted"><span>Beta channel</span><span>soon</span><a href="#" data-beta>join</a></li>
+            </ul>
+            <p class="fine">Dayflit updates itself. You only need to install it once.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= FAQ ================= -->
+      <section class="section faq" id="faq" aria-labelledby="faq-title">
+        <div class="section-head reveal">
+          <p class="eyebrow">Questions</p>
+          <h2 id="faq-title">Good to know</h2>
+        </div>
+        <div class="faq-grid reveal">
+          <details><summary>Does Dayflit need an account or an internet connection?</summary><p>No. Everything works offline. The internet is only used for things you opt into: calendar feeds, Google/Outlook sync, Spotify, link previews and update checks.</p></details>
+          <details><summary>Where is my data?</summary><p>In a folder you choose, as plain JSON with daily zip backups. Move it to OneDrive or Dropbox from Settings → Data to use Dayflit on several PCs.</p></details>
+          <details><summary>How does voice transcription work?</summary><p>Hold the voice key and speak. Dayflit records locally and transcribes with an offline Whisper model you download once (75–470 MB), or with Windows speech recognition if you prefer no download.</p></details>
+          <details><summary>Does the distraction blocker block anything?</summary><p>No. It shows a small reminder with your remaining focus time when a configured app or page comes to the front. You decide what counts as a distraction.</p></details>
+          <details><summary>Can I get my data out?</summary><p>Yes. Settings → Data → Export writes a folder of Markdown files with front matter and attachments. Open it in Obsidian or any editor.</p></details>
+          <details><summary>Is it free?</summary><p>Dayflit is free during early access. Pricing, if any, will be announced on this page before it changes.</p></details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="brand"><span class="orb" aria-hidden="true"></span> Dayflit</div>
+        <nav aria-label="Footer">
+          <a href="#" data-docs>Documentation</a>
+          <a href="#" data-support>Support</a>
+          <a href="#" data-contact>Contact</a>
+          <a href="#" data-releases>Releases</a>
+          <a href="#" data-privacy>Privacy</a>
+          <a href="#" data-source>Source</a>
+        </nav>
+        <p class="fine">© <span data-year>2026</span> Dayflit. Windows is a trademark of Microsoft Corporation. Spotify, Google, Microsoft and Obsidian are trademarks of their respective owners.</p>
+      </div>
+    </footer>
+
+    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Screenshot">
+      <button class="lb-close" aria-label="Close">×</button>
+      <img alt="" />
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
+
