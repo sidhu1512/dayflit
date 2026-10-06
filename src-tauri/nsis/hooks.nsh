@@ -8,9 +8,6 @@
   nsExec::ExecToStack 'taskkill /F /IM Dayflit.exe /T'
   Pop $0
   Pop $1
-  nsExec::ExecToStack 'taskkill /F /IM sid.exe /T'
-  Pop $0
-  Pop $1
   Sleep 400
 !macroend
 
@@ -33,13 +30,11 @@
   Pop $1
   Sleep 400
   Delete "$DESKTOP\Dayflit.lnk"
-  Delete "$DESKTOP\Sid.lnk"
 !macroend
 
 ; On uninstall, offer to remove the user's data and settings (kept by default).
 !macro NSIS_HOOK_POSTUNINSTALL
   Delete "$DESKTOP\Dayflit.lnk"
-  Delete "$DESKTOP\Sid.lnk"
   IfFileExists "$APPDATA\Dayflit\*.*" 0 dayflit_done
   IfSilent dayflit_done
   MessageBox MB_YESNO|MB_ICONQUESTION "Also delete your Dayflit data, settings and backups?$\r$\n$\r$\n$APPDATA\Dayflit$\r$\n$\r$\nChoose No to keep them for a future reinstall." IDNO dayflit_done

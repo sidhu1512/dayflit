@@ -4,7 +4,7 @@ import { loadCollection, scheduleSave } from "@/lib/persist";
 import { applyTheme, resolveDark } from "@/lib/themes";
 import type { Settings } from "@/lib/types";
 
-export const SETTINGS_VERSION = 2;
+export const SETTINGS_VERSION = 1;
 
 export const DEFAULT_SHORTCUTS: Record<string, string> = {
   "toggle-main": "Alt+Space",
@@ -132,28 +132,8 @@ export const useSettings = create<SettingsState>((set, get) => ({
   shortcutFailures: [],
   load: async () => {
     const { data, recoveredFrom } = await loadCollection<Partial<Settings> | null>("settings", null);
-    const rawShortcuts = { ...(data?.shortcuts ?? {}) };
-    const legacyDefaults: Record<string, string> = {
-      palette: "Ctrl+Shift+Space",
-      "quick-task": "Ctrl+Shift+T",
-      "quick-note": "Ctrl+Shift+N",
-      "capture-clipboard": "Ctrl+Shift+C",
-      "voice-capture": "Ctrl+Shift+V",
-      "quick-journal": "Ctrl+Shift+J",
-      "focus-toggle": "Ctrl+Shift+F",
-      "pip-toggle": "Ctrl+Shift+P",
-    };
-    for (const [k, v] of Object.entries(legacyDefaults)) {
-      if (rawShortcuts[k] === v) {
-        rawShortcuts[k] = DEFAULT_SHORTCUTS[k];
-      }
-    }
     const merged = deepMerge(defaultSettings(), data ?? {});
-    merged.shortcuts = { ...DEFAULT_SHORTCUTS, ...rawShortcuts };
-    if (!data?.version || data.version < SETTINGS_VERSION) {
-      merged.version = SETTINGS_VERSION;
-      scheduleSave("settings", merged);
-    }
+    merged.shortcuts = { ...DEFAULT_SHORTCUTS, ...(data?.shortcuts ?? {}) };
     set({ settings: merged, loaded: true, recoveredFrom });
     applyTheme(merged.appearance);
     await get().applySideEffects(null);

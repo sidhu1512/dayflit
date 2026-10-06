@@ -72,11 +72,11 @@ fn unique(dir: &Path, base: &str, used: &mut HashSet<String>) -> PathBuf {
     used.insert(name.to_lowercase());
     dir.join(name)
 }
-/// Rewrite `dayflit-image://name` (and legacy `sid-image://name`) links to the exported attachments folder.
+/// Rewrite `dayflit-image://name` links to the exported attachments folder.
 fn rewrite_links(body: &str, depth: usize) -> String {
     let prefix = "../".repeat(depth);
     let target = format!("{prefix}attachments/");
-    body.replace("dayflit-image://", &target).replace("sid-image://", &target)
+    body.replace("dayflit-image://", &target)
 }
 fn frontmatter(pairs: &[(&str, String)]) -> String {
     let mut out = String::from("---\n");
@@ -105,12 +105,10 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
     let mut report = ExportReport { dir: dir.to_string_lossy().into(), notes: 0, journal: 0, tasks: 0, habits: 0, sessions: 0, clips: 0, attachments: 0 };
     let mut referenced: HashSet<String> = HashSet::new();
     let collect_refs = |body: &str, set: &mut HashSet<String>| {
-        for scheme in ["dayflit-image://", "sid-image://"] {
-            for m in body.split(scheme).skip(1) {
-                let name: String = m.chars().take_while(|c| c.is_alphanumeric() || *c == '-' || *c == '.' || *c == '_').collect();
-                if !name.is_empty() {
-                    set.insert(name);
-                }
+        for m in body.split("dayflit-image://").skip(1) {
+            let name: String = m.chars().take_while(|c| c.is_alphanumeric() || *c == '-' || *c == '.' || *c == '_').collect();
+            if !name.is_empty() {
+                set.insert(name);
             }
         }
     };
