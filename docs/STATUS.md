@@ -20,7 +20,7 @@ Features added and verified in the running app:
 - Journal: multiple journals, prompts, templates, moods, favourites, photos, voice memos, calendar browsing, streaks,
   "On this day", search/tags, PIN lock with auto-relock, Today card, palette search, Markdown export.
 - Voice capture: cpal recording + whisper.cpp (whisper-rs, models downloaded on demand into `%APPDATA%\Sid\models`) or
-  Windows SpeechRecognizer (live dictation). Hold-to-talk global shortcut (Ctrl+Shift+V) with a floating voice window,
+  Windows SpeechRecognizer (live dictation). Hold-to-talk global shortcut (Alt+Shift+V) with a floating voice window,
   intent detection ("remind me to…", "note to self…", "journal…"), review step, Enter/Ctrl+1-3 to file, original audio
   kept as a voice memo. Verified: TTS WAVs transcribed verbatim with tiny.en in <1 s; real key hold drives the window.
 - Distraction nudges: foreground-window poller during work phases; app names, title keywords, full-screen detection;

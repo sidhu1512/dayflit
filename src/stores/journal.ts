@@ -104,7 +104,7 @@ export const useJournal = create<JournalState>((set, get) => {
     setBody: (id, body) => {
       const e = get().byId(id);
       if (!e || e.body === body) return;
-      const images = [...new Set([...e.images, ...[...body.matchAll(/(?:dayflit|sid)-image:\/\/([\w.-]+)/g)].map((m) => m[1])])];
+      const images = [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))];
       get().updateEntry(id, { body, tags: extractTags(body), images });
     },
     removeEntry: (id) => persist({ entries: get().entries.filter((e) => e.id !== id) }),

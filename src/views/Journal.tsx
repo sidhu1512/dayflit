@@ -140,27 +140,33 @@ export function JournalView() {
         </button>
       </div>
 
-      <div className="scroll flex items-center gap-1 px-3 pt-2" style={{ scrollbarWidth: "none" }}>
-        <button className={cn("chip cursor-pointer", !journalId && "chip-accent")} onClick={() => setJournalId(null)}>
+      <div
+        className="scroll flex items-center gap-1 overflow-x-auto px-3 pt-2"
+        style={{ scrollbarWidth: "none" }}
+        onWheel={(e) => {
+          if (e.deltaY) e.currentTarget.scrollLeft += e.deltaY;
+        }}
+      >
+        <button className={cn("chip shrink-0 cursor-pointer", !journalId && "chip-accent")} onClick={() => setJournalId(null)}>
           All
         </button>
-        {journals.map((j) => (
-          <button key={j.id} className={cn("chip cursor-pointer gap-1", journalId === j.id && "chip-accent")} onClick={() => setJournalId(journalId === j.id ? null : j.id)}>
-            <span style={{ color: j.color }}>
-              <HabitIcon name={j.icon} size={10} />
-            </span>
-            {j.name}
-          </button>
-        ))}
-        <button className="chip cursor-pointer" onClick={() => setManageJournals(true)} aria-label="Manage journals">
+        <button className="chip shrink-0 cursor-pointer" onClick={() => setManageJournals(true)} aria-label="Manage journals" title="Manage journals">
           <Plus size={10} />
         </button>
+        {journals.map((j) => (
+          <button key={j.id} className={cn("chip shrink-0 cursor-pointer gap-1", journalId === j.id && "chip-accent")} onClick={() => setJournalId(journalId === j.id ? null : j.id)} title={j.name}>
+            <span style={{ color: j.color }} className="shrink-0">
+              <HabitIcon name={j.icon} size={10} />
+            </span>
+            <span className="max-w-[120px] truncate">{j.name}</span>
+          </button>
+        ))}
         <span className="mx-1 h-4 w-px shrink-0 bg-surface-3" />
-        <button className={cn("chip cursor-pointer gap-1", favOnly && "chip-warning")} onClick={() => setFavOnly((v) => !v)}>
+        <button className={cn("chip shrink-0 cursor-pointer gap-1", favOnly && "chip-warning")} onClick={() => setFavOnly((v) => !v)}>
           <Star size={10} /> Favorites
         </button>
         {tags.slice(0, 12).map((t) => (
-          <button key={t} className={cn("chip cursor-pointer", tag === t && "chip-accent")} onClick={() => setTag(tag === t ? null : t)}>
+          <button key={t} className={cn("chip shrink-0 cursor-pointer", tag === t && "chip-accent")} onClick={() => setTag(tag === t ? null : t)}>
             #{t}
           </button>
         ))}
@@ -275,7 +281,15 @@ export function JournalView() {
                           {e.images.length > 0 && (
                             <span className="flex gap-1">
                               {e.images.slice(0, 4).map((im) => (
-                                <img key={im} src={imageUrl(im)} alt="" className="h-8 w-8 rounded object-cover" />
+                                <img
+                                  key={im}
+                                  src={imageUrl(im)}
+                                  alt=""
+                                  className="h-8 w-8 rounded object-cover"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLElement).style.display = "none";
+                                  }}
+                                />
                               ))}
                             </span>
                           )}

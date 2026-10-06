@@ -98,7 +98,7 @@ async fn fetch_inner(url: &str) -> Result<LinkPreview> {
         return Err(anyhow!("unsupported scheme"));
     }
     let client = reqwest::Client::builder()
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Sid/1.0 (+link preview)")
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Dayflit/1.0 (+link preview)")
         .timeout(std::time::Duration::from_secs(10))
         .redirect(reqwest::redirect::Policy::limited(6))
         .build()?;

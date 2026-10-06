@@ -136,8 +136,8 @@ export default function App() {
     add(on<PaletteAction>("sid://palette/action", (a) => void runAction(a)));
     add(on<{ destination: "task" | "note" | "journal"; text: string; audio: string | null; voice: boolean }>("sid://voice/commit", (p) => {
       const source = { app: "Voice", title: "" };
-      if (p.destination === "task") void runAction({ type: "add-task", text: p.text, source, notes: p.audio ? `Voice memo: sid-image://${p.audio}` : "" });
-      else if (p.destination === "note") void runAction({ type: "add-note", text: p.audio ? `${p.text}\n\n<!-- voice memo -->\n[Voice memo](sid-image://${p.audio})` : p.text, source });
+      if (p.destination === "task") void runAction({ type: "add-task", text: p.text, source, notes: p.audio ? `Voice memo: dayflit-image://${p.audio}` : "" });
+      else if (p.destination === "note") void runAction({ type: "add-note", text: p.audio ? `${p.text}\n\n<!-- voice memo -->\n[Voice memo](dayflit-image://${p.audio})` : p.text, source });
       else void runAction({ type: "add-journal", text: p.text, source, audio: p.audio, voice: true });
     }));
     void ipc.notificationState().then(setQuietState).catch(() => {});

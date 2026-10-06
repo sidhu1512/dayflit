@@ -71,7 +71,7 @@ export function commandList(data: PaletteData | null): CommandDef[] {
     { id: "new-task", label: "New task…", hint: "Type + then your task", section: "Create", action: { type: "navigate", view: "tasks", param: "new" }, keywords: "add create todo" },
     { id: "new-note", label: "New note…", section: "Create", action: { type: "add-note", text: "" }, keywords: "add create scratch" },
     { id: "new-journal", label: "New journal entry", hint: "Capture what happened, thought or learned", section: "Create", action: { type: "navigate", view: "journal", param: "new" }, keywords: "diary write reflect" },
-    { id: "voice", label: "Voice capture", hint: "Speak a task, note or journal entry", section: "Create", action: { type: "voice" }, keywords: "dictate record microphone speak", shortcut: "Ctrl+Shift+V" },
+    { id: "voice", label: "Voice capture", hint: "Speak a task, note or journal entry", section: "Create", action: { type: "voice" }, keywords: "dictate record microphone speak", shortcut: "Alt+Shift+V" },
     { id: "capture", label: "Capture clipboard", hint: "Save what's on the clipboard with its source", section: "Create", action: { type: "navigate", view: "clips", param: "capture" }, keywords: "clip paste" },
     running
       ? { id: "focus-toggle", label: paused ? "Resume focus" : "Pause focus", section: "Focus", action: { type: "focus", op: "toggle" } }
@@ -101,6 +101,6 @@ export function commandList(data: PaletteData | null): CommandDef[] {
     { id: "backup", label: "Back up data now", section: "App", action: { type: "backup" } },
     { id: "export", label: "Export to Markdown (Obsidian)", hint: "Notes, journal, tasks, habits and attachments as plain files", section: "App", action: { type: "export" }, keywords: "obsidian markdown vault" },
     { id: "update", label: "Check for updates", section: "App", action: { type: "update-check" }, keywords: "upgrade version release" },
-    { id: "quit", label: "Quit Sid", section: "App", action: { type: "quit" }, keywords: "exit close" },
+    { id: "quit", label: "Quit Dayflit", section: "App", action: { type: "quit" }, keywords: "exit close" },
   ];
 }

@@ -155,9 +155,9 @@ impl Store {
         fs::create_dir_all(d.join("images"))?;
         fs::create_dir_all(d.join("backups"))?;
         fs::create_dir_all(self.logs_dir())?;
-        let marker = d.join(".sid");
+        let marker = d.join(".dayflit");
         if !marker.exists() {
-            fs::write(&marker, "Sid data folder. Do not edit files while Sid is running.\n")?;
+            fs::write(&marker, "Dayflit data folder. Do not edit files while Dayflit is running.\n")?;
         }
         Ok(())
     }
@@ -185,7 +185,7 @@ impl Store {
     fn parse_envelope(bytes: &[u8], name: &str) -> Result<Envelope> {
         let env: Envelope = serde_json::from_slice(bytes).context("parse envelope")?;
         if env.sid > ENVELOPE_VERSION {
-            return Err(anyhow!("envelope from a newer Sid version ({})", env.sid));
+            return Err(anyhow!("envelope from a newer Dayflit version ({})", env.sid));
         }
         if env.collection != name {
             return Err(anyhow!("collection mismatch"));
@@ -362,7 +362,7 @@ impl Store {
         fs::create_dir_all(&dir)?;
         let stamp = Utc::now().format("%Y%m%d-%H%M%S");
         let safe_label: String = label.chars().filter(|c| c.is_alphanumeric() || *c == '_').take(24).collect();
-        let file = if safe_label.is_empty() { format!("sid-backup-{stamp}.zip") } else { format!("sid-backup-{stamp}-{safe_label}.zip") };
+        let file = if safe_label.is_empty() { format!("dayflit-backup-{stamp}.zip") } else { format!("dayflit-backup-{stamp}-{safe_label}.zip") };
         let path = dir.join(&file);
         let tmp = dir.join(format!("{file}.tmp"));
         {
@@ -396,8 +396,11 @@ impl Store {
 
     fn prune_backups(&self) -> Result<()> {
         let list = self.list_backups()?;
-        // Automatic backups have exactly 3 dashes: sid-backup-DATE-TIME.zip. Labelled ones are kept.
-        let auto: Vec<_> = list.iter().filter(|b| b.file.matches('-').count() == 3).collect();
+        // Automatic backups have exactly 3 dashes: dayflit-backup-DATE-TIME.zip. Labelled ones are kept.
+        let auto: Vec<_> = list
+            .iter()
+            .filter(|b| b.file.starts_with("dayflit-backup-") && b.file.matches('-').count() == 3)
+            .collect();
         for b in auto.iter().skip(MAX_BACKUPS) {
             let _ = fs::remove_file(&b.path);
         }
@@ -442,7 +445,7 @@ impl Store {
     // ---------- data folder migration ----------
 
     /// Move or copy the data folder to `new_dir`. Modes: "move" (copy then delete old),
-    /// "copy" (leave old in place), "adopt" (use existing Sid data at new_dir without copying).
+    /// "copy" (leave old in place), "adopt" (use existing Dayflit data at new_dir without copying).
     pub fn change_data_dir(&self, new_dir: &Path, mode: &str) -> Result<PathBuf> {
         let _guard = self.write_lock.lock();
         let old = self.data_dir();
@@ -454,16 +457,16 @@ impl Store {
             return Err(anyhow!("new folder cannot be inside the current data folder"));
         }
         fs::create_dir_all(&new_dir)?;
-        let has_existing = new_dir.join(".sid").exists() || COLLECTIONS.iter().any(|c| new_dir.join(format!("{c}.json")).exists());
+        let has_existing = new_dir.join(".dayflit").exists() || COLLECTIONS.iter().any(|c| new_dir.join(format!("{c}.json")).exists());
         match mode {
             "adopt" => {
                 if !has_existing {
-                    return Err(anyhow!("no Sid data found in that folder"));
+                    return Err(anyhow!("no Dayflit data found in that folder"));
                 }
             }
             "move" | "copy" => {
                 if has_existing {
-                    return Err(anyhow!("that folder already contains Sid data; choose 'Use existing data' or pick an empty folder"));
+                    return Err(anyhow!("that folder already contains Dayflit data; choose 'Use existing data' or pick an empty folder"));
                 }
                 copy_dir_recursive(&old, &new_dir, &["backups"])?;
                 let _ = copy_dir_recursive(&old.join("backups"), &new_dir.join("backups"), &[]);

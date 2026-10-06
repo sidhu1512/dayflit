@@ -5,9 +5,9 @@ export function classifyVoice(raw: string, fallback: "ask" | VoiceDestination): 
   let text = raw.trim();
   const lower = text.toLowerCase();
   const rules: { re: RegExp; dest: VoiceDestination }[] = [
-    { re: /^(?:hey (?:dayflit|sid)[,.]?\s*)?(?:remind me to|reminder to|remind me|add (?:a )?task(?: to)?|new task[:,]?|task[:,]|to do[:,]?|todo[:,]?|i need to|i have to|i should|don't forget to|dont forget to)\s+/i, dest: "task" },
-    { re: /^(?:hey (?:dayflit|sid)[,.]?\s*)?(?:note to self[:,]?|note that|take a note[:,]?|new note[:,]?|note[:,])\s+/i, dest: "note" },
-    { re: /^(?:hey (?:dayflit|sid)[,.]?\s*)?(?:journal[:,]?|dear diary[:,]?|journal entry[:,]?|today i|log that|diary[:,])\s+/i, dest: "journal" },
+    { re: /^(?:hey dayflit[,.]?\s*)?(?:remind me to|reminder to|remind me|add (?:a )?task(?: to)?|new task[:,]?|task[:,]|to do[:,]?|todo[:,]?|i need to|i have to|i should|don't forget to|dont forget to)\s+/i, dest: "task" },
+    { re: /^(?:hey dayflit[,.]?\s*)?(?:note to self[:,]?|note that|take a note[:,]?|new note[:,]?|note[:,])\s+/i, dest: "note" },
+    { re: /^(?:hey dayflit[,.]?\s*)?(?:journal[:,]?|dear diary[:,]?|journal entry[:,]?|today i|log that|diary[:,])\s+/i, dest: "journal" },
   ];
   for (const r of rules) {
     const m = lower.match(r.re);

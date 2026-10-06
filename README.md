@@ -14,7 +14,7 @@ A floating desktop productivity companion for Windows: tasks, notes, focus sessi
 - **Media**: Windows media transport controls (works with Spotify, browsers, players), system volume, optional Spotify Web API (PKCE) for playlists
 - **Windows integration**: frameless acrylic/mica window, edge docking, multi-monitor aware, bubble mode, tray, global shortcuts, notifications with Focus Assist awareness, single instance, autostart, lock/power/display events
 - **Data**: local JSON with checksums, atomic writes, daily zip backups, corruption recovery, movable data folder (OneDrive/Dropbox friendly)
-- **Voice capture**: hold Ctrl+Shift+V, speak, release. Offline Whisper (model downloaded on demand) or Windows speech; becomes a task, note or journal entry
+- **Voice capture**: hold Alt+Shift+V, speak, release. Offline Whisper (model downloaded on demand) or Windows speech; becomes a task, note or journal entry
 - **Journal**: prompts, templates, moods, photos, voice memos, multiple journals, PIN lock, "On this day", streaks
 - **Timeboxing**: drag tasks onto the day timeline, move/resize, "Plan my day", start focus from a block
 - **Google / Outlook sync**: two-way with your own OAuth client IDs; move, resize, create and delete from Dayflit

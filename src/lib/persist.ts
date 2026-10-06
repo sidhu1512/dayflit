@@ -32,7 +32,7 @@ export async function flush(name: string) {
   pending.delete(name);
   try {
     if (isTauri) await ipc.save(name, data);
-    else localStorage.setItem(`sid:${name}`, JSON.stringify(data));
+    else localStorage.setItem(`dayflit:${name}`, JSON.stringify(data));
   } catch (e) {
     const error = String(e);
     for (const l of listeners) l({ name, error });
@@ -56,7 +56,7 @@ export function hasPending() {
 export async function loadCollection<T>(name: string, fallback: T): Promise<{ data: T; recoveredFrom: string | null }> {
   if (!isTauri) {
     try {
-      const raw = localStorage.getItem(`sid:${name}`);
+      const raw = localStorage.getItem(`dayflit:${name}`);
       return { data: raw ? (JSON.parse(raw) as T) : fallback, recoveredFrom: null };
     } catch {
       return { data: fallback, recoveredFrom: null };

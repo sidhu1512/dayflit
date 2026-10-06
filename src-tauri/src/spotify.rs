@@ -136,7 +136,7 @@ pub async fn connect(app: AppHandle, client_id: String) -> Result<SpotifyStatus>
             let q: std::collections::HashMap<_, _> = full.query_pairs().into_owned().collect();
             let ok = full.path() == "/callback" && q.get("state").map(|s| s == &state).unwrap_or(false) && q.contains_key("code");
             let (status_line, body) = if ok {
-                ("200 OK", "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Sid is connected to Spotify</h2><p>You can close this tab and return to Sid.</p></div></body></html>")
+                ("200 OK", "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Dayflit is connected to Spotify</h2><p>You can close this tab and return to Dayflit.</p></div></body></html>")
             } else if q.contains_key("error") {
                 ("200 OK", "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Spotify connection cancelled</h2><p>You can close this tab.</p></div></body></html>")
             } else {

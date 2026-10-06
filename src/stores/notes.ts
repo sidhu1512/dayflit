@@ -76,7 +76,7 @@ export const useNotes = create<NotesState>((set, get) => {
       const n = get().byId(id);
       if (!n || n.body === body) return;
       const tags = extractTags(body);
-      const images = [...new Set([...n.images, ...[...body.matchAll(/(?:dayflit|sid)-image:\/\/([\w.-]+)/g)].map((m) => m[1])])];
+      const images = [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))];
       get().update(id, { body, tags, images, title: n.title || "" });
     },
     remove: (id) => {

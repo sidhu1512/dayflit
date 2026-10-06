@@ -26,7 +26,7 @@ let pending: import("@tauri-apps/plugin-updater").Update | null = null;
 
 function friendly(e: unknown): string {
   const s = String(e);
-  if (/OWNER\/sid|example\.com|Could not fetch|dns|resolve|404|Not Found|ENOTFOUND|failed to connect/i.test(s)) return "No update server is configured yet. See docs/UPDATES.md to point Dayflit at your releases.";
+  if (/OWNER\/dayflit|example\.com|Could not fetch|dns|resolve|404|Not Found|ENOTFOUND|failed to connect/i.test(s)) return "No update server is configured yet. See docs/UPDATES.md to point Dayflit at your releases.";
   if (/signature/i.test(s)) return "The update's signature did not match. The download was discarded.";
   return s;
 }

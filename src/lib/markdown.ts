@@ -4,7 +4,7 @@ import { marked } from "marked";
 marked.setOptions({ gfm: true, breaks: true });
 
 
-/** Convert `dayflit-image://name` (or legacy `sid-image://name`) references into asset URLs before rendering. */
+/** Convert `dayflit-image://name` references into asset URLs before rendering. */
 export function renderMarkdown(md: string, imageUrl: (name: string) => string): string {
   let src = md;
   // task list items get data-line so clicks can toggle them
@@ -16,7 +16,7 @@ export function renderMarkdown(md: string, imageUrl: (name: string) => string): 
       return line;
     })
     .join("\n");
-  src = src.replace(/(?:dayflit|sid)-image:\/\/([\w.-]+)/g, (_m, name) => imageUrl(name));
+  src = src.replace(/dayflit-image:\/\/([\w.-]+)/g, (_m, name) => imageUrl(name));
   let html = marked.parse(src) as string;
   html = html.replace(/<a href=/g, '<a target="_blank" rel="noopener noreferrer" href=');
   html = html.replace(/<li>\s*<input[^>]*type="checkbox"[^>]*(checked)?[^>]*>\s*<!--l(\d+)-->/g, (m, checked, line) => {
@@ -24,7 +24,7 @@ export function renderMarkdown(md: string, imageUrl: (name: string) => string): 
     return `<li class="task-item" data-line="${line}"><input type="checkbox" ${isChecked ? "checked" : ""} data-line="${line}">`;
   });
   html = html.replace(/<!--l\d+-->/g, "");
-  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "data-line"], ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|asset|http:\/\/asset\.localhost|dayflit-image|sid-image):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i });
+  return DOMPurify.sanitize(html, { ADD_ATTR: ["target", "data-line"], ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|asset|http:\/\/asset\.localhost|dayflit-image):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i });
 }
 
 /** Toggle the checkbox on a given source line of markdown. */

@@ -132,7 +132,7 @@ mod win {
                 RegisterClassW(&wc);
                 // A hidden *top-level* window: message-only windows (HWND_MESSAGE) never receive broadcast
                 // messages such as WM_WTSSESSION_CHANGE, WM_POWERBROADCAST or WM_DISPLAYCHANGE.
-                let hwnd = match CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, class_name, w!("Sid events"), WS_OVERLAPPED, 0, 0, 0, 0, None, None, Some(hinstance.into()), None) {
+                let hwnd = match CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, class_name, w!("Dayflit events"), WS_OVERLAPPED, 0, 0, 0, 0, None, None, Some(hinstance.into()), None) {
                     Ok(h) => h,
                     Err(e) => {
                         log::error!("message window: {e}");

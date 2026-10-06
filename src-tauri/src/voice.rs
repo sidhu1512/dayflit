@@ -362,7 +362,7 @@ async fn download_inner(app: &AppHandle, model: &str) -> Result<String> {
     let url = format!("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-{model}.bin");
     let dest = model_path(app, model);
     let tmp = dest.with_extension("part");
-    let client = reqwest::Client::builder().user_agent("Sid/1.0").build()?;
+    let client = reqwest::Client::builder().user_agent("Dayflit/1.0").build()?;
     let resp = client.get(&url).send().await?.error_for_status()?;
     let total = resp.content_length().unwrap_or(0);
     let mut stream = resp.bytes_stream();

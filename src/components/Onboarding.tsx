@@ -51,9 +51,9 @@ export function Onboarding() {
       <p className="mt-2 max-w-sm text-muted">A floating companion for tasks, notes, focus sessions, habits and your calendar. Always a keystroke away.</p>
       <div className="mt-5 grid w-full max-w-sm grid-cols-1 gap-1.5 text-left text-[0.88em]">
         <Hint k="Alt+Space">Show or hide Dayflit from anywhere</Hint>
-        <Hint k="Ctrl+Shift+Space">Global command palette</Hint>
-        <Hint k="Ctrl+Shift+T">Capture a task instantly</Hint>
-        <Hint k="Ctrl+Shift+C">Grab the clipboard with its source app</Hint>
+        <Hint k="Alt+Shift+Space">Global command palette</Hint>
+        <Hint k="Alt+Shift+T">Capture a task instantly</Hint>
+        <Hint k="Alt+Shift+C">Grab the clipboard with its source app</Hint>
       </div>
     </div>,
     <div key="a" className="flex flex-col">

@@ -15,7 +15,7 @@ export const HOUR_PX = 48;
 export const SNAP_MIN = 15;
 const DEFAULT_MIN = 30;
 
-export const TASK_DRAG_TYPE = "application/x-sid-task";
+export const TASK_DRAG_TYPE = "application/x-dayflit-task";
 
 interface Laid<T> {
   item: T;

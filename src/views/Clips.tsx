@@ -90,7 +90,7 @@ export function ClipsView() {
       </div>
       <div className="scroll flex-1 px-3 pb-3 pt-2">
         {shown.length === 0 ? (
-          <Empty icon={<Clipboard size={28} />} title={clips.length ? "No matching clips" : "Nothing captured yet"} body={enabled ? "Copy something in any app and it shows up here." : "Turn on auto-capture, or press Ctrl+Shift+C to grab the clipboard on demand."} />
+          <Empty icon={<Clipboard size={28} />} title={clips.length ? "No matching clips" : "Nothing captured yet"} body={enabled ? "Copy something in any app and it shows up here." : "Turn on auto-capture, or press Alt+Shift+C to grab the clipboard on demand."} />
         ) : (
           <div className="flex flex-col gap-1.5">
             {shown.map((c) => {

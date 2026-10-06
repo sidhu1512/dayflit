@@ -232,7 +232,7 @@ pub fn ensure_pip(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "pip", WebviewUrl::App("pip.html".into()))
-        .title("Sid Focus")
+        .title("Dayflit Focus")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -252,7 +252,7 @@ pub fn ensure_palette(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "palette", WebviewUrl::App("palette.html".into()))
-        .title("Sid Palette")
+        .title("Dayflit Palette")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -286,7 +286,7 @@ pub fn ensure_voice(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "voice", WebviewUrl::App("voice.html".into()))
-        .title("Sid Voice")
+        .title("Dayflit Voice")
         .decorations(false)
         .transparent(true)
         .shadow(false)

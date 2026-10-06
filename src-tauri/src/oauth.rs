@@ -83,7 +83,7 @@ fn random_string(n: usize) -> String {
     (0..n).map(|_| CH[rng.gen_range(0..CH.len())] as char).collect()
 }
 
-const PAGE_OK: &str = "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Connected to Sid</h2><p>You can close this tab and return to Sid.</p></div></body></html>";
+const PAGE_OK: &str = "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Connected to Dayflit</h2><p>You can close this tab and return to Dayflit.</p></div></body></html>";
 const PAGE_CANCEL: &str = "<html><body style='font-family:Segoe UI;background:#111;color:#eee;display:flex;align-items:center;justify-content:center;height:100vh'><div style='text-align:center'><h2>Connection cancelled</h2><p>You can close this tab.</p></div></body></html>";
 
 /// Run the browser flow and persist tokens. `client_secret` may be empty for public clients.
