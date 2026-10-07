@@ -7,8 +7,8 @@
     <meta name="description" content="Dayflit is a floating desktop companion for Windows 10 & 11: natural language tasks, deep focus sessions with Spotify, calendar timeboxing, offline Whisper voice memos, private journal, habits, and clipboard capture. 100% offline, local-first." />
     <meta property="og:title" content="Dayflit — The Floating Companion for Your Windows Day" />
     <meta property="og:description" content="Capture, plan, focus, and remember without leaving what you're doing. 100% offline, local JSON storage, zero telemetry." />
-    <meta property="og:image" content="./shots/today-dark.png" />
-    <meta name="theme-color" content="#030712" />
+    <meta property="og:image" content="./shots/today-light.png" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="icon" href="./icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,9 +16,8 @@
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <!-- Subtle Aceternity Particle Canvas & Ambient Canvas -->
-    <canvas id="ambient-canvas" class="ambient-canvas" aria-hidden="true"></canvas>
-    <div class="aceternity-bg" aria-hidden="true"></div>
+    <!-- Apple Light Ambient Mesh -->
+    <div class="apple-bg-mesh" aria-hidden="true"></div>
 
     <a class="skip-link" href="#main">Skip to main content</a>
 
@@ -41,7 +40,7 @@
         </nav>
 
         <div class="nav-right">
-          <a href="#download" class="btn btn-shimmer btn-sm" data-download>Download Free</a>
+          <a href="#download" class="btn btn-primary btn-sm" data-download>Download Free</a>
           <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
             <span></span><span></span><span></span>
           </button>
@@ -61,16 +60,9 @@
     </nav>
 
     <main id="main">
-      <!-- ================= ACETERNITY SIGNATURE LAMP HERO ================= -->
+      <!-- ================= APPLE AMBIENT HERO ================= -->
       <section class="hero-section" aria-labelledby="hero-title">
-        <!-- Aceternity Lamp Component Container -->
-        <div class="aceternity-lamp" aria-hidden="true">
-          <div class="lamp-conic-left"></div>
-          <div class="lamp-conic-right"></div>
-          <div class="lamp-glow-bar"></div>
-          <div class="lamp-horizon-line"></div>
-          <div class="lamp-mask"></div>
-        </div>
+        <div class="apple-hero-ambient" aria-hidden="true"></div>
 
         <div class="hero-content">
           <div class="reveal-item">
@@ -93,12 +85,12 @@
           </p>
 
           <div class="hero-cta-group reveal-item">
-            <a href="#download" class="btn btn-white btn-large" data-download>
+            <a href="#download" class="btn btn-primary btn-large" data-download>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span>Download Free for Windows</span>
             </a>
-            <a href="#screen-recording" class="btn btn-ghost btn-large">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <a href="#screen-recording" class="btn btn-secondary btn-large">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               <span>Watch Screen Recording</span>
             </a>
           </div>
@@ -129,10 +121,10 @@
           
           <!-- Floating Picture-in-Picture Timer -->
           <div class="hero-float-pip-wrap" id="hero-pip-wrap" title="Acrylic Picture-in-Picture Focus Timer">
-            <img class="hero-float-pip" id="hero-pip" src="./shots/pip-dark.png" alt="Picture-in-picture focus timer" />
+            <img class="hero-float-pip" id="hero-pip" src="./shots/pip-light.png" alt="Picture-in-picture focus timer" />
           </div>
 
-          <!-- Main Windows 11 App Acrylic Frame -->
+          <!-- Main Windows 11 App Light Frame -->
           <div class="app-frame" id="hero-frame">
             <div class="app-titlebar">
               <div class="app-titlebar-left">
@@ -142,8 +134,8 @@
               </div>
               <div class="app-titlebar-controls">
                 <div class="app-theme-toggle" role="group" aria-label="Toggle App Preview Theme">
-                  <button class="app-theme-btn active" data-app-theme="dark">Dark</button>
-                  <button class="app-theme-btn" data-app-theme="light">Light</button>
+                  <button class="app-theme-btn" data-app-theme="dark">Dark</button>
+                  <button class="app-theme-btn active" data-app-theme="light">Light</button>
                 </div>
                 <div class="app-window-buttons" aria-hidden="true">
                   <span class="app-win-btn minimize"></span>
@@ -155,7 +147,7 @@
 
             <div class="app-viewport">
               <div class="app-viewport-inner">
-                <img id="hero-app-image" src="./shots/today-dark.png" alt="Dayflit desktop companion dashboard overview showing today tasks, agenda, and habit streak" />
+                <img id="hero-app-image" src="./shots/today-light.png" alt="Dayflit desktop companion dashboard overview showing today tasks, agenda, and habit streak" />
                 <!-- Subtle live status bar overlay -->
                 <div class="app-live-status-bar">
                   <span class="status-indicator"></span>
@@ -361,7 +353,7 @@
                 <div class="calendar-pill-info">
                   <span class="calendar-dot"></span>
                   <div>
-                    <b style="color:#fff;display:block;">Daily Engineering Standup</b>
+                    <b style="color:var(--text-primary);display:block;">Daily Engineering Standup</b>
                     <span style="color:var(--text-muted);font-size:0.75rem;">9:30 AM – 9:45 AM · Google Meet · In 14 mins</span>
                   </div>
                 </div>
@@ -507,13 +499,13 @@ Surgical focus session this morning on Dayflit architecture.
                 </div>
 
                 <div class="video-playback-controls">
-                  <button class="btn btn-shimmer btn-sm" id="video-play-btn" title="Play or pause walkthrough">
+                  <button class="btn btn-primary btn-sm" id="video-play-btn" title="Play or pause walkthrough">
                     <span id="video-play-icon">⏸</span>
                     <span id="video-play-label">Pause</span>
                   </button>
-                  <button class="btn btn-ghost btn-sm" id="video-speed-btn" title="Cycle playback speed">1.0x</button>
-                  <button class="btn btn-ghost btn-sm" id="video-next-btn">Next Chapter →</button>
-                  <button class="btn btn-ghost btn-sm" id="video-fullscreen-btn" title="Toggle Fullscreen">⛶</button>
+                  <button class="btn btn-secondary btn-sm" id="video-speed-btn" title="Cycle playback speed">1.0x</button>
+                  <button class="btn btn-secondary btn-sm" id="video-next-btn">Next Chapter →</button>
+                  <button class="btn btn-secondary btn-sm" id="video-fullscreen-btn" title="Toggle Fullscreen">⛶</button>
                 </div>
               </div>
             </div>
@@ -522,7 +514,7 @@ Surgical focus session this morning on Dayflit architecture.
             <div class="video-display-frame" id="video-screen-container">
               <!-- High-Res Screen Recording Image with dynamic state -->
               <div class="video-screen-inner">
-                <img id="video-screen-img" src="./shots/palette-dark.png" alt="Command palette screen capture" />
+                <img id="video-screen-img" src="./shots/palette-light.png" alt="Command palette screen capture" />
                 
                 <!-- Live Screencast Animated Mouse Cursor -->
                 <div class="screencast-cursor" id="screencast-cursor">
@@ -659,7 +651,7 @@ Surgical focus session this morning on Dayflit architecture.
               </div>
               <div class="shortcut-preview-body">
                 <div class="shortcut-preview-img-wrap">
-                  <img id="shortcut-preview-img" src="./shots/today-dark.png" alt="Shortcut live response" />
+                  <img id="shortcut-preview-img" src="./shots/today-light.png" alt="Shortcut live response" />
                 </div>
                 <div class="shortcut-preview-footer">
                   <span id="shortcut-desc">Dayflit floats smoothly over your code, browser, or game.</span>
@@ -798,15 +790,15 @@ Surgical focus session this morning on Dayflit architecture.
               <button class="filter-chip" data-filter="journal">Journal &amp; Insights</button>
             </div>
             <div class="gallery-mode-toggle" role="group" aria-label="Theme mode selector">
-              <button class="gallery-mode-btn active" data-gallery-theme="dark">🌙 Dark Mode</button>
-              <button class="gallery-mode-btn" data-gallery-theme="light">☀️ Light Mode</button>
+              <button class="gallery-mode-btn" data-gallery-theme="dark">🌙 Dark Mode</button>
+              <button class="gallery-mode-btn active" data-gallery-theme="light">☀️ Light Mode</button>
             </div>
           </div>
         </div>
 
         <div class="gallery-cards-grid reveal-item" id="gallery-grid">
           <div class="gallery-card" data-category="calendar" data-idx="0">
-            <img data-shot="today" src="./shots/today-dark.png" alt="Today dashboard overview" loading="lazy" />
+            <img data-shot="today" src="./shots/today-light.png" alt="Today dashboard overview" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Today View</b>
               <span>Dashboard &amp; Agenda</span>
@@ -814,7 +806,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="calendar" data-idx="1">
-            <img data-shot="tasks" src="./shots/tasks-dark.png" alt="Natural language tasks list" loading="lazy" />
+            <img data-shot="tasks" src="./shots/tasks-light.png" alt="Natural language tasks list" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Tasks &amp; Tags</b>
               <span>Subtasks &amp; Dates</span>
@@ -822,7 +814,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="calendar" data-idx="2">
-            <img data-shot="calendar" src="./shots/calendar-dark.png" alt="Interactive calendar timeline" loading="lazy" />
+            <img data-shot="calendar" src="./shots/calendar-light.png" alt="Interactive calendar timeline" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Calendar</b>
               <span>Timeboxing Timeline</span>
@@ -830,7 +822,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="focus" data-idx="3">
-            <img data-shot="focus" src="./shots/focus-dark.png" alt="Focus session configuration view" loading="lazy" />
+            <img data-shot="focus" src="./shots/focus-light.png" alt="Focus session configuration view" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Focus Session</b>
               <span>Pomodoro &amp; Spotify</span>
@@ -838,7 +830,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="focus" data-idx="4">
-            <img data-shot="focus-running" src="./shots/focus-running-dark.png" alt="Active running focus session with progress ring" loading="lazy" />
+            <img data-shot="focus-running" src="./shots/focus-running-light.png" alt="Active running focus session with progress ring" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Running Session</b>
               <span>Progress Ring &amp; Audio</span>
@@ -846,7 +838,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="5">
-            <img data-shot="journal" src="./shots/journal-dark.png" alt="Private encrypted journal view" loading="lazy" />
+            <img data-shot="journal" src="./shots/journal-light.png" alt="Private encrypted journal view" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Encrypted Journal</b>
               <span>Daily Prompts &amp; PIN</span>
@@ -854,7 +846,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="6">
-            <img data-shot="habits" src="./shots/habits-dark.png" alt="Habits streak matrix" loading="lazy" />
+            <img data-shot="habits" src="./shots/habits-light.png" alt="Habits streak matrix" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Habit Tracker</b>
               <span>Streak Matrix</span>
@@ -862,7 +854,7 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="7">
-            <img data-shot="insights" src="./shots/insights-dark.png" alt="Quantified productivity heatmap" loading="lazy" />
+            <img data-shot="insights" src="./shots/insights-light.png" alt="Quantified productivity heatmap" loading="lazy" />
             <div class="gallery-card-caption">
               <b>Insights</b>
               <span>Consistency Heatmap</span>
@@ -885,11 +877,11 @@ Surgical focus session this morning on Dayflit architecture.
             </p>
 
             <div class="download-cta-row">
-              <a class="btn btn-white btn-large" href="#" data-download>
+              <a class="btn btn-primary btn-large" href="#" data-download>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Download Dayflit v<span data-version>1.0.0</span></span>
               </a>
-              <a class="btn btn-ghost btn-large" href="#" data-releases>Release Notes</a>
+              <a class="btn btn-secondary btn-large" href="#" data-releases>Release Notes</a>
             </div>
 
             <!-- Copyable SHA-256 Box -->
@@ -917,10 +909,10 @@ Surgical focus session this morning on Dayflit architecture.
               <ul class="channel-list">
                 <li class="channel-item">
                   <div>
-                    <b style="color:#fff;display:block;">v1.0.0 Stable</b>
+                    <b style="color:var(--text-primary);display:block;">v1.0.0 Stable</b>
                     <span style="font-size:0.75rem;color:var(--text-muted);">Current Official Release</span>
                   </div>
-                  <a href="#" data-download class="btn btn-shimmer btn-sm">x64 Setup</a>
+                  <a href="#" data-download class="btn btn-secondary btn-sm">x64 Setup</a>
                 </li>
                 <li class="channel-item muted">
                   <div>
