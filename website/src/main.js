@@ -5,8 +5,8 @@ const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Global theme state: "light" | "dark"
-let currentTheme = "light";
+// Global theme: Strict Light Theme
+const currentTheme = "light";
 
 // ==========================================================================
 // 1. CONFIG & METADATA BINDINGS
@@ -94,7 +94,7 @@ function initFlipWords() {
     "plain natural language",
     "deep focus sessions",
     "100% offline privacy",
-    "surgical speed",
+    "surgical precision",
   ];
   let currentIndex = 0;
 
@@ -121,7 +121,7 @@ function initFlipWords() {
 initFlipWords();
 
 // ==========================================================================
-// 4. FLOATING NAVBAR & SCROLL BEHAVIOR
+// 3. FLOATING NAVBAR & SCROLL BEHAVIOR
 // ==========================================================================
 const navbar = $("#navbar");
 const mobileToggle = $("#mobile-toggle");
@@ -168,94 +168,8 @@ $$(".reveal-item").forEach((el) => {
   else revealObserver.observe(el);
 });
 
-// ==========================================================================
-// 5. HERO 3D CONTAINER SCROLL & PERSPECTIVE PARALLAX
-// ==========================================================================
-const heroStage = $("#hero-stage");
-const heroFrame = $("#hero-frame");
-const heroAppImage = $("#hero-app-image");
-const heroPip = $("#hero-pip");
-const heroBubble = $("#hero-bubble");
-
-// Scroll Parallax for Hero Frame (Aceternity Container Scroll)
-window.addEventListener(
-  "scroll",
-  () => {
-    if (!heroFrame || prefersReducedMotion || window.innerWidth < 768) return;
-    const rect = heroStage.getBoundingClientRect();
-    const windowH = window.innerHeight;
-    
-    // Check if hero stage is in view
-    if (rect.top < windowH && rect.bottom > 0) {
-      const scrollProgress = Math.min(Math.max((windowH - rect.top) / windowH, 0), 1);
-      const rotateX = (1 - scrollProgress) * 12;
-      const scale = 0.94 + scrollProgress * 0.06;
-      heroFrame.style.transform = `perspective(1200px) rotateX(${rotateX}deg) scale(${scale})`;
-    }
-  },
-  { passive: true }
-);
-
-// Mouse tilt interaction on Hero Stage
-if (heroStage && heroFrame && !prefersReducedMotion) {
-  heroStage.addEventListener("mousemove", (e) => {
-    const rect = heroStage.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    const rotateY = (x / (rect.width / 2)) * 5;
-    const rotateX = -(y / (rect.height / 2)) * 5;
-    heroFrame.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(0.995)`;
-  });
-
-  heroStage.addEventListener("mouseleave", () => {
-    heroFrame.style.transform = "";
-  });
-}
-
-// Hero Theme Buttons
-$$("[data-app-theme]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const theme = btn.dataset.appTheme;
-    setGlobalTheme(theme);
-  });
-});
-
-function setGlobalTheme(theme) {
-  currentTheme = theme;
-
-  // Sync Hero buttons
-  $$("[data-app-theme]").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.appTheme === theme);
-  });
-
-  // Sync Gallery buttons
-  $$("[data-gallery-theme]").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.galleryTheme === theme);
-  });
-
-  // Update Hero images
-  if (heroAppImage) {
-    heroAppImage.src = `./shots/today-${theme}.png`;
-  }
-  if (heroPip) {
-    heroPip.src = `./shots/pip-${theme}.png`;
-  }
-
-  // Update Gallery images
-  $$("#gallery-grid img").forEach((img) => {
-    const shot = img.dataset.shot;
-    if (shot) img.src = `./shots/${shot}-${theme}.png`;
-  });
-
-  // Update Screencast active screen
-  updateVideoTourStage(currentVideoChapter);
-
-  // Update Shortcut preview active image
-  const activeShortcut = $(".shortcut-row-card.active")?.dataset.shortcut || "alt-space";
-  selectShortcut(activeShortcut);
-}
-
 // Click on mini bubble summons companion
+const heroBubble = $("#hero-bubble");
 heroBubble?.addEventListener("click", () => {
   selectShortcut("alt-space");
   playKeyClick();
@@ -263,7 +177,7 @@ heroBubble?.addEventListener("click", () => {
 });
 
 // ==========================================================================
-// 6. ACETERNITY SPOTLIGHT CARDS DYNAMIC CURSOR
+// 4. ACETERNITY SPOTLIGHT CARDS DYNAMIC CURSOR
 // ==========================================================================
 function initSpotlights() {
   const cards = $$(".spotlight-card");
@@ -276,31 +190,16 @@ function initSpotlights() {
       const y = e.clientY - rect.top;
       card.style.setProperty("--mouse-x", `${x}px`);
       card.style.setProperty("--mouse-y", `${y}px`);
-
-      // 3D Tilt on card
-      if (card.hasAttribute("data-tilt") && !prefersReducedMotion) {
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const tiltX = -((y - centerY) / centerY) * 3;
-        const tiltY = ((x - centerX) / centerX) * 3;
-        card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
-      }
-    });
-
-    card.addEventListener("mouseleave", () => {
-      if (card.hasAttribute("data-tilt")) {
-        card.style.transform = "";
-      }
     });
   });
 }
 initSpotlights();
 
 // ==========================================================================
-// 7. BENTO GRID INTERACTIVE WIDGETS
+// 5. BENTO GRID INTERACTIVE WIDGETS
 // ==========================================================================
 
-// --- Widget 1: Robust NLP Parser (Zero False Fallbacks)
+// --- Widget 1: Robust NLP Parser
 const nlpInput = $("#nlp-input");
 const nlpClearBtn = $("#nlp-clear-btn");
 const nlpChips = $("#nlp-chips");
@@ -465,7 +364,7 @@ focusResetBtn?.addEventListener("click", () => {
 });
 updateFocusDisplay();
 
-// --- Widget 3: Whisper Voice Dictation Simulator (Typewriter Streaming)
+// --- Widget 3: Whisper Voice Dictation Simulator
 const whisperMic = $("#whisper-mic");
 const whisperWaveBars = $$("#whisper-wave i");
 const whisperText = $("#whisper-text");
@@ -486,7 +385,7 @@ whisperMic?.addEventListener("click", () => {
     clearInterval(typeStreamTimer);
     isRecording = false;
     whisperMic.classList.remove("recording");
-    whisperWaveBars.forEach((b) => (b.style.height = "30%"));
+    whisperWaveBars.forEach((b) => (b.style.height = "6px"));
     showToast("Offline Whisper audio transcribed!");
   } else {
     isRecording = true;
@@ -496,7 +395,7 @@ whisperMic?.addEventListener("click", () => {
     // Animate speech sound waves
     waveTimer = setInterval(() => {
       whisperWaveBars.forEach((bar) => {
-        bar.style.height = `${20 + Math.random() * 75}%`;
+        bar.style.height = `${4 + Math.random() * 18}px`;
       });
     }, 120);
 
@@ -514,7 +413,7 @@ whisperMic?.addEventListener("click", () => {
         clearInterval(waveTimer);
         isRecording = false;
         whisperMic.classList.remove("recording");
-        whisperWaveBars.forEach((b) => (b.style.height = "30%"));
+        whisperWaveBars.forEach((b) => (b.style.height = "6px"));
         if (whisperText) whisperText.textContent += '"';
         showToast("Transcription complete (100% on-device)");
       }
@@ -583,7 +482,7 @@ $$(".bento-tab-btn").forEach((btn) => {
 });
 
 // ==========================================================================
-// 8. ACETERNITY INTERACTIVE SCREEN RECORDING VIDEO PLAYER STUDIO
+// 6. ACETERNITY INTERACTIVE SCREEN RECORDING VIDEO PLAYER STUDIO
 // ==========================================================================
 const videoChapters = [
   {
@@ -749,7 +648,7 @@ function updateVideoTourStage(idx) {
     const filename =
       data.shot.includes("voice") || data.shot.includes("bubble")
         ? `${data.shot}.png`
-        : `${data.shot}-${currentTheme}.png`;
+        : `${data.shot}-light.png`;
     img.src = `./shots/${filename}`;
     img.alt = data.heading;
   }
@@ -878,7 +777,7 @@ updateVideoTourStage(0);
 startVideoEngine();
 
 // ==========================================================================
-// 9. 3D MECHANICAL KEYBOARD SHORTCUT STATION
+// 7. 3D MECHANICAL KEYBOARD SHORTCUT STATION
 // ==========================================================================
 const shortcutConfig = {
   "alt-space": {
@@ -947,7 +846,7 @@ function selectShortcut(key) {
     const filename =
       info.shot.includes("voice") || info.shot.includes("bubble")
         ? `${info.shot}.png`
-        : `${info.shot}-${currentTheme}.png`;
+        : `${info.shot}-light.png`;
     imgEl.src = `./shots/${filename}`;
   }
 }
@@ -958,8 +857,8 @@ $$(".shortcut-row-card").forEach((card) => {
     selectShortcut(key);
     playKeyClick();
     const keys = $$(".key-3d", card);
-    keys.forEach((k) => k.classList.add("active"));
-    setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 220);
+    keys.forEach((k) => k.classList.add("depressed"));
+    setTimeout(() => keys.forEach((k) => k.classList.remove("depressed")), 220);
   });
 });
 
@@ -993,23 +892,16 @@ window.addEventListener("keydown", (e) => {
     if (card) {
       card.scrollIntoView({ behavior: "smooth", block: "nearest" });
       const keys = $$(".key-3d", card);
-      keys.forEach((k) => k.classList.add("active"));
-      setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 300);
+      keys.forEach((k) => k.classList.add("depressed"));
+      setTimeout(() => keys.forEach((k) => k.classList.remove("depressed")), 300);
     }
     showToast(`Hotkey triggered: ${shortcutConfig[matched].badge}`);
   }
 });
 
 // ==========================================================================
-// 10. GALLERY CONTROLS & MULTI-IMAGE LIGHTBOX
+// 8. GALLERY CONTROLS & MULTI-IMAGE LIGHTBOX
 // ==========================================================================
-$$("[data-gallery-theme]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const theme = btn.dataset.galleryTheme;
-    setGlobalTheme(theme);
-  });
-});
-
 $$(".filter-chip").forEach((btn) => {
   btn.addEventListener("click", () => {
     $$(".filter-chip").forEach((b) => b.classList.remove("active"));
@@ -1047,7 +939,7 @@ function openLightbox(index) {
   if (!lightbox || !lbImage) return;
   currentLbIndex = (index + galleryItems.length) % galleryItems.length;
   const item = galleryItems[currentLbIndex];
-  lbImage.src = `./shots/${item.shot}-${currentTheme}.png`;
+  lbImage.src = `./shots/${item.shot}-light.png`;
   lbImage.alt = item.caption;
   if (lbCaption) lbCaption.textContent = item.caption;
   lightbox.hidden = false;
@@ -1086,7 +978,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 // ==========================================================================
-// 11. COPYABLE SHA-256 CHECKSUM & POWERSHELL VERIFICATION
+// 9. COPYABLE SHA-256 CHECKSUM & POWERSHELL VERIFICATION
 // ==========================================================================
 const copyShaBtn = $("#copy-sha-btn");
 const shaTarget = $("#sha-target");
@@ -1122,7 +1014,7 @@ psCmd?.addEventListener("click", async () => {
 });
 
 // ==========================================================================
-// 12. FAQ ACCORDION CATEGORY FILTER
+// 10. FAQ ACCORDION CATEGORY FILTER
 // ==========================================================================
 $$(".faq-filter-btn").forEach((chip) => {
   chip.addEventListener("click", () => {

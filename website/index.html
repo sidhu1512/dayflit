@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dayflit — The Floating Companion for Your Windows Day</title>
-    <meta name="description" content="Dayflit is a floating desktop companion for Windows 10 & 11: natural language tasks, deep focus sessions with Spotify, calendar timeboxing, offline Whisper voice memos, private journal, habits, and clipboard capture. 100% offline, local-first." />
+    <meta name="description" content="Dayflit is a floating desktop productivity companion for Windows 10 & 11: natural language tasks, deep focus sessions with Spotify, calendar timeboxing, offline Whisper voice memos, private journal, habits, and clipboard capture. 100% offline, local-first." />
     <meta property="og:title" content="Dayflit — The Floating Companion for Your Windows Day" />
     <meta property="og:description" content="Capture, plan, focus, and remember without leaving what you're doing. 100% offline, local JSON storage, zero telemetry." />
     <meta property="og:image" content="./shots/today-light.png" />
@@ -12,11 +12,11 @@
     <link rel="icon" href="./icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <!-- Apple Light Ambient Mesh -->
+    <!-- Apple Pure Light Ambient Mesh -->
     <div class="apple-bg-mesh" aria-hidden="true"></div>
 
     <a class="skip-link" href="#main">Skip to main content</a>
@@ -25,8 +25,8 @@
     <div class="floating-navbar-container">
       <header class="floating-navbar" id="navbar">
         <a class="brand" href="#" aria-label="Dayflit home">
-          <img class="brand-icon" src="./icon.png" alt="Dayflit logo" width="24" height="24" />
-          <span>Dayflit</span>
+          <img class="brand-icon" src="./icon.png" alt="Dayflit logo" width="26" height="26" />
+          <span class="brand-name">Dayflit</span>
           <span class="brand-badge">v<span data-version>1.0.0</span></span>
         </a>
 
@@ -62,8 +62,6 @@
     <main id="main">
       <!-- ================= APPLE AMBIENT HERO ================= -->
       <section class="hero-section" aria-labelledby="hero-title">
-        <div class="apple-hero-ambient" aria-hidden="true"></div>
-
         <div class="hero-content">
           <div class="reveal-item">
             <a href="#download" class="hero-pill">
@@ -111,17 +109,16 @@
           </div>
         </div>
 
-        <!-- Aceternity Container Scroll / 3D Perspective Showcase -->
+        <!-- Aceternity Light Hero Stage -->
         <div class="hero-stage reveal-item" id="hero-stage">
           <!-- Floating Companion Mini Orb -->
           <div class="hero-float-bubble-wrap" id="hero-bubble-wrap" title="Click to summon companion">
-            <img class="hero-float-bubble" id="hero-bubble" src="./shots/bubble.png" alt="Dayflit Floating Companion Mini Orb" />
-            <div class="bubble-pulse-ring"></div>
+            <img class="hero-float-bubble" id="hero-bubble" src="./shots/bubble.png" alt="Dayflit Floating Companion Mini Orb" width="76" height="76" />
           </div>
           
           <!-- Floating Picture-in-Picture Timer -->
           <div class="hero-float-pip-wrap" id="hero-pip-wrap" title="Acrylic Picture-in-Picture Focus Timer">
-            <img class="hero-float-pip" id="hero-pip" src="./shots/pip-light.png" alt="Picture-in-picture focus timer" />
+            <img class="hero-float-pip" id="hero-pip" src="./shots/pip-light.png" alt="Picture-in-picture focus timer" width="300" height="74" />
           </div>
 
           <!-- Main Windows 11 App Light Frame -->
@@ -133,10 +130,7 @@
                 <span class="app-mode-badge">Active Workspace</span>
               </div>
               <div class="app-titlebar-controls">
-                <div class="app-theme-toggle" role="group" aria-label="Toggle App Preview Theme">
-                  <button class="app-theme-btn" data-app-theme="dark">Dark</button>
-                  <button class="app-theme-btn active" data-app-theme="light">Light</button>
-                </div>
+                <span class="app-titlebar-status">Local-First · Windows 11</span>
                 <div class="app-window-buttons" aria-hidden="true">
                   <span class="app-win-btn minimize"></span>
                   <span class="app-win-btn maximize"></span>
@@ -147,8 +141,8 @@
 
             <div class="app-viewport">
               <div class="app-viewport-inner">
-                <img id="hero-app-image" src="./shots/today-light.png" alt="Dayflit desktop companion dashboard overview showing today tasks, agenda, and habit streak" />
-                <!-- Subtle live status bar overlay -->
+                <img id="hero-app-image" src="./shots/today-light.png" alt="Dayflit desktop companion dashboard overview showing today tasks, agenda, and habit streak" width="525" height="900" />
+                <!-- Live status bar overlay -->
                 <div class="app-live-status-bar">
                   <span class="status-indicator"></span>
                   <span>Docked · Alt + Space to dismiss · Local JSON vault sync</span>
@@ -180,7 +174,7 @@
           </div>
           <div class="marquee-card">
             <span class="tag">Minimalists</span>
-            <span>A floating frameless acrylic companion that collapses into a tiny 48px ambient desktop orb.</span>
+            <span>A floating frameless companion that collapses into a tiny 48px ambient desktop orb.</span>
           </div>
           <div class="marquee-card">
             <span class="tag">Engineers</span>
@@ -510,15 +504,15 @@ Surgical focus session this morning on Dayflit architecture.
               </div>
             </div>
 
-            <!-- Simulated Screen Recording Display Canvas Frame -->
+            <!-- Screen Recording Display Canvas Frame -->
             <div class="video-display-frame" id="video-screen-container">
               <!-- High-Res Screen Recording Image with dynamic state -->
               <div class="video-screen-inner">
-                <img id="video-screen-img" src="./shots/palette-light.png" alt="Command palette screen capture" />
+                <img id="video-screen-img" src="./shots/palette-light.png" alt="Command palette screen capture" width="525" height="900" />
                 
                 <!-- Live Screencast Animated Mouse Cursor -->
                 <div class="screencast-cursor" id="screencast-cursor">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 3l7 18 3-7 7-3L3 3z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 3l7 18 3-7 7-3L3 3z" fill="#ffffff" stroke="#1d1d1f" stroke-width="1.5"/></svg>
                   <span class="screencast-click-ripple" id="screencast-ripple"></span>
                 </div>
 
@@ -651,7 +645,7 @@ Surgical focus session this morning on Dayflit architecture.
               </div>
               <div class="shortcut-preview-body">
                 <div class="shortcut-preview-img-wrap">
-                  <img id="shortcut-preview-img" src="./shots/today-light.png" alt="Shortcut live response" />
+                  <img id="shortcut-preview-img" src="./shots/today-light.png" alt="Shortcut live response" width="480" height="820" />
                 </div>
                 <div class="shortcut-preview-footer">
                   <span id="shortcut-desc">Dayflit floats smoothly over your code, browser, or game.</span>
@@ -773,13 +767,13 @@ Surgical focus session this morning on Dayflit architecture.
         </div>
       </section>
 
-      <!-- ================= DARK & LIGHT MODE GALLERY ================= -->
+      <!-- ================= RETINA LIGHT GALLERY ================= -->
       <section class="section-wrapper" id="gallery" aria-labelledby="gallery-title">
         <div class="section-header reveal-item">
           <p class="section-eyebrow">Visual Engineering</p>
-          <h2 class="section-title" id="gallery-title">Light or dark, designed to fit into Windows 11.</h2>
+          <h2 class="section-title" id="gallery-title">Designed to feel at home in Windows 11.</h2>
           <p class="section-desc">
-            Dayflit renders in native Acrylic and Mica with crisp subpixel typography and responsive dark and light modes.
+            Dayflit renders in native Acrylic and Mica with crisp subpixel typography and refined Apple-caliber clarity.
           </p>
 
           <div class="gallery-controls-bar">
@@ -789,16 +783,14 @@ Surgical focus session this morning on Dayflit architecture.
               <button class="filter-chip" data-filter="calendar">Calendar &amp; Tasks</button>
               <button class="filter-chip" data-filter="journal">Journal &amp; Insights</button>
             </div>
-            <div class="gallery-mode-toggle" role="group" aria-label="Theme mode selector">
-              <button class="gallery-mode-btn" data-gallery-theme="dark">🌙 Dark Mode</button>
-              <button class="gallery-mode-btn active" data-gallery-theme="light">☀️ Light Mode</button>
-            </div>
           </div>
         </div>
 
         <div class="gallery-cards-grid reveal-item" id="gallery-grid">
           <div class="gallery-card" data-category="calendar" data-idx="0">
-            <img data-shot="today" src="./shots/today-light.png" alt="Today dashboard overview" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="today" src="./shots/today-light.png" alt="Today dashboard overview" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Today View</b>
               <span>Dashboard &amp; Agenda</span>
@@ -806,7 +798,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="calendar" data-idx="1">
-            <img data-shot="tasks" src="./shots/tasks-light.png" alt="Natural language tasks list" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="tasks" src="./shots/tasks-light.png" alt="Natural language tasks list" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Tasks &amp; Tags</b>
               <span>Subtasks &amp; Dates</span>
@@ -814,7 +808,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="calendar" data-idx="2">
-            <img data-shot="calendar" src="./shots/calendar-light.png" alt="Interactive calendar timeline" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="calendar" src="./shots/calendar-light.png" alt="Interactive calendar timeline" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Calendar</b>
               <span>Timeboxing Timeline</span>
@@ -822,7 +818,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="focus" data-idx="3">
-            <img data-shot="focus" src="./shots/focus-light.png" alt="Focus session configuration view" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="focus" src="./shots/focus-light.png" alt="Focus session configuration view" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Focus Session</b>
               <span>Pomodoro &amp; Spotify</span>
@@ -830,7 +828,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="focus" data-idx="4">
-            <img data-shot="focus-running" src="./shots/focus-running-light.png" alt="Active running focus session with progress ring" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="focus-running" src="./shots/focus-running-light.png" alt="Active running focus session with progress ring" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Running Session</b>
               <span>Progress Ring &amp; Audio</span>
@@ -838,7 +838,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="5">
-            <img data-shot="journal" src="./shots/journal-light.png" alt="Private encrypted journal view" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="journal" src="./shots/journal-light.png" alt="Private encrypted journal view" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Encrypted Journal</b>
               <span>Daily Prompts &amp; PIN</span>
@@ -846,7 +848,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="6">
-            <img data-shot="habits" src="./shots/habits-light.png" alt="Habits streak matrix" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="habits" src="./shots/habits-light.png" alt="Habits streak matrix" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Habit Tracker</b>
               <span>Streak Matrix</span>
@@ -854,7 +858,9 @@ Surgical focus session this morning on Dayflit architecture.
           </div>
 
           <div class="gallery-card" data-category="journal" data-idx="7">
-            <img data-shot="insights" src="./shots/insights-light.png" alt="Quantified productivity heatmap" loading="lazy" />
+            <div class="gallery-card-inner">
+              <img data-shot="insights" src="./shots/insights-light.png" alt="Quantified productivity heatmap" loading="lazy" width="525" height="900" />
+            </div>
             <div class="gallery-card-caption">
               <b>Insights</b>
               <span>Consistency Heatmap</span>
@@ -888,7 +894,7 @@ Surgical focus session this morning on Dayflit architecture.
             <div class="sha-verification-box">
               <div class="sha-header">
                 <span>Cryptographic SHA-256 Checksum</span>
-                <span style="color:var(--success);">Verified Official Hash</span>
+                <span style="color:var(--success);font-weight:600;">Verified Official Hash</span>
               </div>
               <div class="sha-code-row">
                 <code data-sha id="sha-target">955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053</code>
@@ -1017,7 +1023,7 @@ Surgical focus session this morning on Dayflit architecture.
         <div class="footer-top-row">
           <div class="brand">
             <img class="brand-icon" src="./icon.png" alt="" aria-hidden="true" width="24" height="24" />
-            <span>Dayflit</span>
+            <span class="brand-name">Dayflit</span>
           </div>
           <nav class="footer-nav" aria-label="Footer Navigation">
             <a href="#features">Features</a>
@@ -1036,7 +1042,7 @@ Surgical focus session this morning on Dayflit architecture.
       </div>
     </footer>
 
-    <!-- ================= MULTI-IMAGE LIGHTBOX MODAL WITH NAVIGATION ================= -->
+    <!-- ================= RETINA LIGHTBOX MODAL WITH NAVIGATION ================= -->
     <div class="lightbox-modal" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Screenshot preview">
       <button class="lightbox-close-btn" aria-label="Close lightbox">×</button>
       <button class="lightbox-nav-btn prev" id="lb-prev" aria-label="Previous screenshot">‹</button>
