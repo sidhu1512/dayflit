@@ -15,7 +15,9 @@
     "website:build": "npm --prefix website run build",
     "website:verify": "npm --prefix website run verify",
     "website:deploy": "npm --prefix website run deploy",
-    "website:deploy:dry": "npm --prefix website run deploy:dry"
+    "website:deploy:dry": "npm --prefix website run deploy:dry",
+    "deploy:vm": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-vm.ps1",
+    "website:vm": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-vm.ps1"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.1",
