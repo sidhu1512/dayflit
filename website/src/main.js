@@ -1,58 +1,324 @@
 import { SITE } from "./config.js";
 
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Helper utilities
+const $ = (selector, parent = document) => parent.querySelector(selector);
+const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ==========================================
+// Global theme state: "dark" | "light"
+let currentTheme = "dark";
+
+// ==========================================================================
 // 1. CONFIG & METADATA BINDINGS
-// ==========================================
-$$("[data-version]").forEach((e) => (e.textContent = SITE.version));
-$$("[data-size]").forEach((e) => (e.textContent = SITE.installerSize));
-$$("[data-year]").forEach((e) => (e.textContent = String(new Date().getFullYear())));
-if (SITE.sha256) $$("[data-sha]").forEach((e) => (e.textContent = SITE.sha256));
-if (SITE.releaseDate) $$("[data-date]").forEach((e) => (e.textContent = SITE.releaseDate));
+// ==========================================================================
+$$("[data-version]").forEach((el) => (el.textContent = SITE.version));
+$$("[data-size]").forEach((el) => (el.textContent = SITE.installerSize));
+$$("[data-year]").forEach((el) => (el.textContent = String(new Date().getFullYear())));
+if (SITE.sha256) $$("[data-sha]").forEach((el) => (el.textContent = SITE.sha256));
+if (SITE.releaseDate) $$("[data-date]").forEach((el) => (el.textContent = SITE.releaseDate));
 
-const link = (attr, url) =>
-  $$(`[${attr}]`).forEach((a) => {
+const bindLink = (attr, url) => {
+  $$(`[${attr}]`).forEach((linkEl) => {
     if (url) {
-      a.href = url;
-      a.removeAttribute("aria-disabled");
+      linkEl.href = url;
+      linkEl.removeAttribute("aria-disabled");
     } else {
-      a.setAttribute("aria-disabled", "true");
-      a.addEventListener("click", (ev) => {
-        ev.preventDefault();
-        toast("Feature coming in next build");
+      linkEl.setAttribute("aria-disabled", "true");
+      linkEl.addEventListener("click", (e) => {
+        e.preventDefault();
+        showToast("Feature coming in upcoming release");
       });
     }
   });
+};
 
-link("data-download", SITE.downloadUrl);
-link("data-releases", SITE.releasesUrl);
-link("data-beta", SITE.betaUrl);
-link("data-docs", SITE.docsUrl);
-link("data-support", SITE.supportUrl);
-link("data-contact", SITE.contactUrl);
-link("data-privacy", SITE.privacyUrl);
-link("data-source", SITE.sourceUrl);
+bindLink("data-download", SITE.downloadUrl);
+bindLink("data-releases", SITE.releasesUrl);
+bindLink("data-beta", SITE.betaUrl);
+bindLink("data-docs", SITE.docsUrl);
+bindLink("data-support", SITE.supportUrl);
+bindLink("data-contact", SITE.contactUrl);
+bindLink("data-privacy", SITE.privacyUrl);
+bindLink("data-source", SITE.sourceUrl);
 
-// Toast notification helper
-export function toast(msg) {
-  let t = $(".site-toast");
-  if (!t) {
-    t = document.createElement("div");
-    t.className = "site-toast";
-    document.body.appendChild(t);
+// Toast Notification
+export function showToast(message) {
+  let toastEl = $(".site-toast");
+  if (!toastEl) {
+    toastEl = document.createElement("div");
+    toastEl.className = "site-toast";
+    document.body.appendChild(toastEl);
   }
-  t.innerHTML = `<span style="color:var(--accent);">⚡</span><span>${msg}</span>`;
-  t.classList.add("on");
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove("on"), 2400);
+  toastEl.innerHTML = `<span>✓</span><span>${message}</span>`;
+  toastEl.classList.add("active");
+  clearTimeout(toastEl._timer);
+  toastEl._timer = setTimeout(() => toastEl.classList.remove("active"), 2600);
 }
 
-// ==========================================
-// 2. SPOTLIGHT CARDS DYNAMIC CURSOR GLOW
-// ==========================================
+// Subtle Mechanical Keyboard Audio Click (Web Audio API)
+let audioCtx = null;
+function playKeyClick() {
+  if (prefersReducedMotion) return;
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.038);
+    gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.038);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.04);
+  } catch (e) {
+    // AudioContext blocked or not supported, ignore silently
+  }
+}
+
+// ==========================================================================
+// 2. ACETERNITY AMBIENT STARFIELD CANVAS
+// ==========================================================================
+function initAmbientCanvas() {
+  const canvas = $("#ambient-canvas");
+  if (!canvas || prefersReducedMotion) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  let width = (canvas.width = window.innerWidth);
+  let height = (canvas.height = window.innerHeight);
+
+  window.addEventListener("resize", () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  const particleCount = Math.min(width > 768 ? 65 : 25, 80);
+  const particles = [];
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.5 + 0.1,
+      speedX: (Math.random() - 0.5) * 0.15,
+      speedY: (Math.random() - 0.5) * 0.15,
+    });
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, width, height);
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.speedX;
+      p.y += p.speedY;
+
+      if (p.x < 0) p.x = width;
+      if (p.x > width) p.x = 0;
+      if (p.y < 0) p.y = height;
+      if (p.y > height) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(render);
+  }
+  render();
+}
+initAmbientCanvas();
+
+// ==========================================================================
+// 3. ACETERNITY FLIP WORDS ROTATOR
+// ==========================================================================
+function initFlipWords() {
+  const container = $("#flip-words");
+  if (!container) return;
+
+  const words = [
+    "one floating companion",
+    "plain natural language",
+    "deep focus sessions",
+    "100% offline privacy",
+    "surgical speed",
+  ];
+  let currentIndex = 0;
+
+  setInterval(() => {
+    const currentEl = container.querySelector(".flip-word.active");
+    currentIndex = (currentIndex + 1) % words.length;
+
+    const nextEl = document.createElement("span");
+    nextEl.className = "flip-word";
+    nextEl.textContent = words[currentIndex];
+    container.appendChild(nextEl);
+
+    if (currentEl) {
+      currentEl.classList.remove("active");
+      currentEl.classList.add("exit");
+      setTimeout(() => currentEl.remove(), 400);
+    }
+
+    requestAnimationFrame(() => {
+      nextEl.classList.add("active");
+    });
+  }, 3200);
+}
+initFlipWords();
+
+// ==========================================================================
+// 4. FLOATING NAVBAR & SCROLL BEHAVIOR
+// ==========================================================================
+const navbar = $("#navbar");
+const mobileToggle = $("#mobile-toggle");
+const mobileDrawer = $("#mobile-drawer");
+
+window.addEventListener(
+  "scroll",
+  () => {
+    if (navbar) {
+      navbar.classList.toggle("scrolled", window.scrollY > 20);
+    }
+  },
+  { passive: true }
+);
+
+mobileToggle?.addEventListener("click", () => {
+  const isOpen = mobileDrawer.classList.toggle("open");
+  mobileToggle.setAttribute("aria-expanded", String(isOpen));
+  mobileToggle.classList.toggle("open", isOpen);
+});
+
+$$("#mobile-drawer a").forEach((link) => {
+  link.addEventListener("click", () => {
+    mobileDrawer.classList.remove("open");
+    mobileToggle.setAttribute("aria-expanded", "false");
+    mobileToggle.classList.remove("open");
+  });
+});
+
+// Scroll Reveal Observer
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("revealed");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.08 }
+);
+$$(".reveal-item").forEach((el) => {
+  if (prefersReducedMotion) el.classList.add("revealed");
+  else revealObserver.observe(el);
+});
+
+// ==========================================================================
+// 5. HERO 3D CONTAINER SCROLL & PERSPECTIVE PARALLAX
+// ==========================================================================
+const heroStage = $("#hero-stage");
+const heroFrame = $("#hero-frame");
+const heroAppImage = $("#hero-app-image");
+const heroPip = $("#hero-pip");
+const heroBubble = $("#hero-bubble");
+
+// Scroll Parallax for Hero Frame (Aceternity Container Scroll)
+window.addEventListener(
+  "scroll",
+  () => {
+    if (!heroFrame || prefersReducedMotion || window.innerWidth < 768) return;
+    const rect = heroStage.getBoundingClientRect();
+    const windowH = window.innerHeight;
+    
+    // Check if hero stage is in view
+    if (rect.top < windowH && rect.bottom > 0) {
+      const scrollProgress = Math.min(Math.max((windowH - rect.top) / windowH, 0), 1);
+      const rotateX = (1 - scrollProgress) * 12;
+      const scale = 0.94 + scrollProgress * 0.06;
+      heroFrame.style.transform = `perspective(1200px) rotateX(${rotateX}deg) scale(${scale})`;
+    }
+  },
+  { passive: true }
+);
+
+// Mouse tilt interaction on Hero Stage
+if (heroStage && heroFrame && !prefersReducedMotion) {
+  heroStage.addEventListener("mousemove", (e) => {
+    const rect = heroStage.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    const rotateY = (x / (rect.width / 2)) * 5;
+    const rotateX = -(y / (rect.height / 2)) * 5;
+    heroFrame.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(0.995)`;
+  });
+
+  heroStage.addEventListener("mouseleave", () => {
+    heroFrame.style.transform = "";
+  });
+}
+
+// Hero Theme Buttons
+$$("[data-app-theme]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const theme = btn.dataset.appTheme;
+    setGlobalTheme(theme);
+  });
+});
+
+function setGlobalTheme(theme) {
+  currentTheme = theme;
+
+  // Sync Hero buttons
+  $$("[data-app-theme]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.appTheme === theme);
+  });
+
+  // Sync Gallery buttons
+  $$("[data-gallery-theme]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.galleryTheme === theme);
+  });
+
+  // Update Hero images
+  if (heroAppImage) {
+    heroAppImage.src = `./shots/today-${theme}.png`;
+  }
+  if (heroPip) {
+    heroPip.src = `./shots/pip-${theme}.png`;
+  }
+
+  // Update Gallery images
+  $$("#gallery-grid img").forEach((img) => {
+    const shot = img.dataset.shot;
+    if (shot) img.src = `./shots/${shot}-${theme}.png`;
+  });
+
+  // Update Screencast active screen
+  updateVideoTourStage(currentVideoChapter);
+
+  // Update Shortcut preview active image
+  const activeShortcut = $(".shortcut-row-card.active")?.dataset.shortcut || "alt-space";
+  selectShortcut(activeShortcut);
+}
+
+// Click on mini bubble summons companion
+heroBubble?.addEventListener("click", () => {
+  selectShortcut("alt-space");
+  playKeyClick();
+  showToast("Companion orb clicked — summoned to foreground!");
+});
+
+// ==========================================================================
+// 6. ACETERNITY SPOTLIGHT CARDS DYNAMIC CURSOR
+// ==========================================================================
 function initSpotlights() {
   const cards = $$(".spotlight-card");
   if (!cards.length) return;
@@ -64,316 +330,619 @@ function initSpotlights() {
       const y = e.clientY - rect.top;
       card.style.setProperty("--mouse-x", `${x}px`);
       card.style.setProperty("--mouse-y", `${y}px`);
+
+      // 3D Tilt on card
+      if (card.hasAttribute("data-tilt") && !prefersReducedMotion) {
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const tiltX = -((y - centerY) / centerY) * 3;
+        const tiltY = ((x - centerX) / centerX) * 3;
+        card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
+      }
+    });
+
+    card.addEventListener("mouseleave", () => {
+      if (card.hasAttribute("data-tilt")) {
+        card.style.transform = "";
+      }
     });
   });
 }
 initSpotlights();
 
-// ==========================================
-// 3. MOBILE NAVIGATION & HEADER SHADOW
-// ==========================================
-const menuBtn = $(".menu-btn");
-const mobileNav = $("#mobile-nav");
-menuBtn?.addEventListener("click", () => {
-  const open = mobileNav.classList.toggle("open");
-  menuBtn.setAttribute("aria-expanded", String(open));
-  menuBtn.classList.toggle("open", open);
-});
-$$("#mobile-nav a").forEach((a) =>
-  a.addEventListener("click", () => {
-    mobileNav.classList.remove("open");
-    menuBtn.setAttribute("aria-expanded", "false");
-    menuBtn.classList.remove("open");
-  })
-);
+// ==========================================================================
+// 7. BENTO GRID INTERACTIVE WIDGETS
+// ==========================================================================
 
-const topHeader = $(".top");
-window.addEventListener(
-  "scroll",
-  () => topHeader?.classList.toggle("scrolled", window.scrollY > 12),
-  { passive: true }
-);
+// --- Widget 1: Robust NLP Parser (Zero False Fallbacks)
+const nlpInput = $("#nlp-input");
+const nlpClearBtn = $("#nlp-clear-btn");
+const nlpChips = $("#nlp-chips");
 
-// Scroll reveal observer
-const io = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        e.target.classList.add("in");
-        io.unobserve(e.target);
-      }
-    });
-  },
-  { threshold: 0.08 }
-);
-$$(".reveal").forEach((el) => (reduce ? el.classList.add("in") : io.observe(el)));
+function parseNaturalLanguage(text) {
+  const chips = [];
+  if (!text || !text.trim()) return chips;
+  const lower = text.toLowerCase();
 
-// ==========================================
-// 4. HERO TYPING SIMULATION & TIMER
-// ==========================================
-const phrases = [
-  { text: "Call Sam tomorrow 3pm #work !high", chips: ["Tomorrow · 3 PM", "high", "#work"], add: "Call Sam" },
-  { text: "Deploy API release every 1st !urgent", chips: ["Monthly on 1st", "urgent", "#dev"], add: "Deploy API release" },
-  { text: "Review quarterly roadmap for 45m next monday", chips: ["Next Monday", "45m", "#strategy"], add: "Review quarterly roadmap" },
-  { text: "Submit taxes by Friday #finance !important", chips: ["Friday 5 PM", "important"], add: "Submit taxes" },
-];
-const typed = $("#fw-typed");
-const chips = $("#fw-chips");
-const list = $("#fw-list");
-const count = $("#fw-count");
+  // Date parsing
+  if (lower.includes("tomorrow")) {
+    const timeMatch = text.match(/(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+    chips.push({ type: "date", label: `📅 Tomorrow ${timeMatch ? timeMatch[1] : "9:00 AM"}` });
+  } else if (lower.includes("friday")) {
+    chips.push({ type: "date", label: "📅 Friday 10:00 AM" });
+  } else if (lower.includes("monday")) {
+    chips.push({ type: "date", label: "📅 Every Monday 9:00 AM" });
+  } else if (lower.includes("today")) {
+    chips.push({ type: "date", label: "📅 Today 5:00 PM" });
+  } else if (lower.includes("in 2 hours")) {
+    chips.push({ type: "date", label: "📅 In 2 Hours" });
+  }
 
-async function wait(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+  // Duration
+  const durMatch = text.match(/(?:for\s+)?(\d+\s*(?:m|min|mins|h|hr|hours?))\b/i);
+  if (durMatch) {
+    chips.push({ type: "duration", label: `⏱ ${durMatch[1]} duration` });
+  }
+
+  // Tags (#word)
+  const tagMatches = text.match(/#(\w+)/g);
+  if (tagMatches) {
+    tagMatches.forEach((t) => chips.push({ type: "tag", label: `🏷 ${t}` }));
+  }
+
+  // Priorities
+  if (lower.includes("!urgent")) {
+    chips.push({ type: "priority", label: "🔥 Urgent" });
+  } else if (lower.includes("!high")) {
+    chips.push({ type: "priority", label: "🔺 High Priority" });
+  } else if (lower.includes("!med")) {
+    chips.push({ type: "priority", label: "⚡ Medium Priority" });
+  } else if (lower.includes("!low")) {
+    chips.push({ type: "priority", label: "🌱 Low Priority" });
+  }
+
+  return chips;
 }
 
-async function typeLoop() {
-  if (reduce || !typed) return;
-  let i = 0;
-  for (;;) {
-    const p = phrases[i % phrases.length];
-    typed.textContent = "";
-    chips.innerHTML = "";
-    for (const ch of p.text) {
-      typed.textContent += ch;
-      if (typed.textContent.length === Math.floor(p.text.length * 0.55)) {
-        chips.innerHTML = p.chips.slice(0, 1).map((c) => `<span>${c}</span>`).join("");
-      }
-      await wait(35 + Math.random() * 35);
-    }
-    chips.innerHTML = p.chips.map((c) => `<span>${c}</span>`).join("");
-    await wait(800);
+function renderNlpChips(chips) {
+  if (!nlpChips) return;
+  if (!chips.length) {
+    nlpChips.innerHTML = `<span style="font-size:0.75rem;color:var(--text-muted);font-style:italic;">Type dates (tomorrow 3pm), tags (#eng), durations (45m), or priorities (!urgent)...</span>`;
+    return;
+  }
+  nlpChips.innerHTML = chips
+    .map((c) => `<span class="nlp-chip ${c.type}">${c.label}</span>`)
+    .join("");
+}
 
-    const li = document.createElement("li");
-    li.innerHTML = `<span class="fw-check"></span><span>${p.add}</span><em>${p.chips[0]}</em>`;
-    li.classList.add("new");
-    list.prepend(li);
-    if (count) count.textContent = String(list.children.length);
+if (nlpInput) {
+  renderNlpChips(parseNaturalLanguage(nlpInput.value));
+  nlpInput.addEventListener("input", (e) => {
+    renderNlpChips(parseNaturalLanguage(e.target.value));
+  });
+}
 
-    typed.textContent = "";
-    chips.innerHTML = "";
-    await wait(1800);
-    if (list.children.length > 4) list.lastElementChild.remove();
-    if (count) count.textContent = String(list.children.length);
-    i++;
-    await wait(500);
+nlpClearBtn?.addEventListener("click", () => {
+  if (nlpInput) {
+    nlpInput.value = "";
+    nlpInput.focus();
+    renderNlpChips([]);
+  }
+});
+
+$$(".nlp-preset-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const val = btn.dataset.preset;
+    if (nlpInput) nlpInput.value = val;
+    renderNlpChips(parseNaturalLanguage(val));
+    showToast(`Loaded preset: ${btn.textContent}`);
+  });
+});
+
+// --- Widget 2: Focus Timer Simulator with SVG Progress Ring
+const focusClock = $("#focus-sim-clock");
+const focusToggleBtn = $("#focus-sim-toggle");
+const focusResetBtn = $("#focus-sim-reset");
+const focusRingCircle = $("#focus-ring-circle");
+const spotifyEq = $("#spotify-eq");
+const spotifyStatusTag = $("#spotify-status-tag");
+
+const TOTAL_FOCUS_SECONDS = 25 * 60;
+let focusSeconds = TOTAL_FOCUS_SECONDS;
+let focusInterval = null;
+let focusRunning = false;
+const CIRCLE_CIRCUMFERENCE = 226.2; // 2 * PI * 36
+
+function updateFocusDisplay() {
+  if (!focusClock) return;
+  const m = String(Math.floor(focusSeconds / 60)).padStart(2, "0");
+  const s = String(focusSeconds % 60).padStart(2, "0");
+  focusClock.textContent = `${m}:${s}`;
+
+  if (focusRingCircle) {
+    const progress = (TOTAL_FOCUS_SECONDS - focusSeconds) / TOTAL_FOCUS_SECONDS;
+    const offset = CIRCLE_CIRCUMFERENCE * (1 - progress);
+    focusRingCircle.style.strokeDashoffset = String(offset);
   }
 }
-typeLoop();
 
-// Hero timer countdown
-const fwTimer = $("#fw-timer");
-const pipTime = $("#pip-time");
-let secs = 25 * 60;
-setInterval(() => {
-  if (reduce) return;
-  secs = secs <= 0 ? 25 * 60 : secs - 1;
-  const m = String(Math.floor(secs / 60)).padStart(2, "0");
-  const s = String(secs % 60).padStart(2, "0");
-  const t = `${m}:${s}`;
-  if (fwTimer) fwTimer.textContent = t;
-  if (pipTime) pipTime.textContent = t;
-}, 1000);
-
-// Live Date in Hero
-const liveDateEl = $("#fw-live-date");
-if (liveDateEl) {
-  const d = new Date();
-  const dayName = d.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase();
-  const monthName = d.toLocaleDateString("en-US", { month: "long" }).toUpperCase();
-  liveDateEl.textContent = `${dayName}, ${d.getDate()} ${monthName}`;
-}
-
-// Bento voice bars animation
-const bentoVoiceBars = $$("#bento-voice-bars i");
-if (bentoVoiceBars.length) {
-  setInterval(() => {
-    if (!reduce) {
-      bentoVoiceBars.forEach((bar) => {
-        bar.style.height = `${15 + Math.random() * 80}%`;
-      });
+function toggleFocusTimer() {
+  if (focusRunning) {
+    clearInterval(focusInterval);
+    focusRunning = false;
+    if (focusToggleBtn) focusToggleBtn.textContent = "▶";
+    spotifyEq?.classList.remove("active");
+    if (spotifyStatusTag) {
+      spotifyStatusTag.textContent = "Paused";
+      spotifyStatusTag.classList.remove("active");
     }
-  }, 100);
+    showToast("Focus session paused");
+  } else {
+    focusRunning = true;
+    if (focusToggleBtn) focusToggleBtn.textContent = "⏸";
+    spotifyEq?.classList.add("active");
+    if (spotifyStatusTag) {
+      spotifyStatusTag.textContent = "Playing";
+      spotifyStatusTag.classList.add("active");
+    }
+    focusInterval = setInterval(() => {
+      if (focusSeconds > 0) {
+        focusSeconds--;
+        updateFocusDisplay();
+      } else {
+        clearInterval(focusInterval);
+        focusRunning = false;
+        focusSeconds = TOTAL_FOCUS_SECONDS;
+        updateFocusDisplay();
+        spotifyEq?.classList.remove("active");
+        if (spotifyStatusTag) spotifyStatusTag.textContent = "Completed";
+        showToast("Focus block completed! Great work.");
+      }
+    }, 1000);
+    showToast("Focus session running with Spotify");
+  }
 }
 
-// ==========================================
-// 5. INTERACTIVE PRODUCT TOUR
-// ==========================================
-const tourSteps = [
+focusToggleBtn?.addEventListener("click", toggleFocusTimer);
+focusResetBtn?.addEventListener("click", () => {
+  clearInterval(focusInterval);
+  focusRunning = false;
+  focusSeconds = TOTAL_FOCUS_SECONDS;
+  if (focusToggleBtn) focusToggleBtn.textContent = "▶";
+  spotifyEq?.classList.remove("active");
+  if (spotifyStatusTag) {
+    spotifyStatusTag.textContent = "Ready";
+    spotifyStatusTag.classList.remove("active");
+  }
+  updateFocusDisplay();
+  showToast("Focus timer reset to 25:00");
+});
+updateFocusDisplay();
+
+// --- Widget 3: Whisper Voice Dictation Simulator (Typewriter Streaming)
+const whisperMic = $("#whisper-mic");
+const whisperWaveBars = $$("#whisper-wave i");
+const whisperText = $("#whisper-text");
+let isRecording = false;
+let waveTimer = null;
+let typeStreamTimer = null;
+
+const demoVoicePhrases = [
+  "Remind me to review the quarterly product roadmap with Sam tomorrow at 3pm.",
+  "Write follow-up email to design team regarding the Windows 11 Acrylic blur tokens.",
+  "Ship the release binary with verified SHA-256 cryptographic hash before midnight.",
+  "Journal entry: Great velocity on Dayflit redesign, keyboard shortcuts feel surgical.",
+];
+
+whisperMic?.addEventListener("click", () => {
+  if (isRecording) {
+    clearInterval(waveTimer);
+    clearInterval(typeStreamTimer);
+    isRecording = false;
+    whisperMic.classList.remove("recording");
+    whisperWaveBars.forEach((b) => (b.style.height = "30%"));
+    showToast("Offline Whisper audio transcribed!");
+  } else {
+    isRecording = true;
+    whisperMic.classList.add("recording");
+    showToast("Dictating memo via offline Whisper AI...");
+
+    // Animate speech sound waves
+    waveTimer = setInterval(() => {
+      whisperWaveBars.forEach((bar) => {
+        bar.style.height = `${20 + Math.random() * 75}%`;
+      });
+    }, 120);
+
+    const phrase = demoVoicePhrases[Math.floor(Math.random() * demoVoicePhrases.length)];
+    if (whisperText) whisperText.textContent = '"';
+    let charIdx = 0;
+
+    // Simulate streaming letter-by-letter transcription
+    typeStreamTimer = setInterval(() => {
+      if (charIdx < phrase.length) {
+        if (whisperText) whisperText.textContent += phrase[charIdx];
+        charIdx++;
+      } else {
+        clearInterval(typeStreamTimer);
+        clearInterval(waveTimer);
+        isRecording = false;
+        whisperMic.classList.remove("recording");
+        whisperWaveBars.forEach((b) => (b.style.height = "30%"));
+        if (whisperText) whisperText.textContent += '"';
+        showToast("Transcription complete (100% on-device)");
+      }
+    }, 45);
+  }
+});
+
+// --- Widget 4: Calendar Meeting Join
+$("#calendar-join-btn")?.addEventListener("click", () => {
+  showToast("Launching Daily Standup in Google Meet...");
+});
+
+// --- Widget 5: 52-Week Contribution Heatmap with Dates
+function buildHeatmap() {
+  const container = $("#heatmap-grid");
+  if (!container) return;
+
+  const totalWeeks = 38;
+  const daysPerWeek = 7;
+  let html = "";
+  const now = new Date();
+
+  for (let w = 0; w < totalWeeks; w++) {
+    html += '<div class="heatmap-col">';
+    for (let d = 0; d < daysPerWeek; d++) {
+      const daysAgo = (totalWeeks - 1 - w) * 7 + (6 - d);
+      const cellDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+      const dateStr = cellDate.toLocaleDateString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      });
+
+      // Realistic activity density pattern
+      let level = 0;
+      const seed = (w * 7 + d * 13) % 100;
+      if (w > totalWeeks - 8) {
+        if (seed > 20) level = (seed % 4) + 1;
+      } else if (w > totalWeeks - 20) {
+        if (seed > 40) level = (seed % 3) + 1;
+      } else {
+        if (seed > 60) level = (seed % 2) + 1;
+      }
+
+      const tasksCount = level === 0 ? 0 : level * 2 + (seed % 3);
+      const tooltip = `${dateStr} · ${tasksCount} tasks completed`;
+      html += `<div class="heatmap-cell" data-level="${level}" title="${tooltip}"></div>`;
+    }
+    html += "</div>";
+  }
+  container.innerHTML = html;
+}
+buildHeatmap();
+
+// Bento Tab Switch (Heatmap vs Obsidian)
+$$(".bento-tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    $$(".bento-tab-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    const target = btn.dataset.bentoTab;
+
+    $$(".bento-tab-content").forEach((c) => {
+      c.classList.toggle("active", c.id === `tab-${target}`);
+    });
+  });
+});
+
+// ==========================================================================
+// 8. ACETERNITY INTERACTIVE SCREEN RECORDING VIDEO PLAYER STUDIO
+// ==========================================================================
+const videoChapters = [
   {
-    step: "01. Capture",
-    badge: "Step 1 of 5 · Global Summon",
+    name: "Global Palette (Alt+Space)",
+    time: "00:00 · 01",
+    badge: "Chapter 1 of 6 · Instant Summon",
     heading: "Fuzzy Global Command Palette",
-    desc: "Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or full-screen game. Type natural language commands to capture tasks, search across your notes, jump to calendar events, or check your clipboard history instantly.",
-    checks: [
+    desc: "Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.",
+    features: [
       "Instant global summon with zero perceptible startup latency",
-      "Fuzzy search across open tasks, archives, and Markdown notes",
+      "Fuzzy search across active tasks, archives, and notes",
       "Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss",
     ],
     shot: "palette",
-    hotspot: "⚡ Alt+Space Everywhere",
+    label: "Alt+Space Everywhere",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Space</kbd>",
+    actionPill: "● Fuzzy Global Palette",
+    cursorX: "48%",
+    cursorY: "38%",
   },
   {
-    step: "02. Voice",
-    badge: "Step 2 of 5 · Whisper AI",
-    heading: "Offline Whisper Voice Dictation",
-    desc: "Hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> while gaming, coding, or reading. Speak your mind freely. High-speed local Whisper models transcribe your voice directly into structured tasks or journal memos with zero cloud latency.",
-    checks: [
-      "100% Offline execution on your local CPU or GPU",
-      "Automatic punctuation, grammar formatting, and date tagging",
-      "Keep original audio WAV attachments whenever you wish",
+    name: "Tasks & Natural Language",
+    time: "00:06 · 02",
+    badge: "Chapter 2 of 6 · Natural Syntax",
+    heading: "Sub-Millisecond Task Intelligence",
+    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> to open quick task prompt. Dayflit automatically parses dates, recurrences, durations, and priorities as you type without requiring mouse clicks.",
+    features: [
+      "Extracts dates, priorities, durations, and project hashtags",
+      "Organized into Today, Overdue, and Upcoming buckets",
+      "Multi-level subtasks with progress tracking",
     ],
-    shot: "voice-recording",
-    hotspot: "🎙 Offline Whisper Running",
+    shot: "tasks",
+    label: "NLP Engine Active",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
+    actionPill: "● Natural Syntax Parsed",
+    cursorX: "52%",
+    cursorY: "25%",
   },
   {
-    step: "03. Focus",
-    badge: "Step 3 of 5 · Pomodoro & Music",
-    heading: "Deep Work Sessions with Native Spotify Control",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> to launch a Pomodoro focus block. Dayflit automatically queues your Spotify playlist, dims distractions, and floats a compact picture-in-picture timer over your IDE or documents.",
-    checks: [
-      "Windows Media Integration: Auto-pauses music on breaks",
+    name: "Deep Focus & Spotify",
+    time: "00:12 · 03",
+    badge: "Chapter 3 of 6 · Flow State",
+    heading: "Deep Work Sessions with Windows Media Control",
+    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> to launch a Pomodoro focus block. Dayflit starts your Spotify playlist, dims distractions, and floats an Acrylic picture-in-picture timer over your IDE or documents.",
+    features: [
+      "Windows Media Integration: Auto-pauses music on break",
       "Smart presence detection: pauses timer when Windows locks",
       "Distraction nudges when social tabs or games steal focus",
     ],
     shot: "focus-running",
-    hotspot: "🎵 Spotify Linked · 25:00",
+    label: "Spotify Linked · 25:00",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd>",
+    actionPill: "● Flow State Engaged",
+    cursorX: "50%",
+    cursorY: "55%",
   },
   {
-    step: "04. Timebox",
-    badge: "Step 4 of 5 · Timeline Engine",
-    heading: "Visual Calendar Timeboxing & One-Click Join",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> to inspect your day timeline. Drag tasks into free calendar slots to commit to exact time blocks. Dayflit detects Google Meet, Zoom, and Microsoft Teams links and opens them with one click.",
-    checks: [
+    name: "Offline Whisper Voice",
+    time: "00:18 · 04",
+    badge: "Chapter 4 of 6 · On-Device AI",
+    heading: "Offline Whisper Voice Dictation",
+    desc: "Hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> while coding, reading, or gaming. Speak freely. Lightweight local Whisper models transcribe your voice directly into tasks or journal entries with zero cloud latency.",
+    features: [
+      "100% Offline execution on your local CPU or GPU",
+      "Automatic punctuation, grammar formatting, and date tagging",
+      "Keep original WAV audio attachments whenever you choose",
+    ],
+    shot: "voice-recording",
+    label: "Offline Whisper Running",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>",
+    actionPill: "● Whisper Transcription",
+    cursorX: "48%",
+    cursorY: "65%",
+  },
+  {
+    name: "Calendar Timeboxing",
+    time: "00:24 · 05",
+    badge: "Chapter 5 of 6 · 2-Way Sync",
+    heading: "Interactive Calendar Timeboxing & One-Click Join",
+    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> to inspect your day timeline. Drag tasks into free slots to commit to exact time blocks. Dayflit detects Google Meet, Zoom, and Microsoft Teams links and opens them with one click.",
+    features: [
       "Two-way synchronization with Google Calendar & Microsoft 365",
       "One-click 'Join Meeting' button for Zoom, Teams, Meet",
       "Instant 'Copy Free Slots' to share availability in emails",
     ],
     shot: "calendar",
-    hotspot: "📅 Two-Way Sync Active",
+    label: "Two-Way Calendar Sync",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
+    actionPill: "● Calendar Synced",
+    cursorX: "65%",
+    cursorY: "42%",
   },
   {
-    step: "05. Journal",
-    badge: "Step 5 of 5 · Quantified Mind",
-    heading: "Encrypted Journal & Habit Consistency Matrix",
+    name: "Journal & Heatmap",
+    time: "00:30 · 06",
+    badge: "Chapter 6 of 6 · Obsidian Ready",
+    heading: "Encrypted Journal & 52-Week Consistency Matrix",
     desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>N</kbd> for quick note reflection. Daily prompts, mood logs, habit streak trackers, and year-long consistency heatmaps keep your thoughts organized and exportable to Obsidian Markdown.",
-    checks: [
+    features: [
       "PIN security lock with auto-lock on idle timer",
       "Quantified consistency heatmap inspired by GitHub contributions",
       "Direct export to Obsidian Vault with full YAML metadata",
     ],
     shot: "journal",
-    hotspot: "🔒 PIN-Protected Local Vault",
+    label: "Obsidian Compatible (.md)",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>",
+    actionPill: "● Markdown Encrypted",
+    cursorX: "35%",
+    cursorY: "30%",
   },
 ];
 
-let currentTourIdx = 0;
-let tourAutoplay = true;
-let tourTimer = null;
+const TOTAL_VIDEO_SECONDS = 36;
+let currentVideoChapter = 0;
+let videoCurrentSec = 0;
+let videoPlaying = true;
+let videoSpeed = 1.0;
+let videoTimer = null;
 
-function getCurrentTheme() {
-  const activeBtn = $("[data-theme-pick].on");
-  return activeBtn ? activeBtn.dataset.themePick : "dark";
+const scrubberBar = $("#video-scrubber-bar");
+const scrubberProgress = $("#video-scrubber-progress");
+const scrubberHead = $("#video-scrubber-head");
+const timeCur = $("#video-time-cur");
+const videoPlayBtn = $("#video-play-btn");
+const videoPlayIcon = $("#video-play-icon");
+const videoPlayLabel = $("#video-play-label");
+const videoSpeedBtn = $("#video-speed-btn");
+const screencastCursor = $("#screencast-cursor");
+const screencastRipple = $("#screencast-ripple");
+const screencastHotkeyHud = $("#screencast-hotkey-hud");
+const screencastActionPill = $("#screencast-action-pill");
+
+function formatTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(Math.floor(sec % 60)).padStart(2, "0");
+  return `${m}:${s}`;
 }
 
-function renderTourStep(idx) {
-  currentTourIdx = idx;
-  const data = tourSteps[idx];
+function updateVideoTourStage(idx) {
+  currentVideoChapter = idx;
+  const data = videoChapters[idx];
   if (!data) return;
 
-  const mode = getCurrentTheme();
-  const badge = $("#tour-badge");
-  const heading = $("#tour-heading");
-  const desc = $("#tour-description");
-  const checks = $("#tour-checks");
-  const img = $("#tour-image");
-  const hotspot = $("#tour-hotspot");
+  const badge = $("#video-chapter-badge");
+  const heading = $("#video-chapter-heading");
+  const desc = $("#video-chapter-desc");
+  const features = $("#video-chapter-features");
+  const img = $("#video-screen-img");
+  const liveLabel = $("#video-live-label");
 
   if (badge) badge.textContent = data.badge;
   if (heading) heading.textContent = data.heading;
   if (desc) desc.innerHTML = data.desc;
-  if (checks) {
-    checks.innerHTML = data.checks.map((c) => `<li>${c}</li>`).join("");
+  if (features) {
+    features.innerHTML = data.features
+      .map(
+        (f) =>
+          `<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>${f}</span></li>`
+      )
+      .join("");
   }
   if (img) {
-    // Map shot path
-    const shotName = data.shot.includes("voice") || data.shot.includes("bubble")
-      ? `${data.shot}.png`
-      : `${data.shot}-${mode}.png`;
-    img.src = `./shots/${shotName}`;
+    const filename =
+      data.shot.includes("voice") || data.shot.includes("bubble")
+        ? `${data.shot}.png`
+        : `${data.shot}-${currentTheme}.png`;
+    img.src = `./shots/${filename}`;
     img.alt = data.heading;
   }
-  if (hotspot) hotspot.textContent = data.hotspot;
+  if (liveLabel) liveLabel.textContent = data.label;
 
-  // Update tabs
-  $$(".tour-tab").forEach((tab, i) => {
+  // Animate screencast virtual cursor & HUD
+  if (screencastCursor) {
+    screencastCursor.style.left = data.cursorX;
+    screencastCursor.style.top = data.cursorY;
+  }
+  if (screencastRipple) {
+    screencastRipple.classList.remove("pulse");
+    void screencastRipple.offsetWidth;
+    screencastRipple.classList.add("pulse");
+  }
+  if (screencastHotkeyHud) {
+    screencastHotkeyHud.innerHTML = data.hotkey;
+    screencastHotkeyHud.classList.add("visible");
+    setTimeout(() => screencastHotkeyHud.classList.remove("visible"), 1800);
+  }
+  if (screencastActionPill) {
+    screencastActionPill.textContent = data.actionPill;
+  }
+
+  // Update chapter tabs
+  $$(".video-chapter-tab").forEach((tab, i) => {
     const isActive = i === idx;
     tab.classList.toggle("active", isActive);
     tab.setAttribute("aria-selected", String(isActive));
   });
 }
 
-function startTourAutoplay() {
-  if (reduce) return;
-  clearInterval(tourTimer);
-  tourTimer = setInterval(() => {
-    if (!tourAutoplay) return;
-    const next = (currentTourIdx + 1) % tourSteps.length;
-    renderTourStep(next);
-  }, 4800);
-}
+function updateTimelineUI() {
+  const percent = (videoCurrentSec / TOTAL_VIDEO_SECONDS) * 100;
+  if (scrubberProgress) scrubberProgress.style.width = `${percent}%`;
+  if (scrubberHead) scrubberHead.style.left = `${percent}%`;
+  if (timeCur) timeCur.textContent = formatTime(videoCurrentSec);
 
-$$(".tour-tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    const idx = parseInt(tab.dataset.tourStep, 10);
-    renderTourStep(idx);
-    // Pause autoplay on manual tab selection
-    tourAutoplay = false;
-    updateTourPlayBtn();
-  });
-});
-
-const tourPlayBtn = $("#tour-autoplay-btn");
-const tourPlayIcon = $("#tour-play-icon");
-const tourPlayText = $("#tour-play-text");
-
-function updateTourPlayBtn() {
-  if (!tourPlayBtn) return;
-  if (tourAutoplay) {
-    if (tourPlayIcon) tourPlayIcon.textContent = "⏸";
-    if (tourPlayText) tourPlayText.textContent = "Pause Tour";
-  } else {
-    if (tourPlayIcon) tourPlayIcon.textContent = "▶";
-    if (tourPlayText) tourPlayText.textContent = "Play Tour";
+  // Sync active chapter based on time
+  const targetChapter = Math.min(
+    Math.floor((videoCurrentSec / TOTAL_VIDEO_SECONDS) * videoChapters.length),
+    videoChapters.length - 1
+  );
+  if (targetChapter !== currentVideoChapter) {
+    updateVideoTourStage(targetChapter);
   }
 }
 
-tourPlayBtn?.addEventListener("click", () => {
-  tourAutoplay = !tourAutoplay;
-  updateTourPlayBtn();
-  if (tourAutoplay) startTourAutoplay();
+function startVideoEngine() {
+  if (prefersReducedMotion) return;
+  clearInterval(videoTimer);
+  videoTimer = setInterval(() => {
+    if (!videoPlaying) return;
+    videoCurrentSec += 0.25 * videoSpeed;
+    if (videoCurrentSec >= TOTAL_VIDEO_SECONDS) {
+      videoCurrentSec = 0;
+    }
+    updateTimelineUI();
+  }, 250);
+}
+
+function seekToTime(sec) {
+  videoCurrentSec = Math.max(0, Math.min(sec, TOTAL_VIDEO_SECONDS));
+  updateTimelineUI();
+}
+
+// Scrubber Click & Drag
+scrubberBar?.addEventListener("click", (e) => {
+  const rect = scrubberBar.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / rect.width;
+  seekToTime(ratio * TOTAL_VIDEO_SECONDS);
 });
 
-$("#tour-next-btn")?.addEventListener("click", () => {
-  const next = (currentTourIdx + 1) % tourSteps.length;
-  renderTourStep(next);
+$$(".video-chapter-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const idx = parseInt(tab.dataset.chapter, 10);
+    seekToTime(idx * 6);
+    updateVideoTourStage(idx);
+    videoPlaying = true;
+    updateVideoControlsUI();
+  });
 });
 
-startTourAutoplay();
+function updateVideoControlsUI() {
+  if (!videoPlayBtn) return;
+  if (videoPlaying) {
+    if (videoPlayIcon) videoPlayIcon.textContent = "⏸";
+    if (videoPlayLabel) videoPlayLabel.textContent = "Pause";
+  } else {
+    if (videoPlayIcon) videoPlayIcon.textContent = "▶";
+    if (videoPlayLabel) videoPlayLabel.textContent = "Play";
+  }
+}
 
-// ==========================================
-// 6. INTERACTIVE 3D KEYBOARD SHORTCUT STATION
-// ==========================================
-const shortcutData = {
+videoPlayBtn?.addEventListener("click", () => {
+  videoPlaying = !videoPlaying;
+  updateVideoControlsUI();
+  if (videoPlaying) startVideoEngine();
+});
+
+videoSpeedBtn?.addEventListener("click", () => {
+  if (videoSpeed === 1.0) videoSpeed = 1.5;
+  else if (videoSpeed === 1.5) videoSpeed = 2.0;
+  else videoSpeed = 1.0;
+  videoSpeedBtn.textContent = `${videoSpeed.toFixed(1)}x`;
+  showToast(`Screencast speed: ${videoSpeed.toFixed(1)}x`);
+});
+
+$("#video-next-btn")?.addEventListener("click", () => {
+  const next = (currentVideoChapter + 1) % videoChapters.length;
+  seekToTime(next * 6);
+  updateVideoTourStage(next);
+});
+
+$("#video-fullscreen-btn")?.addEventListener("click", () => {
+  const box = $("#video-tour-box");
+  if (!box) return;
+  if (!document.fullscreenElement) {
+    box.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.().catch(() => {});
+  }
+});
+
+updateVideoTourStage(0);
+startVideoEngine();
+
+// ==========================================================================
+// 9. 3D MECHANICAL KEYBOARD SHORTCUT STATION
+// ==========================================================================
+const shortcutConfig = {
   "alt-space": {
-    title: "Summon / Dismiss Dayflit",
-    action: "Summon Floating Window",
+    action: "Summon Dayflit Window",
     latency: "< 8ms response",
-    desc: "Brings the floating companion to front from any application with fluid Acrylic glass blur.",
+    desc: "Brings floating companion to front from any application with fluid Acrylic glass blur.",
     shot: "today",
     badge: "Alt + Space",
   },
   "alt-shift-t": {
-    title: "Quick Task Capture",
     action: "Natural Language Task Prompt",
     latency: "< 10ms response",
     desc: "Opens instant task capture prompt with intelligent date, priority, and project parsing.",
@@ -381,7 +950,6 @@ const shortcutData = {
     badge: "Alt + Shift + T",
   },
   "alt-shift-v": {
-    title: "Whisper Voice Memo",
     action: "Offline Local Transcription",
     latency: "< 14ms response",
     desc: "Hold to dictate voice notes; on-device Whisper transcribes without cloud servers.",
@@ -389,15 +957,13 @@ const shortcutData = {
     badge: "Alt + Shift + V",
   },
   "alt-shift-space": {
-    title: "Toggle Focus Session",
     action: "Deep Focus Pomodoro",
     latency: "< 6ms response",
-    desc: "Starts a 25-minute Pomodoro, syncs with Spotify, and displays an acrylic PIP timer.",
+    desc: "Starts a 25-minute Pomodoro, syncs with Spotify, and displays an Acrylic PIP timer.",
     shot: "focus-running",
     badge: "Alt + Shift + Space",
   },
   "alt-shift-n": {
-    title: "Quick Note / Daily Journal",
     action: "Encrypted Journal Scratchpad",
     latency: "< 9ms response",
     desc: "Opens today's journal prompt with Markdown support, tags, and biometric/PIN lock.",
@@ -405,7 +971,6 @@ const shortcutData = {
     badge: "Alt + Shift + N",
   },
   "alt-shift-c": {
-    title: "Toggle Companion Bubble",
     action: "Mini Floating Acrylic Orb",
     latency: "< 7ms response",
     desc: "Collapses Dayflit into an ambient floating desktop bubble displaying active timer.",
@@ -415,85 +980,168 @@ const shortcutData = {
 };
 
 function selectShortcut(key) {
-  const info = shortcutData[key];
+  const info = shortcutConfig[key];
   if (!info) return;
 
-  const mode = getCurrentTheme();
-  $$(".shortcut-card").forEach((card) => {
-    const isSelected = card.dataset.shortcut === key;
-    card.classList.toggle("active", isSelected);
+  $$(".shortcut-row-card").forEach((card) => {
+    card.classList.toggle("active", card.dataset.shortcut === key);
   });
 
-  const titleEl = $("#preview-action-title");
-  const latencyEl = $("#preview-latency");
-  const descEl = $("#preview-description");
-  const badgeEl = $("#preview-key-badge");
-  const imgEl = $("#preview-img");
+  const titleEl = $("#shortcut-action-title");
+  const latencyEl = $("#shortcut-latency");
+  const descEl = $("#shortcut-desc");
+  const badgeEl = $("#shortcut-badge");
+  const imgEl = $("#shortcut-preview-img");
 
   if (titleEl) titleEl.textContent = info.action;
   if (latencyEl) latencyEl.textContent = info.latency;
   if (descEl) descEl.textContent = info.desc;
   if (badgeEl) badgeEl.textContent = info.badge;
   if (imgEl) {
-    const filename = info.shot.includes("voice") || info.shot.includes("bubble")
-      ? `${info.shot}.png`
-      : `${info.shot}-${mode}.png`;
+    const filename =
+      info.shot.includes("voice") || info.shot.includes("bubble")
+        ? `${info.shot}.png`
+        : `${info.shot}-${currentTheme}.png`;
     imgEl.src = `./shots/${filename}`;
   }
 }
 
-// Click listener for shortcut cards
-$$(".shortcut-card").forEach((card) => {
+$$(".shortcut-row-card").forEach((card) => {
   card.addEventListener("click", () => {
     const key = card.dataset.shortcut;
     selectShortcut(key);
-    // Depress the keys visually
-    const keys = $$(".kbd-3d", card);
+    playKeyClick();
+    const keys = $$(".key-3d", card);
     keys.forEach((k) => k.classList.add("active"));
-    setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 260);
+    setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 220);
   });
 });
 
-// Real Global Keyboard Shortcut Listener
+// Physical Keyboard Event Listener
 window.addEventListener("keydown", (e) => {
   const isAlt = e.altKey;
   const isShift = e.shiftKey;
   const keyUpper = e.key.toUpperCase();
   const code = e.code;
 
-  let triggered = null;
-
+  let matched = null;
   if (isAlt && !isShift && (code === "Space" || e.key === " ")) {
-    triggered = "alt-space";
+    matched = "alt-space";
   } else if (isAlt && isShift && keyUpper === "T") {
-    triggered = "alt-shift-t";
+    matched = "alt-shift-t";
   } else if (isAlt && isShift && keyUpper === "V") {
-    triggered = "alt-shift-v";
+    matched = "alt-shift-v";
   } else if (isAlt && isShift && (code === "Space" || e.key === " ")) {
-    triggered = "alt-shift-space";
+    matched = "alt-shift-space";
   } else if (isAlt && isShift && keyUpper === "N") {
-    triggered = "alt-shift-n";
+    matched = "alt-shift-n";
   } else if (isAlt && isShift && keyUpper === "C") {
-    triggered = "alt-shift-c";
+    matched = "alt-shift-c";
   }
 
-  if (triggered) {
+  if (matched) {
     e.preventDefault();
-    selectShortcut(triggered);
-    const card = $(`[data-shortcut="${triggered}"]`);
+    selectShortcut(matched);
+    playKeyClick();
+    const card = $(`[data-shortcut="${matched}"]`);
     if (card) {
       card.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      const keys = $$(".kbd-3d", card);
+      const keys = $$(".key-3d", card);
       keys.forEach((k) => k.classList.add("active"));
-      setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 350);
+      setTimeout(() => keys.forEach((k) => k.classList.remove("active")), 300);
     }
-    toast(`Hotkey triggered: ${shortcutData[triggered].badge}`);
+    showToast(`Hotkey triggered: ${shortcutConfig[matched].badge}`);
   }
 });
 
-// ==========================================
-// 7. COPYABLE SHA-256 BOX
-// ==========================================
+// ==========================================================================
+// 10. GALLERY CONTROLS & MULTI-IMAGE LIGHTBOX
+// ==========================================================================
+$$("[data-gallery-theme]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const theme = btn.dataset.galleryTheme;
+    setGlobalTheme(theme);
+  });
+});
+
+$$(".filter-chip").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    $$(".filter-chip").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    const filter = btn.dataset.filter;
+
+    $$("#gallery-grid .gallery-card").forEach((card) => {
+      const cat = card.dataset.category;
+      card.style.display = filter === "all" || cat === filter ? "" : "none";
+    });
+  });
+});
+
+// Multi-Image Lightbox Modal
+const lightbox = $("#lightbox");
+const lbImage = $("#lb-image");
+const lbCaption = $("#lb-caption");
+const lbPrev = $("#lb-prev");
+const lbNext = $("#lb-next");
+
+const galleryItems = [
+  { shot: "today", caption: "Today View — Dashboard & Agenda" },
+  { shot: "tasks", caption: "Tasks & Tags — Subtasks & Natural Syntax" },
+  { shot: "calendar", caption: "Calendar — Timeboxing Timeline" },
+  { shot: "focus", caption: "Focus Session — Pomodoro Configuration" },
+  { shot: "focus-running", caption: "Running Session — Progress Ring & Audio" },
+  { shot: "journal", caption: "Encrypted Journal — Daily Prompts & PIN" },
+  { shot: "habits", caption: "Habit Tracker — Streak Matrix" },
+  { shot: "insights", caption: "Insights — Consistency Heatmap" },
+];
+
+let currentLbIndex = 0;
+
+function openLightbox(index) {
+  if (!lightbox || !lbImage) return;
+  currentLbIndex = (index + galleryItems.length) % galleryItems.length;
+  const item = galleryItems[currentLbIndex];
+  lbImage.src = `./shots/${item.shot}-${currentTheme}.png`;
+  lbImage.alt = item.caption;
+  if (lbCaption) lbCaption.textContent = item.caption;
+  lightbox.hidden = false;
+}
+
+function closeLightbox() {
+  if (lightbox) lightbox.hidden = true;
+}
+
+$$("#gallery-grid .gallery-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    const idx = parseInt(card.dataset.idx, 10);
+    openLightbox(isNaN(idx) ? 0 : idx);
+  });
+});
+
+$$(".video-display-frame img, .shortcut-preview-img-wrap img, #hero-app-image").forEach((img) => {
+  img.addEventListener("click", () => {
+    openLightbox(0);
+  });
+});
+
+lbPrev?.addEventListener("click", () => openLightbox(currentLbIndex - 1));
+lbNext?.addEventListener("click", () => openLightbox(currentLbIndex + 1));
+$(".lightbox-close-btn", lightbox)?.addEventListener("click", closeLightbox);
+
+lightbox?.addEventListener("click", (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+
+window.addEventListener("keydown", (e) => {
+  if (!lightbox || lightbox.hidden) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") openLightbox(currentLbIndex - 1);
+  if (e.key === "ArrowRight") openLightbox(currentLbIndex + 1);
+});
+
+// ==========================================================================
+// 11. COPYABLE SHA-256 CHECKSUM & POWERSHELL VERIFICATION
+// ==========================================================================
 const copyShaBtn = $("#copy-sha-btn");
 const shaTarget = $("#sha-target");
 const psCmd = $("#ps-cmd");
@@ -508,9 +1156,9 @@ async function copyChecksum() {
         copyShaBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>`;
       }, 2000);
     }
-    toast("SHA-256 Checksum copied to clipboard!");
+    showToast("SHA-256 Checksum copied to clipboard!");
   } catch (err) {
-    toast("Unable to copy hash to clipboard");
+    showToast("Unable to copy hash to clipboard");
   }
 }
 
@@ -521,96 +1169,24 @@ psCmd?.addEventListener("click", async () => {
   const cmd = psCmd.textContent.trim();
   try {
     await navigator.clipboard.writeText(cmd);
-    toast("PowerShell verification command copied!");
+    showToast("PowerShell verify command copied!");
   } catch (e) {
-    toast("Copied command");
+    showToast("Command copied");
   }
 });
 
-// ==========================================
-// 8. DARK / LIGHT GALLERY & FILTER TABS
-// ==========================================
-$$("[data-theme-pick]").forEach((b) =>
-  b.addEventListener("click", () => {
-    $$("[data-theme-pick]").forEach((x) => x.classList.toggle("on", x === b));
-    const mode = b.dataset.themePick;
-    $$("#gallery-grid img").forEach((img) => {
-      const shot = img.dataset.shot;
-      if (shot) img.src = `./shots/${shot}-${mode}.png`;
-    });
-    // Also sync the tour image and shortcut preview image
-    renderTourStep(currentTourIdx);
-    const activeShortcut = $(".shortcut-card.active")?.dataset.shortcut || "alt-space";
-    selectShortcut(activeShortcut);
-  })
-);
-
-// Gallery Category Filter Tabs
-$$(".gallery-filter-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    $$(".gallery-filter-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    const filter = btn.dataset.filter;
-
-    $$("#gallery-grid figure").forEach((fig) => {
-      const cat = fig.dataset.category;
-      if (filter === "all" || cat === filter) {
-        fig.style.display = "";
-      } else {
-        fig.style.display = "none";
-      }
-    });
-  });
-});
-
-// Lightbox Modal
-const lb = $("#lightbox");
-const lbImg = $("#lb-image");
-const lbCaption = $("#lb-caption");
-
-function openLightbox(src, alt) {
-  if (!lb || !lbImg) return;
-  lbImg.src = src;
-  lbImg.alt = alt || "Screenshot view";
-  if (lbCaption) lbCaption.textContent = alt || "";
-  lb.hidden = false;
-  $(".lb-close", lb)?.focus();
-}
-
-function closeLightbox() {
-  if (lb) lb.hidden = true;
-}
-
-$$("#gallery-grid img, .shot img, #tour-image, #preview-img").forEach((img) =>
-  img.addEventListener("click", () => {
-    openLightbox(img.src, img.alt);
-  })
-);
-
-$(".lb-close", lb)?.addEventListener("click", closeLightbox);
-lb?.addEventListener("click", (e) => {
-  if (e.target === lb) closeLightbox();
-});
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && lb && !lb.hidden) closeLightbox();
-});
-
-// ==========================================
-// 9. FAQ ACCORDION FILTERS
-// ==========================================
-$$(".faq-chip").forEach((chip) => {
+// ==========================================================================
+// 12. FAQ ACCORDION CATEGORY FILTER
+// ==========================================================================
+$$(".faq-filter-btn").forEach((chip) => {
   chip.addEventListener("click", () => {
-    $$(".faq-chip").forEach((c) => c.classList.remove("active"));
+    $$(".faq-filter-btn").forEach((c) => c.classList.remove("active"));
     chip.classList.add("active");
     const filter = chip.dataset.faqFilter;
 
-    $$(".faq-item").forEach((item) => {
+    $$(".faq-entry").forEach((item) => {
       const cat = item.dataset.faqCat;
-      if (filter === "all" || cat === filter) {
-        item.style.display = "";
-      } else {
-        item.style.display = "none";
-      }
+      item.style.display = filter === "all" || cat === filter ? "" : "none";
     });
   });
 });

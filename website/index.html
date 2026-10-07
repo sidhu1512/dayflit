@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dayflit — The Floating Companion for Your Windows Day</title>
-    <meta name="description" content="Dayflit is a floating desktop companion for Windows: tasks in plain language, focus sessions, timeboxing, voice capture, journal, habits, calendar and clipboard capture. Local-first, beautiful, keyboard-fast." />
+    <meta name="description" content="Dayflit is a floating desktop companion for Windows 10 & 11: natural language tasks, deep focus sessions with Spotify, calendar timeboxing, offline Whisper voice memos, private journal, habits, and clipboard capture. 100% offline, local-first." />
     <meta property="og:title" content="Dayflit — The Floating Companion for Your Windows Day" />
-    <meta property="og:description" content="Capture, plan, focus, and remember without leaving what you're doing. 100% offline, local JSON storage." />
+    <meta property="og:description" content="Capture, plan, focus, and remember without leaving what you're doing. 100% offline, local JSON storage, zero telemetry." />
     <meta property="og:image" content="./shots/today-dark.png" />
-    <meta name="theme-color" content="#070a13" />
+    <meta name="theme-color" content="#030712" />
     <link rel="icon" href="./icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,491 +16,654 @@
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <a class="skip" href="#main">Skip to content</a>
+    <!-- Subtle Aceternity Particle Canvas & Ambient Canvas -->
+    <canvas id="ambient-canvas" class="ambient-canvas" aria-hidden="true"></canvas>
+    <div class="aceternity-bg" aria-hidden="true"></div>
 
-    <!-- ================= TOP NAVIGATION ================= -->
-    <header class="top" id="top">
-      <a class="brand" href="#top" aria-label="Dayflit home">
-        <span class="orb" aria-hidden="true"></span>
-        <span>Dayflit</span>
-        <span class="brand-badge">v<span data-version>1.0.0</span></span>
-      </a>
-      <nav class="topnav" aria-label="Primary">
-        <a href="#features">Features</a>
-        <a href="#tour">Tour</a>
-        <a href="#shortcuts">Shortcuts</a>
-        <a href="#compare">Compare</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#download">Download</a>
-        <a href="#faq">FAQ</a>
-      </nav>
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <a href="#download" class="btn btn-small btn-primary" data-download>Download Free</a>
-        <button class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-    </header>
+    <a class="skip-link" href="#main">Skip to main content</a>
 
-    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+    <!-- ================= ACETERNITY FLOATING CAPSULE NAVBAR ================= -->
+    <div class="floating-navbar-container">
+      <header class="floating-navbar" id="navbar">
+        <a class="brand" href="#" aria-label="Dayflit home">
+          <img class="brand-icon" src="./icon.png" alt="Dayflit logo" width="24" height="24" />
+          <span>Dayflit</span>
+          <span class="brand-badge">v<span data-version>1.0.0</span></span>
+        </a>
+
+        <nav class="nav-links" aria-label="Primary Navigation">
+          <a href="#features">Features</a>
+          <a href="#screen-recording">Screen Recording</a>
+          <a href="#shortcuts">Shortcuts</a>
+          <a href="#compare">Comparison</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+
+        <div class="nav-right">
+          <a href="#download" class="btn btn-shimmer btn-sm" data-download>Download Free</a>
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
       <a href="#features">Features</a>
-      <a href="#tour">Product Tour</a>
-      <a href="#shortcuts">Shortcut Station</a>
-      <a href="#compare">Feature Matrix</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#download">Download</a>
+      <a href="#screen-recording">Screen Recording Walkthrough</a>
+      <a href="#shortcuts">Physical Shortcuts</a>
+      <a href="#compare">Comparison Matrix</a>
+      <a href="#gallery">Visual Gallery</a>
+      <a href="#download">Download for Windows</a>
       <a href="#faq">FAQ</a>
     </nav>
 
     <main id="main">
-      <!-- ================= HERO ================= -->
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-bg" aria-hidden="true">
-          <div class="glow glow-a"></div>
-          <div class="glow glow-b"></div>
-          <div class="glow glow-c"></div>
+      <!-- ================= ACETERNITY SIGNATURE LAMP HERO ================= -->
+      <section class="hero-section" aria-labelledby="hero-title">
+        <!-- Aceternity Lamp Component Container -->
+        <div class="aceternity-lamp" aria-hidden="true">
+          <div class="lamp-conic-left"></div>
+          <div class="lamp-conic-right"></div>
+          <div class="lamp-glow-bar"></div>
+          <div class="lamp-horizon-line"></div>
+          <div class="lamp-mask"></div>
         </div>
-        <div class="hero-inner">
-          <div class="hero-copy reveal">
-            <div class="badge-pill">
-              <span class="dot pulse"></span>
-              <span>Windows 10 &amp; 11 · 100% Offline &amp; Free</span>
-            </div>
-            <h1 id="hero-title">Your day, in one floating window.</h1>
-            <p class="lede">
-              Dayflit is an ultra-fast desktop companion that stays a keystroke away. Capture tasks in plain natural language, timebox your calendar, run deep focus blocks with Spotify, dictate voice thoughts via offline Whisper, and keep a private journal.
-            </p>
-            <div class="cta-row">
-              <a href="#download" class="btn btn-primary btn-large" data-download>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Download for Windows</span>
-              </a>
-              <a href="#tour" class="btn btn-ghost btn-large">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-                <span>Interactive Tour</span>
-              </a>
-            </div>
-            <p class="fine" id="hero-release">
-              Version <span data-version>1.0.0</span> · <span data-size>3.7 MB</span> installer · No account, no telemetry, no cloud lock-in
-            </p>
-            <ul class="hero-points" aria-label="Key highlights">
-              <li><kbd>Alt</kbd><kbd>Space</kbd> Summon Dayflit</li>
-              <li><kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> Whisper Voice Memo</li>
-              <li><kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> Toggle Focus</li>
-            </ul>
+
+        <div class="hero-content">
+          <div class="reveal-item">
+            <a href="#download" class="hero-pill">
+              <span class="hero-pill-badge">Release 1.0</span>
+              <span>The Local-First Floating Companion for Windows 10 &amp; 11</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
           </div>
 
-          <div class="hero-visual reveal" aria-hidden="true">
-            <!-- Animated interactive simulation of the floating window -->
-            <div class="float-window" id="demo-window">
-              <div class="fw-titlebar">
-                <span class="fw-orb"></span>
-                <span class="fw-title">Dayflit</span>
-                <span class="fw-chip" id="fw-timer">25:00</span>
-                <span class="fw-spacer"></span>
-                <span class="fw-ctl"></span><span class="fw-ctl"></span><span class="fw-ctl"></span>
+          <h1 class="hero-title reveal-item" id="hero-title">
+            Your day, engineered in <br class="hero-br" />
+            <span class="flip-words-container" id="flip-words">
+              <span class="flip-word active">one floating companion</span>
+            </span>
+          </h1>
+
+          <p class="hero-subtitle reveal-item">
+            Dayflit stays docked beside your active workspace. Capture tasks in plain natural language, timebox your calendar, run deep focus blocks with Spotify, dictate voice thoughts via offline Whisper, and keep a private encrypted journal. 100% offline, local JSON storage, zero telemetry.
+          </p>
+
+          <div class="hero-cta-group reveal-item">
+            <a href="#download" class="btn btn-white btn-large" data-download>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download Free for Windows</span>
+            </a>
+            <a href="#screen-recording" class="btn btn-ghost btn-large">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Watch Screen Recording</span>
+            </a>
+          </div>
+
+          <div class="hero-meta-strip reveal-item">
+            <span class="hero-meta-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Windows 10 &amp; 11 (64-bit)</span>
+            </span>
+            <span class="hero-meta-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><span data-size>3.7 MB</span> Signed Installer</span>
+            </span>
+            <span class="hero-meta-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Zero Cloud Telemetry</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Aceternity Container Scroll / 3D Perspective Showcase -->
+        <div class="hero-stage reveal-item" id="hero-stage">
+          <!-- Floating Companion Mini Orb -->
+          <div class="hero-float-bubble-wrap" id="hero-bubble-wrap" title="Click to summon companion">
+            <img class="hero-float-bubble" id="hero-bubble" src="./shots/bubble.png" alt="Dayflit Floating Companion Mini Orb" />
+            <div class="bubble-pulse-ring"></div>
+          </div>
+          
+          <!-- Floating Picture-in-Picture Timer -->
+          <div class="hero-float-pip-wrap" id="hero-pip-wrap" title="Acrylic Picture-in-Picture Focus Timer">
+            <img class="hero-float-pip" id="hero-pip" src="./shots/pip-dark.png" alt="Picture-in-picture focus timer" />
+          </div>
+
+          <!-- Main Windows 11 App Acrylic Frame -->
+          <div class="app-frame" id="hero-frame">
+            <div class="app-titlebar">
+              <div class="app-titlebar-left">
+                <img src="./icon.png" width="16" height="16" alt="" aria-hidden="true" />
+                <span>Dayflit — Floating Companion</span>
+                <span class="app-mode-badge">Active Workspace</span>
               </div>
-              <div class="fw-body">
-                <div class="fw-date" id="fw-live-date">THURSDAY, 8 OCTOBER</div>
-                <div class="fw-greet">Good morning, Builder</div>
-                <div class="fw-input" id="fw-input">
-                  <span class="fw-plus">+</span>
-                  <span class="fw-typed" id="fw-typed"></span>
-                  <span class="fw-caret"></span>
+              <div class="app-titlebar-controls">
+                <div class="app-theme-toggle" role="group" aria-label="Toggle App Preview Theme">
+                  <button class="app-theme-btn active" data-app-theme="dark">Dark</button>
+                  <button class="app-theme-btn" data-app-theme="light">Light</button>
                 </div>
-                <div class="fw-chips" id="fw-chips"></div>
-                <div class="fw-section">TODAY · <span id="fw-count">2</span></div>
-                <ul class="fw-list" id="fw-list">
-                  <li><span class="fw-check"></span><span>Review launch checklist</span><em>10:00 AM · 45m</em></li>
-                  <li><span class="fw-check"></span><span>Call Sam about the invoice</span><em>3 PM · high</em></li>
-                </ul>
-                <div class="fw-section">AGENDA</div>
-                <div class="fw-event">
-                  <span class="fw-bar"></span>
-                  <span>Design architecture review</span>
-                  <em>2 PM – 3 PM</em>
-                  <b>Join</b>
+                <div class="app-window-buttons" aria-hidden="true">
+                  <span class="app-win-btn minimize"></span>
+                  <span class="app-win-btn maximize"></span>
+                  <span class="app-win-btn close"></span>
                 </div>
-                <div class="fw-section">HABITS · 2/3</div>
-                <div class="fw-habits">
-                  <span class="h done"></span>
-                  <span class="h done"></span>
-                  <span class="h"></span>
-                </div>
-              </div>
-              <div class="fw-nav">
-                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               </div>
             </div>
 
-            <!-- Floating Companion Bubble -->
-            <div class="float-bubble" title="Floating mini companion">
-              <span></span>
-            </div>
-            <!-- Floating Picture-in-Picture Timer -->
-            <div class="float-pip">
-              <b id="pip-time">24:58</b>
-              <small>Deep Focus · 1/4</small>
-              <i></i>
+            <div class="app-viewport">
+              <div class="app-viewport-inner">
+                <img id="hero-app-image" src="./shots/today-dark.png" alt="Dayflit desktop companion dashboard overview showing today tasks, agenda, and habit streak" />
+                <!-- Subtle live status bar overlay -->
+                <div class="app-live-status-bar">
+                  <span class="status-indicator"></span>
+                  <span>Docked · Alt + Space to dismiss · Local JSON vault sync</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ================= LOGOS / INTEGRATION STRIP ================= -->
-      <section class="strip" aria-label="Seamless integrations">
-        <p>Integrates natively with</p>
-        <ul>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>
-            <span>Spotify</span>
-          </li>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span>Google Calendar</span>
-          </li>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            <span>Outlook 365</span>
-          </li>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-            <span>Meet &amp; Zoom</span>
-          </li>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            <span>Obsidian Vaults</span>
-          </li>
-          <li>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            <span>OneDrive / Dropbox</span>
-          </li>
-        </ul>
+      <!-- ================= ACETERNITY INFINITE MOVING CARDS ================= -->
+      <section class="marquee-section" aria-label="Power user workflows">
+        <div class="marquee-track" id="marquee-track">
+          <div class="marquee-card">
+            <span class="tag">Developers</span>
+            <span><b>Alt + Shift + Space</b> launches a 25m Pomodoro with Spotify &amp; auto-pauses when workstation locks.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Founders</span>
+            <span>Drag and drop natural language tasks directly onto Google Calendar and Outlook timelines.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Writers</span>
+            <span>Hold <b>Alt + Shift + V</b> anywhere to dictate thoughts with offline Whisper without cloud servers.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Privacy Purists</span>
+            <span>Zero cloud telemetry. All tasks and journal entries stored in plain, local JSON with automated zip backups.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Minimalists</span>
+            <span>A floating frameless acrylic companion that collapses into a tiny 48px ambient desktop orb.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Engineers</span>
+            <span>Sub-millisecond fuzzy search across tasks, archives, and Markdown notes via <b>Alt + Space</b>.</span>
+          </div>
+          <!-- Duplicate set for seamless continuous marquee -->
+          <div class="marquee-card">
+            <span class="tag">Developers</span>
+            <span><b>Alt + Shift + Space</b> launches a 25m Pomodoro with Spotify &amp; auto-pauses when workstation locks.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Founders</span>
+            <span>Drag and drop natural language tasks directly onto Google Calendar and Outlook timelines.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Writers</span>
+            <span>Hold <b>Alt + Shift + V</b> anywhere to dictate thoughts with offline Whisper without cloud servers.</span>
+          </div>
+          <div class="marquee-card">
+            <span class="tag">Privacy Purists</span>
+            <span>Zero cloud telemetry. All tasks and journal entries stored in plain, local JSON with automated zip backups.</span>
+          </div>
+        </div>
       </section>
 
       <!-- ================= ACETERNITY BENTO GRID (FEATURES) ================= -->
-      <section class="section" id="features" aria-labelledby="features-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Spotlight Architecture</p>
-          <h2 id="features-title">Built with surgical precision for keyboard power users.</h2>
-          <p class="sub">
-            Most productivity apps demand your entire display and trap your thoughts in closed cloud silos. Dayflit stays effortlessly docked beside your active workspace with zero latency and infinite privacy.
+      <section class="section-wrapper" id="features" aria-labelledby="features-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Spotlight Architecture</p>
+          <h2 class="section-title" id="features-title">Built with surgical precision for keyboard power users.</h2>
+          <p class="section-desc">
+            Most productivity tools hijack your entire display and hold your data hostage in proprietary cloud databases. Dayflit stays effortlessly docked beside your active workspace with zero perceptible latency and infinite privacy.
           </p>
         </div>
 
         <div class="bento-grid">
-          <!-- Bento Card 1: Natural Language Tasks (Span 2) -->
-          <article class="spotlight-card bento-card bento-col-2 reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">✓</div>
-                <span class="bento-badge">Natural Language Parsing</span>
-              </div>
-              <h3>Tasks that understand human speech &amp; shorthand</h3>
-              <p>
-                Type naturally: <code>“Review contracts tomorrow 3pm #legal !high for 45m”</code>. Dayflit instantly extracts dates, recurring cadences, priorities, estimated durations, and subtasks in real time with sub-millisecond execution.
+          <!-- Card 1: Natural Language Tasks (Span 2) -->
+          <article class="spotlight-card bento-span-2 reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <span class="bento-card-tag">Natural Language Parser</span>
+              <h3 class="bento-card-title">Tasks that understand human shorthand</h3>
+              <p class="bento-card-desc">
+                Type naturally: <code>“Review contracts tomorrow 3pm #legal !urgent for 45m”</code>. Dayflit's local tokenizer extracts dates, recurrences, priorities, durations, and project tags in real time with sub-millisecond execution.
               </p>
             </div>
-            <div class="bento-card-preview">
-              <div style="font-size:0.86rem;color:var(--text);font-family:var(--font-mono);display:flex;align-items:center;gap:0.5rem;">
-                <span style="color:var(--accent);">❯</span>
-                <span>Deploy frontend rewrite tomorrow 4pm #shipping !urgent 30m</span>
+            
+            <div class="bento-preview-box">
+              <div class="nlp-input-wrapper">
+                <input type="text" class="nlp-sandbox-input" id="nlp-input" value="Deploy production build tomorrow 4pm #shipping !urgent for 30m" placeholder="Try typing: Deploy staging tomorrow 3pm #dev !high..." />
+                <button class="nlp-clear-btn" id="nlp-clear-btn" title="Clear input">✕</button>
               </div>
-              <div class="nlp-chips">
-                <span>📅 Tomorrow 4:00 PM</span>
-                <span>⏱ 30 min duration</span>
-                <span>🏷 #shipping</span>
-                <span>🔥 Priority: Urgent</span>
+              <div class="nlp-presets-row">
+                <button class="nlp-preset-btn" data-preset="Review security audit tomorrow 2pm #security !urgent for 1h">Security Audit</button>
+                <button class="nlp-preset-btn" data-preset="Call investor Friday 10am for 45m #fundraising">Investor Call</button>
+                <button class="nlp-preset-btn" data-preset="Sprint planning every Monday 9am #eng !high">Sprint Planning</button>
+                <button class="nlp-preset-btn" data-preset="Write blog draft in 2 hours #content">Quick Memo</button>
+              </div>
+              <div class="nlp-output-chips" id="nlp-chips">
+                <!-- Dynamically populated without false fallbacks -->
               </div>
             </div>
           </article>
 
-          <!-- Bento Card 2: 100% Local-First Engine -->
-          <article class="spotlight-card bento-card reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">🔒</div>
-                <span class="bento-badge">Zero Cloud Telemetry</span>
-              </div>
-              <h3>100% Local-First JSON Architecture</h3>
-              <p>
-                No servers, no tracking, no subscription paywalls. Your data lives in plain, human-readable JSON files with atomic write integrity and automated daily zip backups.
+          <!-- Card 2: 100% Local-First Engine -->
+          <article class="spotlight-card reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <span class="bento-card-tag">100% Local Storage</span>
+              <h3 class="bento-card-title">Zero Cloud Telemetry</h3>
+              <p class="bento-card-desc">
+                No remote servers, no third-party analytics, no subscriptions. Your tasks live in plain, human-readable JSON files with atomic writes and automatic daily zip backups.
               </p>
             </div>
-            <div class="bento-card-preview">
-              <div class="vault-checksum">
-                <span>SHA-256 Verified Storage</span>
-                <span>100% LOCAL</span>
+
+            <div class="bento-preview-box vault-inspector">
+              <div class="vault-stat-row">
+                <span>Storage Format</span>
+                <span class="vault-stat-val">Standard JSON</span>
               </div>
-              <div style="font-family:var(--font-mono);font-size:0.76rem;color:var(--faint);margin-top:0.35rem;">
-                c:/users/dayflit-vault/tasks.json (OK)
+              <div class="vault-stat-row">
+                <span>Network Calls</span>
+                <span class="vault-stat-val vault-green">0 requests</span>
+              </div>
+              <div class="vault-stat-row">
+                <span>Location</span>
+                <span class="vault-stat-val">%AppData%/Dayflit</span>
+              </div>
+              <div class="vault-stat-row">
+                <span>Integrity Check</span>
+                <span class="vault-stat-val vault-green">SHA-256 (Pass)</span>
+              </div>
+              <div class="vault-stat-row">
+                <span>Data Sovereignty</span>
+                <span class="vault-stat-val vault-green">100% User Owned</span>
               </div>
             </div>
           </article>
 
-          <!-- Bento Card 3: Deep Focus + Spotify -->
-          <article class="spotlight-card bento-card reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">◷</div>
-                <span class="bento-badge">Windows Media Integration</span>
-              </div>
-              <h3>Deep Focus Sessions &amp; Auto-Pause</h3>
-              <p>
-                Pomodoro, flow state timers, and stopwatch modes. Starts your Spotify deep focus playlist on session launch, pauses automatically when you lock your PC, and floats as an acrylic PIP timer.
+          <!-- Card 3: Deep Focus + Spotify -->
+          <article class="spotlight-card reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <span class="bento-card-tag">Windows Media Engine</span>
+              <h3 class="bento-card-title">Deep Focus &amp; Spotify</h3>
+              <p class="bento-card-desc">
+                Pomodoro, flow state blocks, and stopwatches. Automatically launches your focus playlist on session start, pauses audio when Windows locks, and floats as an Acrylic PIP timer.
               </p>
             </div>
-            <div class="bento-card-preview" style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="font-size:0.86rem;display:flex;align-items:center;gap:0.5rem;">
-                <span style="width:8px;height:8px;border-radius:50%;background:var(--success);"></span>
-                <b>Synthwave Beats</b>
-              </div>
-              <span style="font-family:var(--font-mono);color:var(--accent);font-weight:700;">25:00</span>
-            </div>
-          </article>
 
-          <!-- Bento Card 4: Calendar Timeboxing -->
-          <article class="spotlight-card bento-card reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">▤</div>
-                <span class="bento-badge">2-Way Sync Engine</span>
+            <div class="bento-preview-box">
+              <div class="focus-sim-box">
+                <!-- Circular SVG Progress Countdown -->
+                <div class="focus-ring-container">
+                  <svg class="focus-ring-svg" width="84" height="84" viewBox="0 0 84 84">
+                    <circle class="focus-ring-bg" cx="42" cy="42" r="36" />
+                    <circle class="focus-ring-progress" id="focus-ring-circle" cx="42" cy="42" r="36" />
+                  </svg>
+                  <span class="focus-sim-timer" id="focus-sim-clock">24:59</span>
+                </div>
+                <div class="focus-sim-controls">
+                  <button class="focus-sim-btn primary" id="focus-sim-toggle" aria-label="Toggle focus timer" title="Play / Pause timer">▶</button>
+                  <button class="focus-sim-btn" id="focus-sim-reset" aria-label="Reset focus timer" title="Reset to 25:00">↺</button>
+                </div>
               </div>
-              <h3>Interactive Calendar Timeboxing</h3>
-              <p>
-                Drag and drop tasks directly onto your day timeline. Synchronize with Google Calendar and Microsoft 365, detect Zoom &amp; Teams meeting links, and auto-join calls on schedule.
-              </p>
-            </div>
-            <div class="bento-card-preview" style="font-size:0.82rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between;">
-              <span>📅 Google &amp; Outlook 365</span>
-              <span style="color:var(--success);font-weight:600;">Two-Way Active</span>
-            </div>
-          </article>
-
-          <!-- Bento Card 5: Offline Whisper Dictation -->
-          <article class="spotlight-card bento-card reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">◉</div>
-                <span class="bento-badge">On-Device AI</span>
-              </div>
-              <h3>Offline Whisper Voice Dictation</h3>
-              <p>
-                Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> anywhere, speak your thoughts, and release. High-accuracy local Whisper models transcribe voice memos instantly into tasks, notes, or journal entries.
-              </p>
-            </div>
-            <div class="bento-card-preview">
-              <div class="voice-bar-anim" id="bento-voice-bars">
-                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              <div class="focus-spotify-banner">
+                <div class="spotify-track-meta">
+                  <span class="spotify-eq-bars" id="spotify-eq"><i></i><i></i><i></i><i></i></span>
+                  <span class="spotify-track-title">Synthwave Beats for Coding</span>
+                </div>
+                <span class="spotify-status-tag" id="spotify-status-tag">Ready</span>
               </div>
             </div>
           </article>
 
-          <!-- Bento Card 6: Life Journal & Insights (Span 2) -->
-          <article class="spotlight-card bento-card bento-col-2 reveal">
-            <div>
-              <div class="bento-card-top">
-                <div class="ic-box">▦</div>
-                <span class="bento-badge">Quantified Mind</span>
-              </div>
-              <h3>Private Markdown Journal, Habit Streaks &amp; Heatmaps</h3>
-              <p>
-                Daily prompt templates, mood tracking, PIN protection, and full consistency heatmaps. Export everything with a single click into dated Markdown ready for Obsidian.
+          <!-- Card 4: Offline Whisper Dictation -->
+          <article class="spotlight-card reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <span class="bento-card-tag">On-Device AI</span>
+              <h3 class="bento-card-title">Offline Whisper Voice</h3>
+              <p class="bento-card-desc">
+                Hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> anywhere, speak your thoughts, and release. Local Whisper models transcribe audio directly into tasks or journal entries without cloud servers.
               </p>
             </div>
-            <div class="bento-card-preview" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
-              <span style="font-size:0.86rem;color:var(--muted);">🔥 24-Day Consistency Streak</span>
-              <span style="font-size:0.82rem;color:var(--accent);font-family:var(--font-mono);">Obsidian Vault Compatible (.md)</span>
-            </div>
-          </article>
-        </div>
-      </section>
 
-      <!-- ================= INTERACTIVE PRODUCT TOUR & VIDEO PLAYER ================= -->
-      <section class="section" id="tour" aria-labelledby="tour-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Interactive Walkthrough</p>
-          <h2 id="tour-title">Experience Dayflit in action.</h2>
-          <p class="sub">
-            Click through the core workflows below or let the interactive tour demonstrate how Dayflit stays seamlessly attached to your daily flow.
-          </p>
-        </div>
-
-        <div class="tour-box reveal">
-          <!-- Tour Step Navigation Tabs -->
-          <div class="tour-nav" role="tablist" aria-label="Product tour steps">
-            <button class="tour-tab active" role="tab" aria-selected="true" data-tour-step="0">
-              <span class="tour-tab-step">01. Capture</span>
-              <span class="tour-tab-title">Quick Palette (Alt+Space)</span>
-              <div class="tour-progress-bar"></div>
-            </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-tour-step="1">
-              <span class="tour-tab-step">02. Voice</span>
-              <span class="tour-tab-title">Whisper Memo (Alt+Shift+V)</span>
-              <div class="tour-progress-bar"></div>
-            </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-tour-step="2">
-              <span class="tour-tab-step">03. Focus</span>
-              <span class="tour-tab-title">Focus &amp; Music (Alt+Shift+Space)</span>
-              <div class="tour-progress-bar"></div>
-            </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-tour-step="3">
-              <span class="tour-tab-step">04. Timebox</span>
-              <span class="tour-tab-title">Calendar Sync (Alt+Shift+T)</span>
-              <div class="tour-progress-bar"></div>
-            </button>
-            <button class="tour-tab" role="tab" aria-selected="false" data-tour-step="4">
-              <span class="tour-tab-step">05. Journal</span>
-              <span class="tour-tab-title">Reflect &amp; Habits (Alt+Shift+N)</span>
-              <div class="tour-progress-bar"></div>
-            </button>
-          </div>
-
-          <!-- Tour Stage Content -->
-          <div class="tour-stage">
-            <div class="tour-details">
-              <span class="badge-pill" id="tour-badge">Step 1 of 5</span>
-              <h3 id="tour-heading">Fuzzy Global Command Palette</h3>
-              <p id="tour-description">
-                Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or full-screen game. Type natural language commands to capture tasks, search across your notes, jump to calendar events, or check your clipboard history instantly.
-              </p>
-              <ul class="checks" id="tour-checks">
-                <li>Instant global summon with zero perceptible startup latency</li>
-                <li>Fuzzy search across open tasks, archives, and Markdown notes</li>
-                <li>Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss</li>
-              </ul>
-              <div class="tour-controls">
-                <button class="btn btn-primary" id="tour-autoplay-btn">
-                  <span id="tour-play-icon">⏸</span>
-                  <span id="tour-play-text">Pause Tour</span>
+            <div class="bento-preview-box whisper-sim-wrap">
+              <div class="whisper-mic-row">
+                <button class="whisper-mic-btn" id="whisper-mic" title="Click to test voice recording" aria-label="Record voice memo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                 </button>
-                <button class="btn btn-ghost" id="tour-next-btn">Next Step →</button>
+                <div class="whisper-wave-bars" id="whisper-wave" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+              <div class="whisper-output-text" id="whisper-text">
+                Click microphone to test simulated offline Whisper transcription...
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5: Calendar Timeboxing (Span 2) -->
+          <article class="spotlight-card bento-span-2 reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <span class="bento-card-tag">2-Way Sync</span>
+              <h3 class="bento-card-title">Visual Calendar Timeboxing &amp; One-Click Join</h3>
+              <p class="bento-card-desc">
+                Drag and drop tasks onto your day timeline. Synchronize seamlessly with Google Calendar and Microsoft 365, detect Zoom &amp; Teams meeting links, and join scheduled calls with one click.
+              </p>
+            </div>
+
+            <div class="bento-preview-box">
+              <div class="calendar-sim-pill">
+                <div class="calendar-pill-info">
+                  <span class="calendar-dot"></span>
+                  <div>
+                    <b style="color:#fff;display:block;">Daily Engineering Standup</b>
+                    <span style="color:var(--text-muted);font-size:0.75rem;">9:30 AM – 9:45 AM · Google Meet · In 14 mins</span>
+                  </div>
+                </div>
+                <button class="calendar-join-btn" id="calendar-join-btn">
+                  <span>🎥 Join Meeting</span>
+                </button>
+              </div>
+              <div class="calendar-free-slots-row">
+                <span class="free-slot-tag">Free 10:00 AM – 11:30 AM</span>
+                <span class="free-slot-tag">Free 2:00 PM – 4:00 PM (Focus Block)</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 6: Quantified Mind & Obsidian (Span 3) -->
+          <article class="spotlight-card bento-span-3 reveal-item" data-tilt>
+            <div class="bento-card-top">
+              <div class="bento-tab-switch">
+                <button class="bento-tab-btn active" data-bento-tab="heatmap">52-Week Consistency Heatmap</button>
+                <button class="bento-tab-btn" data-bento-tab="obsidian">Obsidian Markdown (.md) Vault</button>
+              </div>
+              <h3 class="bento-card-title">Encrypted Markdown Journal, Habit Streaks &amp; Obsidian Vault</h3>
+              <p class="bento-card-desc">
+                Daily reflection prompts, mood tracking, biometric PIN protection, and a 52-week consistency heatmap. Export everything with a single click into dated Markdown files formatted for your Obsidian vault.
+              </p>
+            </div>
+
+            <div class="bento-preview-box">
+              <!-- Tab 1: Heatmap View -->
+              <div class="bento-tab-content active" id="tab-heatmap">
+                <div class="heatmap-grid" id="heatmap-grid" aria-label="Consistency contribution heatmap">
+                  <!-- Dynamically generated 52-week cells with realistic calendar dates -->
+                </div>
+                <div class="heatmap-footer">
+                  <span>🔥 <b>24-Day Active Streak</b> · 142 Tasks Completed · 38 Focus Blocks</span>
+                  <div class="heatmap-legend">
+                    <span>Less</span>
+                    <i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i>
+                    <span>More</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tab 2: Obsidian Markdown Preview -->
+              <div class="bento-tab-content" id="tab-obsidian">
+                <pre class="obsidian-code-block"><code>---
+date: 2026-10-07
+tags: [journal, deep-work, engineering]
+mood: 🔥 energized
+focus_minutes: 125
+completed_tasks: 8
+---
+
+# Daily Reflection
+Surgical focus session this morning on Dayflit architecture.
+- [x] Implemented offline Whisper model quantization
+- [x] Verified zero cloud network calls via Wireshark
+- [ ] Review sprint backlog for tomorrow 10am #team</code></pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= ACETERNITY INTERACTIVE SCREEN RECORDING VIDEO PLAYER STUDIO ================= -->
+      <section class="section-wrapper" id="screen-recording" aria-labelledby="screen-recording-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Real Product Walkthrough</p>
+          <h2 class="section-title" id="screen-recording-title">Experience Dayflit in real time.</h2>
+          <p class="section-desc">
+            Watch the high-definition interactive screen recording below. Scrub through chapters, jump to key milestones, or toggle playback speed to inspect how Dayflit stays docked beside your active work.
+          </p>
+        </div>
+
+        <div class="video-tour-box reveal-item" id="video-tour-box">
+          <!-- Video Chapters Scrubber Tabs -->
+          <div class="video-chapters-bar" role="tablist" aria-label="Screen Recording Chapters">
+            <button class="video-chapter-tab active" role="tab" aria-selected="true" data-chapter="0">
+              <span class="chapter-time">00:00 · 01</span>
+              <span class="chapter-name">Global Palette (Alt+Space)</span>
+              <div class="chapter-progress"></div>
+            </button>
+            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="1">
+              <span class="chapter-time">00:06 · 02</span>
+              <span class="chapter-name">Tasks &amp; Natural Language</span>
+              <div class="chapter-progress"></div>
+            </button>
+            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="2">
+              <span class="chapter-time">00:12 · 03</span>
+              <span class="chapter-name">Deep Focus &amp; Spotify</span>
+              <div class="chapter-progress"></div>
+            </button>
+            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="3">
+              <span class="chapter-time">00:18 · 04</span>
+              <span class="chapter-name">Offline Whisper Voice</span>
+              <div class="chapter-progress"></div>
+            </button>
+            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="4">
+              <span class="chapter-time">00:24 · 05</span>
+              <span class="chapter-name">Calendar Timeboxing</span>
+              <div class="chapter-progress"></div>
+            </button>
+            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="5">
+              <span class="chapter-time">00:30 · 06</span>
+              <span class="chapter-name">Journal &amp; Heatmap</span>
+              <div class="chapter-progress"></div>
+            </button>
+          </div>
+
+          <!-- Video Player Studio Stage -->
+          <div class="video-stage">
+            <div class="video-info">
+              <span class="hero-pill-badge" id="video-chapter-badge">Chapter 1 of 6 · Instant Summon</span>
+              <h3 id="video-chapter-heading">Fuzzy Global Command Palette</h3>
+              <p id="video-chapter-desc">
+                Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.
+              </p>
+              <ul class="video-feature-list" id="video-chapter-features">
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Instant global summon with zero perceptible startup lag</span>
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Fuzzy search across active tasks, archives, and notes</span>
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss</span>
+                </li>
+              </ul>
+
+              <!-- Video Player Timeline Scrubber & Controls -->
+              <div class="video-player-hud">
+                <div class="video-scrubber-wrap" id="video-scrubber-wrap">
+                  <div class="video-scrubber-bar" id="video-scrubber-bar">
+                    <div class="video-scrubber-progress" id="video-scrubber-progress"></div>
+                    <div class="video-scrubber-head" id="video-scrubber-head"></div>
+                  </div>
+                  <div class="video-time-display">
+                    <span id="video-time-cur">00:00</span> / <span id="video-time-total">00:36</span>
+                  </div>
+                </div>
+
+                <div class="video-playback-controls">
+                  <button class="btn btn-shimmer btn-sm" id="video-play-btn" title="Play or pause walkthrough">
+                    <span id="video-play-icon">⏸</span>
+                    <span id="video-play-label">Pause</span>
+                  </button>
+                  <button class="btn btn-ghost btn-sm" id="video-speed-btn" title="Cycle playback speed">1.0x</button>
+                  <button class="btn btn-ghost btn-sm" id="video-next-btn">Next Chapter →</button>
+                  <button class="btn btn-ghost btn-sm" id="video-fullscreen-btn" title="Toggle Fullscreen">⛶</button>
+                </div>
               </div>
             </div>
 
-            <div class="tour-screen-wrap">
-              <img id="tour-image" src="./shots/palette-dark.png" alt="Command palette view" />
-              <div class="tour-hotspot" id="tour-hotspot" style="top:18px;right:20px;">
-                ⚡ Global Hotkey Active
+            <!-- Simulated Screen Recording Display Canvas Frame -->
+            <div class="video-display-frame" id="video-screen-container">
+              <!-- High-Res Screen Recording Image with dynamic state -->
+              <div class="video-screen-inner">
+                <img id="video-screen-img" src="./shots/palette-dark.png" alt="Command palette screen capture" />
+                
+                <!-- Live Screencast Animated Mouse Cursor -->
+                <div class="screencast-cursor" id="screencast-cursor">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 3l7 18 3-7 7-3L3 3z" fill="#ffffff" stroke="#000000" stroke-width="1.5"/></svg>
+                  <span class="screencast-click-ripple" id="screencast-ripple"></span>
+                </div>
+
+                <!-- Screencast Keypress Overlay HUD -->
+                <div class="screencast-hotkey-hud" id="screencast-hotkey-hud">
+                  <kbd>Alt</kbd> + <kbd>Space</kbd>
+                </div>
+
+                <!-- Screencast Live Action Toast -->
+                <div class="screencast-action-pill" id="screencast-action-pill">
+                  <span>● Instant Summon</span>
+                </div>
+
+                <!-- Screencast Live Badge -->
+                <div class="video-live-overlay">
+                  <span class="live-indicator-dot"></span>
+                  <span id="video-live-label">1080p · 60 FPS Screencast</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ================= INTERACTIVE 3D KEYBOARD SHORTCUT STATION ================= -->
-      <section class="section" id="shortcuts" aria-labelledby="shortcuts-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Physical Shortcut Station</p>
-          <h2 id="shortcuts-title">Master the speed of thought.</h2>
-          <p class="sub">
-            Every core action in Dayflit has a dedicated physical shortcut. Click any row or trigger the shortcut on your physical keyboard to see the keys depress in 3D and fire real-time previews.
+      <!-- ================= 3D PHYSICAL SHORTCUT STATION ================= -->
+      <section class="section-wrapper" id="shortcuts" aria-labelledby="shortcuts-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Physical Shortcut Station</p>
+          <h2 class="section-title" id="shortcuts-title">Master the speed of thought.</h2>
+          <p class="section-desc">
+            Every core action in Dayflit has a dedicated physical hotkey. Click any row or trigger the shortcut on your physical keyboard to depress the mechanical keys in 3D and see real-time previews.
           </p>
         </div>
 
-        <div class="key-station reveal">
-          <div class="key-station-grid">
-            <!-- Shortcut selection cards -->
-            <div class="shortcut-list" role="list">
-              <div class="shortcut-card active" data-shortcut="alt-space" role="button" tabindex="0">
-                <div class="shortcut-info">
+        <div class="shortcut-station-box reveal-item">
+          <div class="shortcut-station-grid">
+            <!-- Shortcut Selection Cards -->
+            <div class="shortcut-cards-list" role="list">
+              <div class="shortcut-row-card active" data-shortcut="alt-space" role="button" tabindex="0">
+                <div class="shortcut-card-text">
                   <h4>Summon / Dismiss Dayflit</h4>
-                  <p>Brings the floating companion to front from any application</p>
+                  <p>Brings floating companion to front with fluid Acrylic blur</p>
                 </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d" style="min-width:64px;">Space</span>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d" style="min-width:68px;">Space</span>
                 </div>
               </div>
 
-              <div class="shortcut-card" data-shortcut="alt-shift-t" role="button" tabindex="0">
-                <div class="shortcut-info">
+              <div class="shortcut-row-card" data-shortcut="alt-shift-t" role="button" tabindex="0">
+                <div class="shortcut-card-text">
                   <h4>Quick Task Capture</h4>
-                  <p>Instant prompt dialog for tasks with natural language dates</p>
+                  <p>Prompt dialog with instant natural language date tokenizer</p>
                 </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">Shift</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">T</span>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">Shift</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">T</span>
                 </div>
               </div>
 
-              <div class="shortcut-card" data-shortcut="alt-shift-v" role="button" tabindex="0">
-                <div class="shortcut-info">
+              <div class="shortcut-row-card" data-shortcut="alt-shift-v" role="button" tabindex="0">
+                <div class="shortcut-card-text">
                   <h4>Whisper Voice Memo</h4>
-                  <p>Hold to speak, release to transcribe with local AI</p>
+                  <p>Hold to record voice memo; local AI transcribes on release</p>
                 </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">Shift</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">V</span>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">Shift</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">V</span>
                 </div>
               </div>
 
-              <div class="shortcut-card" data-shortcut="alt-shift-space" role="button" tabindex="0">
-                <div class="shortcut-info">
+              <div class="shortcut-row-card" data-shortcut="alt-shift-space" role="button" tabindex="0">
+                <div class="shortcut-card-text">
                   <h4>Toggle Focus Session</h4>
-                  <p>Starts or pauses your Pomodoro timer and linked playlist</p>
+                  <p>Starts or pauses your Pomodoro timer and linked Spotify playlist</p>
                 </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">Shift</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d" style="min-width:54px;">Space</span>
-                </div>
-              </div>
-
-              <div class="shortcut-card" data-shortcut="alt-shift-n" role="button" tabindex="0">
-                <div class="shortcut-info">
-                  <h4>Quick Note / Daily Journal</h4>
-                  <p>Opens a distraction-free scratchpad with auto-save</p>
-                </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">Shift</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">N</span>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">Shift</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d" style="min-width:58px;">Space</span>
                 </div>
               </div>
 
-              <div class="shortcut-card" data-shortcut="alt-shift-c" role="button" tabindex="0">
-                <div class="shortcut-info">
+              <div class="shortcut-row-card" data-shortcut="alt-shift-n" role="button" tabindex="0">
+                <div class="shortcut-card-text">
+                  <h4>Quick Journal Note</h4>
+                  <p>Opens distraction-free markdown scratchpad with auto-save</p>
+                </div>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">Shift</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">N</span>
+                </div>
+              </div>
+
+              <div class="shortcut-row-card" data-shortcut="alt-shift-c" role="button" tabindex="0">
+                <div class="shortcut-card-text">
                   <h4>Toggle Companion Bubble</h4>
-                  <p>Collapses the window into a compact floating orb</p>
+                  <p>Collapses the companion window into a compact floating desktop orb</p>
                 </div>
-                <div class="shortcut-keys">
-                  <span class="kbd-3d">Alt</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">Shift</span>
-                  <span style="color:var(--faint);">+</span>
-                  <span class="kbd-3d">C</span>
+                <div class="key-group">
+                  <span class="key-3d">Alt</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">Shift</span>
+                  <span style="color:var(--text-muted);">+</span>
+                  <span class="key-3d">C</span>
                 </div>
               </div>
             </div>
 
             <!-- Live Simulator & Preview Output -->
-            <div class="shortcut-preview">
-              <div class="preview-header">
-                <div class="preview-status">
-                  <span class="dot pulse"></span>
-                  <span id="preview-action-title">Summon Dayflit Window</span>
+            <div class="shortcut-live-preview">
+              <div class="shortcut-preview-header">
+                <div class="shortcut-action-name">
+                  <span class="live-indicator-dot"></span>
+                  <span id="shortcut-action-title">Summon Dayflit Window</span>
                 </div>
-                <span class="preview-latency" id="preview-latency">&lt; 12ms latency</span>
+                <span class="shortcut-latency-pill" id="shortcut-latency">&lt; 8ms latency</span>
               </div>
-              <div class="preview-body">
-                <div class="preview-shot">
-                  <img id="preview-img" src="./shots/today-dark.png" alt="Live preview" />
+              <div class="shortcut-preview-body">
+                <div class="shortcut-preview-img-wrap">
+                  <img id="shortcut-preview-img" src="./shots/today-dark.png" alt="Shortcut live response" />
                 </div>
-                <div class="preview-caption">
-                  <span id="preview-description">Dayflit floats smoothly over your code, browser, or game.</span>
-                  <b id="preview-key-badge">Alt + Space</b>
+                <div class="shortcut-preview-footer">
+                  <span id="shortcut-desc">Dayflit floats smoothly over your code, browser, or game.</span>
+                  <b id="shortcut-badge">Alt + Space</b>
                 </div>
               </div>
             </div>
@@ -509,24 +672,24 @@
       </section>
 
       <!-- ================= FEATURE COMPARISON MATRIX ================= -->
-      <section class="section" id="compare" aria-labelledby="compare-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Zero Compromise Matrix</p>
-          <h2 id="compare-title">Why high performers choose Dayflit.</h2>
-          <p class="sub">
+      <section class="section-wrapper" id="compare" aria-labelledby="compare-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Zero Compromise Matrix</p>
+          <h2 class="section-title" id="compare-title">Why high performers choose Dayflit.</h2>
+          <p class="section-desc">
             See how Dayflit compares to Notion, TickTick, Forest, and Todoist across privacy, speed, and deep desktop workflow integration.
           </p>
         </div>
 
-        <div class="compare-wrap reveal">
-          <div class="compare-scroll">
-            <table class="compare-table">
+        <div class="matrix-card reveal-item">
+          <div class="matrix-scroll">
+            <table class="matrix-table">
               <thead>
                 <tr>
-                  <th class="col-feat">Dimension / Capability</th>
-                  <th class="col-dayflit">
+                  <th class="matrix-feat-col">Capability / Architecture</th>
+                  <th class="matrix-dayflit-col">
                     <span>Dayflit</span>
-                    <span class="badge-winner">LOCAL FIRST</span>
+                    <span class="winner-tag">LOCAL FIRST</span>
                   </th>
                   <th>Notion</th>
                   <th>TickTick</th>
@@ -536,81 +699,81 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="col-feat">
-                    100% Offline Local JSON
-                    <small>Zero telemetry, no mandatory login or remote database lock-in</small>
+                  <td class="matrix-feat-col">
+                    100% Offline Local JSON Storage
+                    <small>Zero telemetry, no mandatory accounts, no database lock-in</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ Yes (Pure JSON)</span></td>
-                  <td><span class="check-no">✕ Cloud Only</span></td>
-                  <td><span class="check-no">✕ Cloud Only</span></td>
-                  <td><span class="check-partial">◐ Partial</span></td>
-                  <td><span class="check-no">✕ Cloud Only</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ Pure Local JSON</span></td>
+                  <td><span class="matrix-no">✕ Cloud Only</span></td>
+                  <td><span class="matrix-no">✕ Cloud Only</span></td>
+                  <td><span class="matrix-partial">◐ Partial</span></td>
+                  <td><span class="matrix-no">✕ Cloud Only</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
-                    Floating Companion Window
-                    <small>Acrylic/Mica overlay that docks seamlessly over active work</small>
+                  <td class="matrix-feat-col">
+                    Floating Desktop Companion
+                    <small>Acrylic/Mica overlay that stays docked over active work</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ Yes (Frameless)</span></td>
-                  <td><span class="check-no">✕ Full App Only</span></td>
-                  <td><span class="check-partial">◐ Sticky Note</span></td>
-                  <td><span class="check-no">✕ Mobile Focus</span></td>
-                  <td><span class="check-no">✕ Full App Only</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ Frameless Overlay</span></td>
+                  <td><span class="matrix-no">✕ Full Window Only</span></td>
+                  <td><span class="matrix-partial">◐ Sticky Note</span></td>
+                  <td><span class="matrix-no">✕ Mobile Focus</span></td>
+                  <td><span class="matrix-no">✕ Full Window Only</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
+                  <td class="matrix-feat-col">
                     Offline Whisper Voice Dictation
-                    <small>High accuracy on-device transcription with zero cloud uploads</small>
+                    <small>High accuracy on-device AI transcription with zero server latency</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ Yes (Local AI)</span></td>
-                  <td><span class="check-no">✕ Cloud AI ($$$)</span></td>
-                  <td><span class="check-no">✕ None</span></td>
-                  <td><span class="check-no">✕ None</span></td>
-                  <td><span class="check-no">✕ None</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ Local Whisper AI</span></td>
+                  <td><span class="matrix-no">✕ Cloud AI ($$$)</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
+                  <td class="matrix-feat-col">
                     System-Wide Global Hotkeys
-                    <small>Alt+Shift shortcuts that capture tasks and toggle timers anywhere</small>
+                    <small>Capture tasks and trigger focus timers from any game or app</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ Yes (Global)</span></td>
-                  <td><span class="check-no">✕ In-App Only</span></td>
-                  <td><span class="check-partial">◐ Limited</span></td>
-                  <td><span class="check-no">✕ None</span></td>
-                  <td><span class="check-partial">◐ Quick Add Only</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ Global Hotkeys</span></td>
+                  <td><span class="matrix-no">✕ In-App Only</span></td>
+                  <td><span class="matrix-partial">◐ Limited</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
+                  <td><span class="matrix-partial">◐ Quick Add Only</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
-                    Zero Subscription / Free Early Access
-                    <small>Own your productivity tools forever without recurring fees</small>
+                  <td class="matrix-feat-col">
+                    Zero Subscription Paywalls
+                    <small>Free early access, own your software and files forever</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ 100% Free</span></td>
-                  <td><span class="check-no">✕ $10+/mo AI</span></td>
-                  <td><span class="check-no">✕ $35.99/yr</span></td>
-                  <td><span class="check-partial">◐ In-App Buys</span></td>
-                  <td><span class="check-no">✕ $60/yr Pro</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ 100% Free</span></td>
+                  <td><span class="matrix-no">✕ $10+/mo AI</span></td>
+                  <td><span class="matrix-no">✕ $35.99/yr</span></td>
+                  <td><span class="matrix-partial">◐ In-App Buys</span></td>
+                  <td><span class="matrix-no">✕ $60/yr Pro</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
-                    Built-in Focus + Windows Media Control
-                    <small>Auto-pauses Spotify on break &amp; detects meeting distractions</small>
+                  <td class="matrix-feat-col">
+                    Built-in Focus &amp; Spotify Media Control
+                    <small>Auto-pauses Spotify on break &amp; detects distraction apps</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ Yes (Native)</span></td>
-                  <td><span class="check-no">✕ None</span></td>
-                  <td><span class="check-partial">◐ White Noise</span></td>
-                  <td><span class="check-partial">◐ Timer Only</span></td>
-                  <td><span class="check-no">✕ None</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ Windows Media Native</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
+                  <td><span class="matrix-partial">◐ White Noise</span></td>
+                  <td><span class="matrix-partial">◐ Timer Only</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
                 </tr>
                 <tr>
-                  <td class="col-feat">
-                    Calendar Timeboxing (Google + 365)
-                    <small>Drag tasks onto the timeline with 2-way sync &amp; auto-join</small>
+                  <td class="matrix-feat-col">
+                    Calendar Timeboxing (Google + Outlook)
+                    <small>Drag tasks onto the timeline with 2-way sync &amp; one-click join</small>
                   </td>
-                  <td class="col-dayflit"><span class="check-yes">✓ 2-Way Sync</span></td>
-                  <td><span class="check-partial">◐ Notion Cal</span></td>
-                  <td><span class="check-partial">◐ Paywalled</span></td>
-                  <td><span class="check-no">✕ None</span></td>
-                  <td><span class="check-partial">◐ Basic Feed</span></td>
+                  <td class="matrix-dayflit-col"><span class="matrix-yes">✓ 2-Way Sync</span></td>
+                  <td><span class="matrix-partial">◐ Notion Cal</span></td>
+                  <td><span class="matrix-partial">◐ Paywalled</span></td>
+                  <td><span class="matrix-no">✕ None</span></td>
+                  <td><span class="matrix-partial">◐ Basic Feed</span></td>
                 </tr>
               </tbody>
             </table>
@@ -618,108 +781,111 @@
         </div>
       </section>
 
-      <!-- ================= DARK / LIGHT GALLERY WITH LIGHTBOX ================= -->
-      <section class="section" id="gallery" aria-labelledby="gallery-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Visual Engineering</p>
-          <h2 id="gallery-title">Light or dark, designed to fit into Windows 11.</h2>
-          <p class="sub">Dayflit renders in native Acrylic and Mica with crisp subpixel typography and responsive dark and light modes.</p>
-          
-          <div class="gallery-head-controls">
-            <div class="gallery-filters" role="group" aria-label="Filter gallery">
-              <button class="gallery-filter-btn active" data-filter="all">All Screens</button>
-              <button class="gallery-filter-btn" data-filter="focus">Focus &amp; Timers</button>
-              <button class="gallery-filter-btn" data-filter="calendar">Calendar &amp; Tasks</button>
-              <button class="gallery-filter-btn" data-filter="journal">Journal &amp; Insights</button>
+      <!-- ================= DARK & LIGHT MODE GALLERY ================= -->
+      <section class="section-wrapper" id="gallery" aria-labelledby="gallery-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Visual Engineering</p>
+          <h2 class="section-title" id="gallery-title">Light or dark, designed to fit into Windows 11.</h2>
+          <p class="section-desc">
+            Dayflit renders in native Acrylic and Mica with crisp subpixel typography and responsive dark and light modes.
+          </p>
+
+          <div class="gallery-controls-bar">
+            <div class="gallery-filters-group" role="group" aria-label="Filter gallery">
+              <button class="filter-chip active" data-filter="all">All Screens</button>
+              <button class="filter-chip" data-filter="focus">Focus &amp; Timers</button>
+              <button class="filter-chip" data-filter="calendar">Calendar &amp; Tasks</button>
+              <button class="filter-chip" data-filter="journal">Journal &amp; Insights</button>
             </div>
-            <div class="toggle" role="group" aria-label="Theme mode selector">
-              <button class="on" data-theme-pick="dark">🌙 Dark Mode</button>
-              <button data-theme-pick="light">☀️ Light Mode</button>
+            <div class="gallery-mode-toggle" role="group" aria-label="Theme mode selector">
+              <button class="gallery-mode-btn active" data-gallery-theme="dark">🌙 Dark Mode</button>
+              <button class="gallery-mode-btn" data-gallery-theme="light">☀️ Light Mode</button>
             </div>
           </div>
         </div>
 
-        <div class="gallery reveal" id="gallery-grid">
-          <figure data-category="calendar">
+        <div class="gallery-cards-grid reveal-item" id="gallery-grid">
+          <div class="gallery-card" data-category="calendar" data-idx="0">
             <img data-shot="today" src="./shots/today-dark.png" alt="Today dashboard overview" loading="lazy" />
-            <figcaption>
-              <span>Today View</span>
-              <em>Dashboard &amp; Agenda</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Today View</b>
+              <span>Dashboard &amp; Agenda</span>
+            </div>
+          </div>
 
-          <figure data-category="calendar">
+          <div class="gallery-card" data-category="calendar" data-idx="1">
             <img data-shot="tasks" src="./shots/tasks-dark.png" alt="Natural language tasks list" loading="lazy" />
-            <figcaption>
-              <span>Tasks &amp; Tags</span>
-              <em>Subtasks &amp; Dates</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Tasks &amp; Tags</b>
+              <span>Subtasks &amp; Dates</span>
+            </div>
+          </div>
 
-          <figure data-category="calendar">
+          <div class="gallery-card" data-category="calendar" data-idx="2">
             <img data-shot="calendar" src="./shots/calendar-dark.png" alt="Interactive calendar timeline" loading="lazy" />
-            <figcaption>
-              <span>Calendar</span>
-              <em>Timeboxing Timeline</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Calendar</b>
+              <span>Timeboxing Timeline</span>
+            </div>
+          </div>
 
-          <figure data-category="focus">
-            <img data-shot="focus" src="./shots/focus-dark.png" alt="Focus session view" loading="lazy" />
-            <figcaption>
-              <span>Focus Session</span>
-              <em>Pomodoro &amp; Spotify</em>
-            </figcaption>
-          </figure>
+          <div class="gallery-card" data-category="focus" data-idx="3">
+            <img data-shot="focus" src="./shots/focus-dark.png" alt="Focus session configuration view" loading="lazy" />
+            <div class="gallery-card-caption">
+              <b>Focus Session</b>
+              <span>Pomodoro &amp; Spotify</span>
+            </div>
+          </div>
 
-          <figure data-category="focus">
+          <div class="gallery-card" data-category="focus" data-idx="4">
             <img data-shot="focus-running" src="./shots/focus-running-dark.png" alt="Active running focus session with progress ring" loading="lazy" />
-            <figcaption>
-              <span>Running Session</span>
-              <em>Progress Ring &amp; Audio</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Running Session</b>
+              <span>Progress Ring &amp; Audio</span>
+            </div>
+          </div>
 
-          <figure data-category="journal">
+          <div class="gallery-card" data-category="journal" data-idx="5">
             <img data-shot="journal" src="./shots/journal-dark.png" alt="Private encrypted journal view" loading="lazy" />
-            <figcaption>
-              <span>Journal</span>
-              <em>Daily Prompts &amp; PIN</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Encrypted Journal</b>
+              <span>Daily Prompts &amp; PIN</span>
+            </div>
+          </div>
 
-          <figure data-category="journal">
+          <div class="gallery-card" data-category="journal" data-idx="6">
             <img data-shot="habits" src="./shots/habits-dark.png" alt="Habits streak matrix" loading="lazy" />
-            <figcaption>
-              <span>Habit Tracker</span>
-              <em>Streak Matrix</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Habit Tracker</b>
+              <span>Streak Matrix</span>
+            </div>
+          </div>
 
-          <figure data-category="journal">
+          <div class="gallery-card" data-category="journal" data-idx="7">
             <img data-shot="insights" src="./shots/insights-dark.png" alt="Quantified productivity heatmap" loading="lazy" />
-            <figcaption>
-              <span>Insights</span>
-              <em>Consistency Heatmap</em>
-            </figcaption>
-          </figure>
+            <div class="gallery-card-caption">
+              <b>Insights</b>
+              <span>Consistency Heatmap</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- ================= DOWNLOAD & COPYABLE SHA-256 BOX ================= -->
-      <section class="section download" id="download" aria-labelledby="download-title">
-        <div class="download-card reveal">
+      <!-- ================= DOWNLOAD & CRYPTOGRAPHIC VERIFICATION ================= -->
+      <section class="section-wrapper" id="download" aria-labelledby="download-title">
+        <div class="download-box reveal-item">
           <div>
-            <div class="badge-pill">
-              <span class="dot"></span>
-              <span>Windows 10 (1809+) &amp; Windows 11 (64-bit)</span>
+            <div class="hero-pill" style="margin-bottom:1rem;">
+              <span class="hero-pill-badge">Windows 10 &amp; 11</span>
+              <span>64-bit Edition · Signed Executable</span>
             </div>
             <h2 id="download-title">Get Dayflit for Windows</h2>
             <p class="sub">
               Installs per-user with zero administrator rights required. The core installer is signed and about 3.7 MB; offline Whisper AI models download on demand.
             </p>
-            <div class="cta-row">
-              <a class="btn btn-primary btn-large" href="#" data-download>
+
+            <div class="download-cta-row">
+              <a class="btn btn-white btn-large" href="#" data-download>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 <span>Download Dayflit v<span data-version>1.0.0</span></span>
               </a>
@@ -727,39 +893,45 @@
             </div>
 
             <!-- Copyable SHA-256 Box -->
-            <div class="sha-box">
-              <div class="sha-box-top">
+            <div class="sha-verification-box">
+              <div class="sha-header">
                 <span>Cryptographic SHA-256 Checksum</span>
-                <span style="color:var(--success);">Verified Release</span>
+                <span style="color:var(--success);">Verified Official Hash</span>
               </div>
-              <div class="sha-box-main">
-                <code class="sha-code" data-sha id="sha-target">c8b8820eb1dc43101473e396a14a73e1f121b2be223dca6f4b98a3521a82588e</code>
-                <button class="sha-copy-btn" id="copy-sha-btn" aria-label="Copy SHA-256 Hash">
+              <div class="sha-code-row">
+                <code data-sha id="sha-target">955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053</code>
+                <button class="sha-copy-btn" id="copy-sha-btn" aria-label="Copy SHA-256 checksum">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   <span>Copy</span>
                 </button>
               </div>
-              <div class="sha-verify-hint">
+              <div class="sha-verify-cmd">
                 Verify in PowerShell: <code id="ps-cmd">Get-FileHash Dayflit_1.0.0_x64-setup.exe -Algorithm SHA256</code>
               </div>
             </div>
           </div>
 
-          <div class="versions">
-            <h3>Distribution Channels</h3>
-            <ul id="version-list">
-              <li>
-                <span>v1.0.0 Stable</span>
-                <span class="badge-pill" style="padding:0.1rem 0.5rem;font-size:0.75rem;">current</span>
-                <a href="#" data-download>x64 Setup</a>
-              </li>
-              <li class="muted">
-                <span>Beta Insider Channel</span>
-                <span style="font-size:0.75rem;">coming soon</span>
-                <a href="#" data-beta>join waitlist</a>
-              </li>
-            </ul>
-            <p class="fine" style="margin-top:1.2rem;">
+          <div class="download-channels-col">
+            <div>
+              <h3>Distribution Channels</h3>
+              <ul class="channel-list">
+                <li class="channel-item">
+                  <div>
+                    <b style="color:#fff;display:block;">v1.0.0 Stable</b>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Current Official Release</span>
+                  </div>
+                  <a href="#" data-download class="btn btn-shimmer btn-sm">x64 Setup</a>
+                </li>
+                <li class="channel-item muted">
+                  <div>
+                    <b style="display:block;">Beta Insider Channel</b>
+                    <span style="font-size:0.75rem;">Coming soon</span>
+                  </div>
+                  <a href="#" data-beta style="color:var(--text-muted);font-size:0.82rem;">waitlist</a>
+                </li>
+              </ul>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:1.5rem;line-height:1.5;">
               Dayflit automatically updates in place with atomic delta updates. You only need to run the installer once.
             </p>
           </div>
@@ -767,78 +939,80 @@
       </section>
 
       <!-- ================= INTERACTIVE FAQ ACCORDION ================= -->
-      <section class="section faq" id="faq" aria-labelledby="faq-title">
-        <div class="section-head reveal">
-          <p class="eyebrow">Knowledge Base</p>
-          <h2 id="faq-title">Frequently Asked Questions</h2>
-          <p class="sub">Everything you need to know about Dayflit's local architecture, security, shortcuts, and features.</p>
-          
-          <div class="faq-filter-bar">
-            <button class="faq-chip active" data-faq-filter="all">All Topics</button>
-            <button class="faq-chip" data-faq-filter="privacy">Privacy &amp; Data</button>
-            <button class="faq-chip" data-faq-filter="shortcuts">Shortcuts &amp; Windows</button>
-            <button class="faq-chip" data-faq-filter="voice">Voice &amp; AI</button>
+      <section class="section-wrapper" id="faq" aria-labelledby="faq-title">
+        <div class="section-header reveal-item">
+          <p class="section-eyebrow">Knowledge Base</p>
+          <h2 class="section-title" id="faq-title">Frequently Asked Questions</h2>
+          <p class="section-desc">
+            Everything you need to know about Dayflit's local architecture, security, hotkeys, and features.
+          </p>
+
+          <div class="faq-filter-pills">
+            <button class="faq-filter-btn active" data-faq-filter="all">All Topics</button>
+            <button class="faq-filter-btn" data-faq-filter="privacy">Privacy &amp; Data</button>
+            <button class="faq-filter-btn" data-faq-filter="shortcuts">Shortcuts &amp; Windows</button>
+            <button class="faq-filter-btn" data-faq-filter="voice">Voice &amp; AI</button>
           </div>
         </div>
 
-        <div class="faq-grid reveal">
-          <details class="faq-item" data-faq-cat="privacy" open>
-            <summary class="faq-question">
+        <div class="faq-accordion-grid reveal-item">
+          <details class="faq-entry" data-faq-cat="privacy" open>
+            <summary class="faq-summary">
               <span>Does Dayflit require an account or an active internet connection?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
+            <p class="faq-body-text">
               No. Dayflit operates 100% offline by default. There are zero mandatory sign-ups, no authentication cookies, and zero diagnostic telemetry. The internet is only used for optional integrations you explicitly enable, such as Google Calendar or Spotify.
             </p>
           </details>
 
-          <details class="faq-item" data-faq-cat="privacy">
-            <summary class="faq-question">
+          <details class="faq-entry" data-faq-cat="privacy">
+            <summary class="faq-summary">
               <span>Where are my files and tasks stored on my PC?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
-              All tasks, notes, journal entries, and settings are stored as plain, human-readable JSON files in a directory of your choice (defaulting to your user AppData or a custom sync directory like OneDrive, Dropbox, or Syncthing). Automatic daily zip archives protect against file loss.
+            <p class="faq-body-text">
+              All tasks, notes, journal entries, and settings are stored as plain, human-readable JSON files in a directory of your choice (defaulting to your local AppData or a custom sync directory like OneDrive, Dropbox, or Syncthing). Automatic daily zip archives protect against file loss.
             </p>
           </details>
 
-          <details class="faq-item" data-faq-cat="voice">
-            <summary class="faq-question">
+          <details class="faq-entry" data-faq-cat="voice">
+            <summary class="faq-summary">
               <span>How does offline Whisper voice dictation work?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
-              When you hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd>, Dayflit captures audio through your selected microphone and runs inference using an optimized, lightweight local Whisper model directly on your CPU or GPU. Your voice recordings never touch an external server.
+            <p class="faq-body-text">
+              When you hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd>, Dayflit captures audio through your microphone and runs inference using an optimized, lightweight local Whisper model directly on your CPU or GPU. Your voice recordings never touch an external server.
             </p>
           </details>
 
-          <details class="faq-item" data-faq-cat="shortcuts">
-            <summary class="faq-question">
+          <details class="faq-entry" data-faq-cat="shortcuts">
+            <summary class="faq-summary">
               <span>Can I customize the global shortcuts?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
+            <p class="faq-body-text">
               Yes. Dayflit defaults to conflict-free shortcuts (<kbd>Alt</kbd><kbd>Space</kbd> for the companion, <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> for task capture, <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> for voice memo, <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> for focus), but you can rebind every global hotkey inside Settings → Shortcuts.
             </p>
           </details>
 
-          <details class="faq-item" data-faq-cat="privacy">
-            <summary class="faq-question">
+          <details class="faq-entry" data-faq-cat="privacy">
+            <summary class="faq-summary">
               <span>Can I export my journal and notes to Obsidian?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
+            <p class="faq-body-text">
               Yes! Dayflit includes a one-click Markdown Vault export in Settings → Data. It writes clean Markdown files with YAML front matter for dates, tags, and moods, organized cleanly in folders that Obsidian, Logseq, or VS Code can open immediately.
             </p>
           </details>
 
-          <details class="faq-item" data-faq-cat="shortcuts">
-            <summary class="faq-question">
+          <details class="faq-entry" data-faq-cat="shortcuts">
+            <summary class="faq-summary">
               <span>Does the distraction reminder forcefully block apps?</span>
-              <span class="faq-icon">+</span>
+              <span class="faq-toggle-icon">+</span>
             </summary>
-            <p class="faq-answer">
-              No. Dayflit respects your agency. When a flagged distraction app (like Steam or a social media tab) comes into focus during an active Pomodoro block, Dayflit shows a quiet acrylic banner displaying your remaining focus countdown. Nothing is blocked; you remain in control.
+            <p class="faq-body-text">
+              No. Dayflit respects your agency. When a flagged distraction app comes into focus during an active Pomodoro block, Dayflit shows a quiet acrylic banner displaying your remaining focus countdown. Nothing is blocked; you remain in complete control.
             </p>
           </details>
         </div>
@@ -846,39 +1020,42 @@
     </main>
 
     <!-- ================= FOOTER ================= -->
-    <footer class="footer">
-      <div class="footer-inner">
-        <div class="footer-brand-row">
+    <footer class="site-footer">
+      <div class="footer-inner-wrap">
+        <div class="footer-top-row">
           <div class="brand">
-            <span class="orb" aria-hidden="true"></span>
+            <img class="brand-icon" src="./icon.png" alt="" aria-hidden="true" width="24" height="24" />
             <span>Dayflit</span>
           </div>
-          <nav aria-label="Footer Navigation">
+          <nav class="footer-nav" aria-label="Footer Navigation">
             <a href="#features">Features</a>
-            <a href="#tour">Tour</a>
+            <a href="#screen-recording">Screen Recording</a>
             <a href="#shortcuts">Shortcuts</a>
-            <a href="#compare">Compare</a>
+            <a href="#compare">Comparison</a>
             <a href="#download">Download</a>
-            <a href="https://github.com/sidhu1512/dayflit" data-source target="_blank" rel="noopener">Source Code</a>
+            <a href="https://github.com/sidhu1512/dayflit" data-source target="_blank" rel="noopener">GitHub</a>
             <a href="https://github.com/sidhu1512/dayflit/issues" data-support target="_blank" rel="noopener">Support</a>
           </nav>
         </div>
-        <p class="fine">
-          © <span data-year>2026</span> Dayflit. Engineered for Windows 10 &amp; 11. 100% Offline &amp; Local-First. Windows is a trademark of Microsoft Corporation. Spotify, Google, Microsoft, and Obsidian are trademarks of their respective owners.
-        </p>
+        <div class="footer-bottom-row">
+          <span>© <span data-year>2026</span> Dayflit. Engineered for Windows 10 &amp; 11. 100% Offline &amp; Local-First.</span>
+          <span>Windows is a trademark of Microsoft Corporation. Spotify, Google, and Obsidian are trademarks of their respective owners.</span>
+        </div>
       </div>
     </footer>
 
-    <!-- ================= LIGHTBOX MODAL ================= -->
-    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Screenshot preview">
-      <button class="lb-close" aria-label="Close lightbox">×</button>
-      <div class="lb-content">
+    <!-- ================= MULTI-IMAGE LIGHTBOX MODAL WITH NAVIGATION ================= -->
+    <div class="lightbox-modal" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Screenshot preview">
+      <button class="lightbox-close-btn" aria-label="Close lightbox">×</button>
+      <button class="lightbox-nav-btn prev" id="lb-prev" aria-label="Previous screenshot">‹</button>
+      <button class="lightbox-nav-btn next" id="lb-next" aria-label="Next screenshot">›</button>
+      <div class="lightbox-content">
         <img id="lb-image" alt="Enlarged screenshot" />
-        <div class="lb-caption" id="lb-caption"></div>
+        <div class="lightbox-caption" id="lb-caption"></div>
       </div>
     </div>
 
-    <!-- ================= JAVASCRIPT ================= -->
+    <!-- ================= SCRIPT ================= -->
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
