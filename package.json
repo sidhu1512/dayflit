@@ -10,7 +10,12 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "website:dev": "npm --prefix website run dev",
+    "website:build": "npm --prefix website run build",
+    "website:verify": "npm --prefix website run verify",
+    "website:deploy": "npm --prefix website run deploy",
+    "website:deploy:dry": "npm --prefix website run deploy:dry"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.1",
