@@ -55,6 +55,10 @@
               <span>🏛️</span>
               <span>Minimalism</span>
             </a>
+            <a href="./spatial.html" class="switcher-pill" title="Switch to Spatial UI Edition">
+              <span>🥽</span>
+              <span>Spatial UI</span>
+            </a>
           </div>
 
           <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" class="btn-download-nav" data-download-url>
@@ -78,6 +82,7 @@
         <a href="./index.html" style="color: #059669; font-weight: 700;">🍏 Switch to Apple Light Edition</a>
         <a href="./bento.html" style="color: #7f56d9; font-weight: 700;">🍱 Switch to Bento Grid Edition</a>
         <a href="./minimalism.html" style="color: #181816; font-weight: 700;">🏛️ Switch to Minimalism Edition</a>
+        <a href="./spatial.html" style="color: #0284c7; font-weight: 700;">🥽 Switch to Spatial UI Edition</a>
         <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" style="color: #FF6332; font-weight: 800;">⬇️ Download for Windows (3.7 MB)</a>
       </nav>
     </div>
@@ -185,6 +190,25 @@
               </div>
             </div>
 
+            <!-- Calendar Date Pills (Directly from egpg.builds reference reel) -->
+            <div class="companion-calendar-row" id="companion-calendar-row">
+              <button type="button" class="cal-date-pill active" data-filter="today">
+                <span class="cal-day-num">16</span>
+                <span class="cal-day-label">Today</span>
+                <span class="cal-dot"></span>
+              </button>
+              <button type="button" class="cal-date-pill" data-filter="review">
+                <span class="cal-day-num">23</span>
+                <span class="cal-day-label">Review</span>
+                <span class="cal-dot orange"></span>
+              </button>
+              <button type="button" class="cal-date-pill" data-filter="launch">
+                <span class="cal-day-num">31</span>
+                <span class="cal-day-label">Launch</span>
+                <span class="cal-dot purple"></span>
+              </button>
+            </div>
+
             <!-- Interactive Tasks Checklist -->
             <div class="companion-checklist-box">
               <div class="checklist-title-row">
@@ -227,9 +251,10 @@
           </div>
 
           <div class="balance-main-content">
-            <!-- Starburst Sunburst Graphic -->
+            <!-- Starburst Sunburst Graphic (16-ray radiating geometry) -->
             <svg class="balance-starburst-svg" id="balance-starburst-svg" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 0 L58 35 L93 20 L72 50 L93 80 L58 65 L50 100 L42 65 L7 80 L28 50 L7 20 L42 35 Z"/>
+              <circle cx="50" cy="50" r="7"/>
+              <path d="M50 0 L53 42 L68 10 L56 45 L85 22 L58 48 L97 40 L59 52 L97 60 L58 55 L85 78 L56 57 L68 90 L53 60 L50 100 L47 60 L32 90 L44 57 L15 78 L42 55 L3 60 L41 52 L3 40 L42 48 L15 22 L44 45 L32 10 L47 42 Z"/>
             </svg>
 
             <span class="balance-label">Total Time Saved Equivalent</span>
@@ -286,8 +311,8 @@
               <span class="meter-segment active-orange"></span>
               <span class="meter-segment active-coral"></span>
               <span class="meter-segment active-coral"></span>
-              <span class="meter-segment" style="opacity: 0.22;"></span>
-              <span class="meter-segment" style="opacity: 0.22;"></span>
+              <span class="meter-segment active-rose" style="opacity: 0.22;"></span>
+              <span class="meter-segment active-rose" style="opacity: 0.22;"></span>
             </div>
           </div>
 
@@ -368,17 +393,17 @@
           <div class="habit-streak-banner">
             <div class="streak-text">
               <span>🔥</span>
-              <span>18-Day Focus Streak Active</span>
+              <span id="habit-streak-title">18-Day Focus Streak Active</span>
             </div>
-            <span style="font-size: 0.76rem; font-weight: 800; color: #FF6332;">+220 pts</span>
+            <span id="habit-streak-pts" style="font-size: 0.76rem; font-weight: 800; color: #FF6332;">+220 pts</span>
           </div>
 
           <div class="punch-card-rows">
             <!-- Habit 1 -->
-            <div class="punch-row">
+            <div class="punch-row" id="punch-row-1">
               <div class="punch-label-bar">
                 <span>90m Deep Focus Work</span>
-                <span style="color: #059669; font-weight: 800;">6/7 Days</span>
+                <span class="punch-count" id="habit-1-count" style="color: #059669; font-weight: 800;">6/7 Days</span>
               </div>
               <div class="punch-dots-row">
                 <span class="punch-dot punched" data-day="M">✓</span>
@@ -392,10 +417,10 @@
             </div>
 
             <!-- Habit 2 -->
-            <div class="punch-row">
+            <div class="punch-row" id="punch-row-2">
               <div class="punch-label-bar">
                 <span>Offline Whisper Voice Journal</span>
-                <span style="color: #FF6332; font-weight: 800;">5/7 Days</span>
+                <span class="punch-count" id="habit-2-count" style="color: #FF6332; font-weight: 800;">5/7 Days</span>
               </div>
               <div class="punch-dots-row">
                 <span class="punch-dot punch-dot-green punched-green" data-day="M">✓</span>
@@ -635,7 +660,7 @@
       </div>
 
       <div class="gallery-grid-max">
-        <div class="gallery-item">
+        <div class="gallery-item" tabindex="0" role="button" aria-label="Inspect Today Hub screenshot">
           <img src="./shots/today-light.png" alt="Dayflit Today View" />
           <div class="gallery-caption">
             <span>Today Hub</span>
@@ -643,7 +668,7 @@
           </div>
         </div>
 
-        <div class="gallery-item">
+        <div class="gallery-item" tabindex="0" role="button" aria-label="Inspect Deep Focus Session screenshot">
           <img src="./shots/focus-light.png" alt="Dayflit Deep Focus Session" />
           <div class="gallery-caption">
             <span>Focus &amp; Spotify</span>
@@ -651,7 +676,7 @@
           </div>
         </div>
 
-        <div class="gallery-item">
+        <div class="gallery-item" tabindex="0" role="button" aria-label="Inspect Natural Tasks screenshot">
           <img src="./shots/tasks-light.png" alt="Dayflit Tasks View" />
           <div class="gallery-caption">
             <span>Natural Tasks</span>
@@ -659,7 +684,7 @@
           </div>
         </div>
 
-        <div class="gallery-item">
+        <div class="gallery-item" tabindex="0" role="button" aria-label="Inspect Command Palette screenshot">
           <img src="./shots/palette-light.png" alt="Dayflit Command Palette" />
           <div class="gallery-caption">
             <span>Command Palette</span>
@@ -682,18 +707,23 @@
         <a href="./bento.html" style="font-weight: 700; color: #7f56d9;">🍱 Bento Grid Edition</a>
         <a href="./maximalism.html" style="font-weight: 800; color: #FF6332;">🎨 Maximalism Edition</a>
         <a href="./minimalism.html" style="font-weight: 700; color: #181816;">🏛️ Minimalism Edition</a>
+        <a href="./spatial.html" style="font-weight: 700; color: #0284c7;">🥽 Spatial UI Edition</a>
         <a href="https://github.com/sidhu1512/dayflit" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/sidhu1512/dayflit/releases" target="_blank" rel="noopener">Releases</a>
       </div>
     </footer>
 
     <!-- Lightbox Modal -->
-    <div class="gallery-modal" id="gallery-modal">
+    <div class="gallery-modal" id="gallery-modal" role="dialog" aria-modal="true" aria-label="Screenshot lightbox">
       <div class="modal-content">
         <button class="modal-close-btn" id="modal-close" aria-label="Close modal">×</button>
         <img id="modal-img" src="./shots/today-light.png" alt="High-resolution interface view" />
+        <div class="modal-caption" id="modal-caption">Today Hub</div>
       </div>
     </div>
+
+    <!-- Live Toast Container -->
+    <div id="max-toast" class="max-toast" role="status" aria-live="polite"></div>
 
     <!-- Micro-Interaction Script -->
     <script type="module" src="./src/maximalism.js"></script>

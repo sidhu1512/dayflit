@@ -49,13 +49,14 @@ function initMobileMenu() {
 
 // ================= 2. DOCUMENT REPOSITORY & SELECTION SYSTEM =================
 const DOCUMENTS_DATA = [
-  // The exact 4 documents from the reference screenshot
+  // The exact 4 documents from the reference screenshot (Featured 2x2)
   {
     id: "mitrex-facade-brochure",
     title: "Mitrex Sustainable Facade Brochure",
     sizeKb: 10220,
     sizeDisplay: "10,220KB PDF",
     category: "mitrex",
+    featured: true,
     selected: false,
     abstract: "Comprehensive structural and thermodynamic analysis of BIPV architectural facade modules with integrated solar harvesting.",
     pages: 48,
@@ -68,6 +69,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 1036,
     sizeDisplay: "1,036KB PDF",
     category: "mitrex",
+    featured: true,
     selected: false,
     abstract: "ASTM E119 fire rating endurance, ASTM E283 air leakage coefficients, and structural wind-load load cell telemetry.",
     pages: 18,
@@ -77,9 +79,10 @@ const DOCUMENTS_DATA = [
   {
     id: "mitrex-solar-datasheet",
     title: "Mitrex Solar Facade Data Sheet",
-    sizeKb: 2467,
-    sizeDisplay: "2,467KB PDF",
+    sizeKb: 2407,
+    sizeDisplay: "2,407KB PDF",
     category: "mitrex",
+    featured: true,
     selected: false,
     abstract: "Electrical characteristic curves, temperature coefficient benchmarks, and junction box IP68 ingress protection.",
     pages: 24,
@@ -92,6 +95,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 1580,
     sizeDisplay: "1,580KB PDF",
     category: "mitrex",
+    featured: true,
     selected: true, // Initialized selected with vibrant orange active circle, matching screenshot!
     abstract: "Thermal envelope retrofit in an industrial logistics complex yielding 148 MWh annual clean energy generation.",
     pages: 32,
@@ -106,6 +110,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 4120,
     sizeDisplay: "4,120KB PDF",
     category: "dayflit",
+    featured: false,
     selected: false,
     abstract: "Native Rust multi-threaded event loop, zero-latency desktop overlay IPC, and Win32 hardware composition pipeline.",
     pages: 36,
@@ -118,6 +123,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 8740,
     sizeDisplay: "8,740KB PDF",
     category: "dayflit",
+    featured: false,
     selected: false,
     abstract: "Quantized Whisper.cpp CPU inference benchmarks on Windows, ring-buffer audio ingestion, and silence detection heuristics.",
     pages: 52,
@@ -130,6 +136,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 1890,
     sizeDisplay: "1,890KB PDF",
     category: "dayflit",
+    featured: false,
     selected: false,
     abstract: "Empirical CPU & RAM comparison between Dayflit Rust runtime (<18MB) and traditional Electron productivity shells (>350MB).",
     pages: 20,
@@ -142,6 +149,7 @@ const DOCUMENTS_DATA = [
     sizeKb: 1220,
     sizeDisplay: "1,220KB PDF",
     category: "dayflit",
+    featured: false,
     selected: false,
     abstract: "AES-256-GCM authenticated local key derivation for %APPDATA%/Dayflit data stores, backup mirrors, and corruption recovery.",
     pages: 16,
@@ -150,8 +158,182 @@ const DOCUMENTS_DATA = [
   },
 ];
 
-let currentFilter = "all";
+let currentFilter = "featured";
 let currentSearchQuery = "";
+
+// ================= CRC-32 & ZIP PACKAGER (Zero Dependency) =================
+const makeCrcTable = () => {
+  let c;
+  const table = [];
+  for (let n = 0; n < 256; n++) {
+    c = n;
+    for (let k = 0; k < 8; k++) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+    table[n] = c;
+  }
+  return table;
+};
+const crcTable = makeCrcTable();
+
+function crc32(bytes) {
+  let crc = 0 ^ -1;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = (crc >>> 8) ^ crcTable[(crc ^ bytes[i]) & 0xff];
+  }
+  return (crc ^ -1) >>> 0;
+}
+
+function createZipBlob(files) {
+  const encoder = new TextEncoder();
+  const fileEntries = files.map((f) => {
+    const nameBytes = encoder.encode(f.name);
+    const dataBytes = typeof f.content === "string" ? encoder.encode(f.content) : f.content;
+    return {
+      nameBytes,
+      dataBytes,
+      crc: crc32(dataBytes),
+      size: dataBytes.length,
+    };
+  });
+
+  const localHeadersTotal = fileEntries.reduce(
+    (acc, f) => acc + 30 + f.nameBytes.length + f.size,
+    0
+  );
+  const centralDirTotal = fileEntries.reduce(
+    (acc, f) => acc + 46 + f.nameBytes.length,
+    0
+  );
+  const totalSize = localHeadersTotal + centralDirTotal + 22;
+  const buffer = new Uint8Array(totalSize);
+  const view = new DataView(buffer.buffer);
+
+  let offset = 0;
+  const localOffsets = [];
+
+  for (const f of fileEntries) {
+    localOffsets.push(offset);
+    view.setUint32(offset, 0x04034b50, true);
+    view.setUint16(offset + 4, 10, true);
+    view.setUint16(offset + 6, 0, true);
+    view.setUint16(offset + 8, 0, true);
+    view.setUint16(offset + 10, 0x5a20, true);
+    view.setUint16(offset + 12, 0x548a, true);
+    view.setUint32(offset + 14, f.crc, true);
+    view.setUint32(offset + 18, f.size, true);
+    view.setUint32(offset + 22, f.size, true);
+    view.setUint16(offset + 26, f.nameBytes.length, true);
+    view.setUint16(offset + 28, 0, true);
+
+    offset += 30;
+    buffer.set(f.nameBytes, offset);
+    offset += f.nameBytes.length;
+
+    buffer.set(f.dataBytes, offset);
+    offset += f.size;
+  }
+
+  const centralDirStart = offset;
+
+  for (let i = 0; i < fileEntries.length; i++) {
+    const f = fileEntries[i];
+    const localOffset = localOffsets[i];
+    view.setUint32(offset, 0x02014b50, true);
+    view.setUint16(offset + 4, 20, true);
+    view.setUint16(offset + 6, 10, true);
+    view.setUint16(offset + 8, 0, true);
+    view.setUint16(offset + 10, 0, true);
+    view.setUint16(offset + 12, 0x5a20, true);
+    view.setUint16(offset + 14, 0x548a, true);
+    view.setUint32(offset + 16, f.crc, true);
+    view.setUint32(offset + 20, f.size, true);
+    view.setUint32(offset + 24, f.size, true);
+    view.setUint16(offset + 28, f.nameBytes.length, true);
+    view.setUint16(offset + 30, 0, true);
+    view.setUint16(offset + 32, 0, true);
+    view.setUint16(offset + 34, 0, true);
+    view.setUint16(offset + 36, 0, true);
+    view.setUint32(offset + 38, 0, true);
+    view.setUint32(offset + 42, localOffset, true);
+
+    offset += 46;
+    buffer.set(f.nameBytes, offset);
+    offset += f.nameBytes.length;
+  }
+
+  const centralDirSize = offset - centralDirStart;
+  view.setUint32(offset, 0x06054b50, true);
+  view.setUint16(offset + 4, 0, true);
+  view.setUint16(offset + 6, 0, true);
+  view.setUint16(offset + 8, fileEntries.length, true);
+  view.setUint16(offset + 10, fileEntries.length, true);
+  view.setUint32(offset + 12, centralDirSize, true);
+  view.setUint32(offset + 16, centralDirStart, true);
+  view.setUint16(offset + 20, 0, true);
+
+  return new Blob([buffer], { type: "application/zip" });
+}
+
+// ================= VALID COMPLIANT PDF STREAM GENERATOR =================
+function generateDocumentPdf(doc) {
+  const safeTitle = (doc.title || "Document").replace(/[()\\]/g, "");
+  const safeMeta = `${doc.sizeDisplay} | Category: ${doc.category.toUpperCase()} | Pages: ${doc.pages}`.replace(/[()\\]/g, "");
+  const safeHash = `SHA-256: ${doc.sha256}`.replace(/[()\\]/g, "");
+  const safeAbstract = (doc.abstract || "").replace(/[()\\]/g, "");
+
+  const streamContent = [
+    "BT",
+    "/F1 18 Tf",
+    "50 740 Td",
+    `(${safeTitle}) Tj`,
+    "/F1 10 Tf",
+    "0 -28 Td",
+    `(${safeMeta}) Tj`,
+    "0 -18 Td",
+    `(${safeHash}) Tj`,
+    "0 -28 Td",
+    `(${safeAbstract.slice(0, 95)}) Tj`,
+    "0 -16 Td",
+    `(${safeAbstract.slice(95, 190)}) Tj`,
+    "0 -36 Td",
+    "(Dayflit Swiss Minimalism Engineering Specification - Official Release) Tj",
+    "ET",
+  ].join("\n");
+
+  const objects = [
+    "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
+    "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
+    "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
+    "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
+    `5 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}\nendstream\nendobj\n`,
+  ];
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [];
+  for (const obj of objects) {
+    offsets.push(pdf.length);
+    pdf += obj;
+  }
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 6\n0000000000 65535 f \n`;
+  for (const off of offsets) {
+    pdf += String(off).padStart(10, "0") + " 00000 n \n";
+  }
+  pdf += `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return pdf;
+}
+
+function triggerDownloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 function initDocumentGrid() {
   const container = document.getElementById("doc-cards-grid");
@@ -168,20 +350,69 @@ function initDocumentGrid() {
 
   if (!container) return;
 
-  function renderCards() {
-    container.innerHTML = "";
+  function getFilteredDocs() {
+    const searchTokens = currentSearchQuery
+      .toLowerCase()
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
 
-    const filtered = DOCUMENTS_DATA.filter((doc) => {
-      const matchesCategory =
-        currentFilter === "all" || doc.category === currentFilter;
+    return DOCUMENTS_DATA.filter((doc) => {
+      let matchesCategory = true;
+      if (currentFilter === "featured") {
+        matchesCategory = !!doc.featured;
+      } else if (currentFilter !== "all") {
+        matchesCategory = doc.category === currentFilter;
+      }
+
       const matchesSearch =
-        doc.title.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
-        doc.sizeDisplay.toLowerCase().includes(currentSearchQuery.toLowerCase());
+        searchTokens.length === 0 ||
+        searchTokens.every(
+          (token) =>
+            doc.title.toLowerCase().includes(token) ||
+            doc.sizeDisplay.toLowerCase().includes(token) ||
+            doc.category.toLowerCase().includes(token) ||
+            doc.abstract.toLowerCase().includes(token)
+        );
+
       return matchesCategory && matchesSearch;
     });
+  }
+
+  function renderCards() {
+    container.innerHTML = "";
+    const filtered = getFilteredDocs();
 
     if (resultsCountEl) {
-      resultsCountEl.textContent = `Showing ${filtered.length} of ${DOCUMENTS_DATA.length} documents`;
+      if (currentFilter === "featured") {
+        resultsCountEl.textContent = `Showing 4 featured documents (2×2 Showcase)`;
+      } else {
+        resultsCountEl.textContent = `Showing ${filtered.length} of ${DOCUMENTS_DATA.length} documents`;
+      }
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="min-empty-state">
+          <div class="min-empty-icon">∅</div>
+          <h4 class="min-empty-title">No documents matched your search</h4>
+          <p class="min-empty-desc">No technical papers matching "${currentSearchQuery || currentFilter}".</p>
+          <button class="min-pill-primary min-reset-btn" id="reset-filter-btn" type="button">Reset Filters & Search</button>
+        </div>
+      `;
+      const resetBtn = document.getElementById("reset-filter-btn");
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          currentFilter = "featured";
+          currentSearchQuery = "";
+          if (searchInput) searchInput.value = "";
+          filterTabs.forEach((t) => t.classList.toggle("active", t.dataset.filter === "featured"));
+          renderCards();
+          showToast("Reset to featured documents.");
+        });
+      }
+      updateSelectionStats();
+      return;
     }
 
     filtered.forEach((doc) => {
@@ -195,7 +426,7 @@ function initDocumentGrid() {
           <span class="min-doc-meta">${doc.sizeDisplay}</span>
         </div>
         <div class="min-card-bottom">
-          <button class="min-check-btn" type="button" aria-label="Toggle select ${doc.title}" title="${doc.selected ? 'Deselect document' : 'Select document'}">
+          <button class="min-check-btn" type="button" aria-label="Toggle select ${doc.title}" title="${doc.selected ? "Deselect document" : "Select document"}">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
@@ -246,7 +477,8 @@ function initDocumentGrid() {
     }
     if (totalBytesEl) {
       const totalKb = selectedDocs.reduce((acc, curr) => acc + curr.sizeKb, 0);
-      totalBytesEl.textContent = count > 0 ? `${(totalKb / 1024).toFixed(1)} MB selected` : "0 KB selected";
+      totalBytesEl.textContent =
+        count > 0 ? `${(totalKb / 1024).toFixed(1)} MB selected` : "0 KB selected";
     }
   }
 
@@ -255,7 +487,7 @@ function initDocumentGrid() {
     tab.addEventListener("click", () => {
       filterTabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
-      currentFilter = tab.dataset.filter || "all";
+      currentFilter = tab.dataset.filter || "featured";
       renderCards();
     });
   });
@@ -268,24 +500,26 @@ function initDocumentGrid() {
     });
   }
 
-  // Bulk buttons
+  // Bulk buttons (operates on currently visible/filtered documents)
   if (selectAllBtn) {
     selectAllBtn.addEventListener("click", () => {
-      DOCUMENTS_DATA.forEach((d) => (d.selected = true));
+      const visible = getFilteredDocs();
+      visible.forEach((d) => (d.selected = true));
       renderCards();
-      showToast(`Selected all ${DOCUMENTS_DATA.length} documents.`);
+      showToast(`Selected ${visible.length} document(s).`);
     });
   }
 
   if (deselectAllBtn) {
     deselectAllBtn.addEventListener("click", () => {
-      DOCUMENTS_DATA.forEach((d) => (d.selected = false));
+      const visible = getFilteredDocs();
+      visible.forEach((d) => (d.selected = false));
       renderCards();
-      showToast("Cleared document selection.");
+      showToast("Cleared selection.");
     });
   }
 
-  // Download Selected
+  // Download Selected (Real ZIP archive or individual PDF download)
   if (downloadSelectedBtn) {
     downloadSelectedBtn.addEventListener("click", () => {
       const selected = DOCUMENTS_DATA.filter((d) => d.selected);
@@ -293,24 +527,53 @@ function initDocumentGrid() {
         showToast("No documents selected. Check at least one item.");
         return;
       }
-      showToast(`Preparing bundle download for ${selected.length} document(s)...`);
-      setTimeout(() => {
-        showToast(`✓ Archive generated: dayflit-specs-${selected.length}-bundle.zip`);
-      }, 900);
+      if (selected.length === 1) {
+        triggerDownloadDoc(selected[0]);
+        return;
+      }
+      showToast(`Bundling ${selected.length} selected documents into ZIP archive...`);
+      const files = selected.map((d) => ({
+        name: `${d.id}.pdf`,
+        content: generateDocumentPdf(d),
+      }));
+      files.push({
+        name: "MANIFEST.txt",
+        content:
+          `Dayflit Technical Specifications Manifest\nSelected Documents: ${selected.length}\nDate: ${new Date().toISOString()}\n\n` +
+          selected
+            .map((d, i) => `${i + 1}. ${d.title} [${d.sizeDisplay}] - SHA256: ${d.sha256}`)
+            .join("\n"),
+      });
+      const zipBlob = createZipBlob(files);
+      triggerDownloadBlob(zipBlob, `dayflit-specs-${selected.length}-bundle.zip`);
+      showToast(`✓ Downloaded: dayflit-specs-${selected.length}-bundle.zip`);
     });
   }
 
-  // Download All
+  // Download All (Real ZIP archive of all documents)
   if (downloadAllBtn) {
     downloadAllBtn.addEventListener("click", () => {
-      showToast(`Bundling all ${DOCUMENTS_DATA.length} technical documents...`);
-      setTimeout(() => {
-        showToast(`✓ Download started: dayflit-all-technical-documents.zip`);
-      }, 900);
+      showToast(`Bundling all ${DOCUMENTS_DATA.length} technical documents into ZIP...`);
+      const files = DOCUMENTS_DATA.map((d) => ({
+        name: `${d.id}.pdf`,
+        content: generateDocumentPdf(d),
+      }));
+      files.push({
+        name: "INDEX_MANIFEST.txt",
+        content:
+          `Dayflit Complete Technical Documentation Index\nTotal Documents: ${DOCUMENTS_DATA.length}\nDate: ${new Date().toISOString()}\n\n` +
+          DOCUMENTS_DATA.map(
+            (d, i) =>
+              `${i + 1}. [${d.category.toUpperCase()}] ${d.title} (${d.sizeDisplay}) | SHA256: ${d.sha256}`
+          ).join("\n"),
+      });
+      const zipBlob = createZipBlob(files);
+      triggerDownloadBlob(zipBlob, "dayflit-all-technical-documents.zip");
+      showToast(`✓ Downloaded: dayflit-all-technical-documents.zip`);
     });
   }
 
-  // View All Downloads (smooth scroll or tab reset)
+  // View All Downloads (toggles/reveals all downloads)
   if (viewAllBtn) {
     viewAllBtn.addEventListener("click", () => {
       currentFilter = "all";
@@ -319,7 +582,7 @@ function initDocumentGrid() {
       });
       renderCards();
       container.scrollIntoView({ behavior: "smooth", block: "start" });
-      showToast("Displaying all available technical specifications.");
+      showToast("Displaying complete catalogue of technical specifications.");
     });
   }
 
@@ -329,17 +592,9 @@ function initDocumentGrid() {
 
 function triggerDownloadDoc(doc) {
   showToast(`Initiating download: ${doc.title} (${doc.sizeDisplay})`);
-  // Generate a mock binary text download link for tangible interaction
-  const dummyContent = `%PDF-1.7\n% Dayflit Minimalist Specification Document\nTitle: ${doc.title}\nSize: ${doc.sizeDisplay}\nSHA256: ${doc.sha256}\nAbstract: ${doc.abstract}\nTimestamp: ${new Date().toISOString()}\n%%EOF`;
-  const blob = new Blob([dummyContent], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${doc.id}.pdf`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const pdfContent = generateDocumentPdf(doc);
+  const blob = new Blob([pdfContent], { type: "application/pdf" });
+  triggerDownloadBlob(blob, `${doc.id}.pdf`);
 }
 
 // ================= 3. HERO GENERATIVE FAN CANVAS =================
@@ -359,14 +614,24 @@ function initHeroGenerativeCanvas() {
 
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
     ctx.scale(dpr, dpr);
   }
 
   resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+
+  // Robust observer ensuring crisp rendering across layout transitions
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    ro.observe(canvas.parentElement || canvas);
+  } else {
+    window.addEventListener("resize", resizeCanvas);
+  }
 
   canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
@@ -383,43 +648,53 @@ function initHeroGenerativeCanvas() {
     const rect = canvas.getBoundingClientRect();
     const w = rect.width;
     const h = rect.height;
+    if (w === 0 || h === 0) {
+      heroAnimationId = requestAnimationFrame(drawFan);
+      return;
+    }
+
     ctx.clearRect(0, 0, w, h);
 
-    // Parametric settings matching the reference screenshot:
-    // Origin near bottom-center, lines radiate upward and curve outward
-    const originX = w * 0.38;
-    const originY = h * 0.95;
-    const rayCount = 56;
-    const maxRadius = Math.max(w, h) * 1.05;
+    // Architectural radiating fan matching the reference screenshot:
+    // Origin near bottom-left/center, lines start along compact logarithmic hub
+    const originX = w * 0.35;
+    const originY = h * 0.94;
+    const rayCount = 58;
+    const maxRadius = Math.max(w, h) * 1.15;
 
     ctx.save();
     ctx.strokeStyle = "#1A1A18";
     ctx.lineWidth = 1.05;
     ctx.lineCap = "round";
 
-    // Mouse influence
-    const mouseDeflectX = heroMouse.active ? (heroMouse.x - 0.5) * 40 : 0;
-    const mouseDeflectY = heroMouse.active ? (heroMouse.y - 0.5) * 30 : 0;
+    // Mouse interactive deflection
+    const mouseDeflectX = heroMouse.active ? (heroMouse.x - 0.5) * 45 : 0;
+    const mouseDeflectY = heroMouse.active ? (heroMouse.y - 0.5) * 35 : 0;
 
     for (let i = 0; i < rayCount; i++) {
       const t = i / (rayCount - 1);
-      // Angular spread from ~ -15 deg to ~ 95 deg
-      const baseAngle = -0.25 + t * 1.85;
-      const breathe = heroBreathing ? Math.sin(heroPhase + t * 4) * 0.03 : 0;
+      // Angular fan spread from horizontal left to upper right
+      const baseAngle = -0.15 + t * 2.25;
+      const breathe = heroBreathing ? Math.sin(heroPhase + t * 3.8) * 0.028 : 0;
       const angle = baseAngle + breathe;
 
-      const endX = originX + Math.cos(angle) * maxRadius;
-      const endY = originY - Math.sin(angle) * maxRadius;
+      // Hub distribution giving the nautilus spiral core
+      const hubRadius = 14 * Math.sin(t * Math.PI);
+      const startX = originX + Math.cos(angle - Math.PI * 0.5) * hubRadius;
+      const startY = originY + Math.sin(angle - Math.PI * 0.5) * (hubRadius * 0.55);
 
-      // Cubic Bezier curve control points creating the fan curvature
-      const cp1X = originX + Math.cos(angle - 0.4) * (maxRadius * 0.35) + mouseDeflectX * t;
-      const cp1Y = originY - Math.sin(angle - 0.4) * (maxRadius * 0.35) + mouseDeflectY * t;
+      const endX = startX + Math.cos(angle) * maxRadius;
+      const endY = startY - Math.sin(angle) * maxRadius;
 
-      const cp2X = originX + Math.cos(angle - 0.2) * (maxRadius * 0.75);
-      const cp2Y = originY - Math.sin(angle - 0.2) * (maxRadius * 0.75);
+      // Cubic Bezier curve control points creating the graceful architectural sweep
+      const cp1X = startX + Math.cos(angle - 0.44) * (maxRadius * 0.36) + mouseDeflectX * t;
+      const cp1Y = startY - Math.sin(angle - 0.44) * (maxRadius * 0.36) + mouseDeflectY * t;
+
+      const cp2X = startX + Math.cos(angle - 0.22) * (maxRadius * 0.74);
+      const cp2Y = startY - Math.sin(angle - 0.22) * (maxRadius * 0.74);
 
       ctx.beginPath();
-      ctx.moveTo(originX, originY);
+      ctx.moveTo(startX, startY);
       ctx.bezierCurveTo(cp1X, cp1Y, cp2X, cp2Y, endX, endY);
       ctx.stroke();
     }
@@ -487,20 +762,29 @@ function initGenerativeStudio() {
 
   function resizeStudio() {
     const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
     ctx.scale(dpr, dpr);
     renderStudio();
   }
 
   resizeStudio();
-  window.addEventListener("resize", resizeStudio);
+
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      resizeStudio();
+    });
+    ro.observe(canvas.parentElement || canvas);
+  } else {
+    window.addEventListener("resize", resizeStudio);
+  }
 
   function renderStudio() {
     const rect = canvas.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
+    const w = rect.width || 800;
+    const h = rect.height || 500;
     ctx.clearRect(0, 0, w, h);
 
     const originX = w * studioConfig.originXRatio;
@@ -625,8 +909,8 @@ function initGenerativeStudio() {
   if (exportSvgBtn) {
     exportSvgBtn.addEventListener("click", () => {
       const rect = canvas.getBoundingClientRect();
-      const w = Math.round(rect.width);
-      const h = Math.round(rect.height);
+      const w = Math.max(400, Math.round(rect.width || canvas.width || 800));
+      const h = Math.max(300, Math.round(rect.height || canvas.height || 500));
       const originX = w * studioConfig.originXRatio;
       const originY = h * studioConfig.originYRatio;
       const maxRadius = Math.max(w, h) * 1.15;
@@ -660,14 +944,7 @@ ${paths}  </g>
 </svg>`;
 
       const blob = new Blob([svgContent], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "dayflit-minimalism-parametric-fan.svg";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      triggerDownloadBlob(blob, "dayflit-minimalism-parametric-fan.svg");
       showToast("✓ Downloaded vector SVG artwork.");
     });
   }

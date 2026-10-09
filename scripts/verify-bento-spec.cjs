@@ -4,46 +4,59 @@ const assert = require('assert');
 
 console.log("==========================================");
 console.log("Deep Multi-Edition Verification Suite");
-console.log("Apple Light • Bento Grid • Maximalism • Minimalism");
+console.log("Apple Light • Bento Grid • Maximalism • Minimalism • Spatial UI");
 console.log("==========================================\n");
 
 const distBentoPath = path.resolve(__dirname, '../website/dist/bento.html');
 const distIndexPath = path.resolve(__dirname, '../website/dist/index.html');
 const distMaximalismPath = path.resolve(__dirname, '../website/dist/maximalism.html');
 const distMinimalismPath = path.resolve(__dirname, '../website/dist/minimalism.html');
+const distSpatialPath = path.resolve(__dirname, '../website/dist/spatial.html');
 
 assert(fs.existsSync(distBentoPath), "dist/bento.html must exist");
 assert(fs.existsSync(distIndexPath), "dist/index.html must exist");
 assert(fs.existsSync(distMaximalismPath), "dist/maximalism.html must exist");
 assert(fs.existsSync(distMinimalismPath), "dist/minimalism.html must exist");
+assert(fs.existsSync(distSpatialPath), "dist/spatial.html must exist");
 
 const bentoHtml = fs.readFileSync(distBentoPath, 'utf8');
 const indexHtml = fs.readFileSync(distIndexPath, 'utf8');
 const maximalismHtml = fs.readFileSync(distMaximalismPath, 'utf8');
 const minimalismHtml = fs.readFileSync(distMinimalismPath, 'utf8');
+const spatialHtml = fs.readFileSync(distSpatialPath, 'utf8');
 
-// 1. Cross-linking between all four editions
-console.log("1. Checking quad-directional navigation links...");
+// 1. Cross-linking between all five editions
+console.log("1. Checking penta-directional navigation links...");
 assert(indexHtml.includes('bento.html'), "index.html must link to bento.html");
 assert(indexHtml.includes('maximalism.html'), "index.html must link to maximalism.html");
 assert(indexHtml.includes('minimalism.html'), "index.html must link to minimalism.html");
+assert(indexHtml.includes('spatial.html'), "index.html must link to spatial.html");
 
 assert(bentoHtml.includes('index.html'), "bento.html must link to index.html");
 assert(bentoHtml.includes('maximalism.html'), "bento.html must link to maximalism.html");
 assert(bentoHtml.includes('minimalism.html'), "bento.html must link to minimalism.html");
+assert(bentoHtml.includes('spatial.html'), "bento.html must link to spatial.html");
 
 assert(maximalismHtml.includes('index.html'), "maximalism.html must link to index.html");
 assert(maximalismHtml.includes('bento.html'), "maximalism.html must link to bento.html");
 assert(maximalismHtml.includes('minimalism.html'), "maximalism.html must link to minimalism.html");
+assert(maximalismHtml.includes('spatial.html'), "maximalism.html must link to spatial.html");
 
 assert(minimalismHtml.includes('index.html'), "minimalism.html must link to index.html");
 assert(minimalismHtml.includes('bento.html'), "minimalism.html must link to bento.html");
 assert(minimalismHtml.includes('maximalism.html'), "minimalism.html must link to maximalism.html");
+assert(minimalismHtml.includes('spatial.html'), "minimalism.html must link to spatial.html");
 
-console.log("   ✓ index.html -> bento, maximalism, minimalism verified");
-console.log("   ✓ bento.html -> index, maximalism, minimalism verified");
-console.log("   ✓ maximalism.html -> index, bento, minimalism verified");
-console.log("   ✓ minimalism.html -> index, bento, maximalism verified");
+assert(spatialHtml.includes('index.html'), "spatial.html must link to index.html");
+assert(spatialHtml.includes('bento.html'), "spatial.html must link to bento.html");
+assert(spatialHtml.includes('maximalism.html'), "spatial.html must link to maximalism.html");
+assert(spatialHtml.includes('minimalism.html'), "spatial.html must link to minimalism.html");
+
+console.log("   ✓ index.html -> bento, maximalism, minimalism, spatial verified");
+console.log("   ✓ bento.html -> index, maximalism, minimalism, spatial verified");
+console.log("   ✓ maximalism.html -> index, bento, minimalism, spatial verified");
+console.log("   ✓ minimalism.html -> index, bento, maximalism, spatial verified");
+console.log("   ✓ spatial.html -> index, bento, maximalism, minimalism verified");
 
 // 2. Verified SHA-256 Checksum
 console.log("\n2. Checking verified SHA-256 checksum across editions...");
@@ -51,9 +64,11 @@ const sha256Expected = "955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d7158
 assert(bentoHtml.includes(sha256Expected), "bento.html must contain exact SHA-256 hash");
 assert(maximalismHtml.includes(sha256Expected), "maximalism.html must contain exact SHA-256 hash");
 assert(minimalismHtml.includes(sha256Expected), "minimalism.html must contain exact SHA-256 hash");
+assert(spatialHtml.includes(sha256Expected), "spatial.html must contain exact SHA-256 hash");
 console.log(`   ✓ Found exact SHA-256 in bento: ${sha256Expected}`);
 console.log(`   ✓ Found exact SHA-256 in maximalism: ${sha256Expected}`);
 console.log(`   ✓ Found exact SHA-256 in minimalism: ${sha256Expected}`);
+console.log(`   ✓ Found exact SHA-256 in spatial: ${sha256Expected}`);
 
 // 3. Nine Core Bento Grid Cards Presence & Elements
 console.log("\n3. Checking 9 Core Bento Grid cards & IDs...");
@@ -166,5 +181,24 @@ assert(minimalismHtml.includes('id="doc-modal-overlay"'), "Document sheet reader
 assert(minimalismHtml.includes('id="modal-close-btn"'), "Modal close button must exist");
 assert(minimalismHtml.includes('id="min-toast"'), "Minimalist toast element must exist");
 console.log("   ✓ All 16 Minimalism interactive UI components verified in DOM");
+
+// 10. Spatial UI Edition Sections & Interactive Sub-Components
+console.log("\n10. Checking Spatial UI Edition sections & interactive sub-components...");
+assert(spatialHtml.includes('id="master-spatial-window"'), "Master 3D spatial window element must exist");
+assert(spatialHtml.includes('id="mode-productivity"'), "Mode productivity toggle must exist");
+assert(spatialHtml.includes('id="mode-health"'), "Mode health toggle must exist");
+assert(spatialHtml.includes('id="view-productivity"'), "View productivity container must exist");
+assert(spatialHtml.includes('id="view-health"'), "View health container must exist");
+assert(spatialHtml.includes('id="nlp-studio-input"'), "NLP studio input must exist");
+assert(spatialHtml.includes('id="btn-copy-sha256"'), "SHA-256 copy button must exist");
+assert(spatialHtml.includes('id="spatial-lightbox"'), "Spatial lightbox modal must exist");
+assert(spatialHtml.includes('id="spatial-toast"'), "Spatial toast notification must exist");
+assert(spatialHtml.includes('id="showcase"'), "Spatial showcase section must exist");
+assert(spatialHtml.includes('id="features"'), "Spatial features section must exist");
+assert(spatialHtml.includes('id="nlp-studio"'), "NLP studio section must exist");
+assert(spatialHtml.includes('id="comparison"'), "Spatial comparison section must exist");
+assert(spatialHtml.includes('id="gallery"'), "Spatial gallery section must exist");
+assert(spatialHtml.includes('id="download"'), "Spatial download section must exist");
+console.log("   ✓ All 15 Spatial UI interactive components verified in DOM");
 
 console.log("\n🎉 ALL MULTI-EDITION SPEC VERIFICATIONS PASSED WITH 100% SUCCESS!");
