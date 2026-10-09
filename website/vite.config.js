@@ -15,6 +15,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         bento: resolve(__dirname, "bento.html"),
         maximalism: resolve(__dirname, "maximalism.html"),
+        minimalism: resolve(__dirname, "minimalism.html"),
       },
     },
   },

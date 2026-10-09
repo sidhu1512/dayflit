@@ -4,40 +4,56 @@ const assert = require('assert');
 
 console.log("==========================================");
 console.log("Deep Multi-Edition Verification Suite");
-console.log("Apple Light • Bento Grid • Maximalism");
+console.log("Apple Light • Bento Grid • Maximalism • Minimalism");
 console.log("==========================================\n");
 
 const distBentoPath = path.resolve(__dirname, '../website/dist/bento.html');
 const distIndexPath = path.resolve(__dirname, '../website/dist/index.html');
 const distMaximalismPath = path.resolve(__dirname, '../website/dist/maximalism.html');
+const distMinimalismPath = path.resolve(__dirname, '../website/dist/minimalism.html');
 
 assert(fs.existsSync(distBentoPath), "dist/bento.html must exist");
 assert(fs.existsSync(distIndexPath), "dist/index.html must exist");
 assert(fs.existsSync(distMaximalismPath), "dist/maximalism.html must exist");
+assert(fs.existsSync(distMinimalismPath), "dist/minimalism.html must exist");
 
 const bentoHtml = fs.readFileSync(distBentoPath, 'utf8');
 const indexHtml = fs.readFileSync(distIndexPath, 'utf8');
 const maximalismHtml = fs.readFileSync(distMaximalismPath, 'utf8');
+const minimalismHtml = fs.readFileSync(distMinimalismPath, 'utf8');
 
-// 1. Cross-linking between all three editions
-console.log("1. Checking tri-directional navigation links...");
+// 1. Cross-linking between all four editions
+console.log("1. Checking quad-directional navigation links...");
 assert(indexHtml.includes('bento.html'), "index.html must link to bento.html");
 assert(indexHtml.includes('maximalism.html'), "index.html must link to maximalism.html");
+assert(indexHtml.includes('minimalism.html'), "index.html must link to minimalism.html");
+
 assert(bentoHtml.includes('index.html'), "bento.html must link to index.html");
 assert(bentoHtml.includes('maximalism.html'), "bento.html must link to maximalism.html");
+assert(bentoHtml.includes('minimalism.html'), "bento.html must link to minimalism.html");
+
 assert(maximalismHtml.includes('index.html'), "maximalism.html must link to index.html");
 assert(maximalismHtml.includes('bento.html'), "maximalism.html must link to bento.html");
-console.log("   ✓ index.html -> bento.html & maximalism.html verified");
-console.log("   ✓ bento.html -> index.html & maximalism.html verified");
-console.log("   ✓ maximalism.html -> index.html & bento.html verified");
+assert(maximalismHtml.includes('minimalism.html'), "maximalism.html must link to minimalism.html");
+
+assert(minimalismHtml.includes('index.html'), "minimalism.html must link to index.html");
+assert(minimalismHtml.includes('bento.html'), "minimalism.html must link to bento.html");
+assert(minimalismHtml.includes('maximalism.html'), "minimalism.html must link to maximalism.html");
+
+console.log("   ✓ index.html -> bento, maximalism, minimalism verified");
+console.log("   ✓ bento.html -> index, maximalism, minimalism verified");
+console.log("   ✓ maximalism.html -> index, bento, minimalism verified");
+console.log("   ✓ minimalism.html -> index, bento, maximalism verified");
 
 // 2. Verified SHA-256 Checksum
 console.log("\n2. Checking verified SHA-256 checksum across editions...");
 const sha256Expected = "955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053";
 assert(bentoHtml.includes(sha256Expected), "bento.html must contain exact SHA-256 hash");
 assert(maximalismHtml.includes(sha256Expected), "maximalism.html must contain exact SHA-256 hash");
+assert(minimalismHtml.includes(sha256Expected), "minimalism.html must contain exact SHA-256 hash");
 console.log(`   ✓ Found exact SHA-256 in bento: ${sha256Expected}`);
 console.log(`   ✓ Found exact SHA-256 in maximalism: ${sha256Expected}`);
+console.log(`   ✓ Found exact SHA-256 in minimalism: ${sha256Expected}`);
 
 // 3. Nine Core Bento Grid Cards Presence & Elements
 console.log("\n3. Checking 9 Core Bento Grid cards & IDs...");
@@ -116,4 +132,39 @@ assert(maximalismHtml.includes('id="btn-copy-sha256"'), "SHA-256 copy button mus
 assert(maximalismHtml.includes('id="gallery-modal"'), "Gallery modal lightbox must exist");
 console.log("   ✓ All Maximalist interactive UI IDs verified in DOM");
 
-console.log("\n🎉 ALL SPEC VERIFICATIONS PASSED WITH 100% SUCCESS!");
+// 8. Minimalism Edition Sections & UI Elements (Reference Screenshot & Generative UI)
+console.log("\n8. Checking Minimalism Edition sections & architectural elements...");
+const expectedMinSections = [
+  { id: "documents", label: "Iconic Technical Documents & Generative Art Showcase" },
+  { id: "generative-studio", label: "Parametric Ray Synthesizer Studio (/generative_ui)" },
+  { id: "specifications", label: "Low-level System Specifications Matrix" },
+  { id: "verification", label: "Cryptographic Manifest Verification Card" },
+  { id: "editions", label: "Four-Edition Cross-Showcase Gallery" },
+];
+
+for (const sec of expectedMinSections) {
+  assert(minimalismHtml.includes(`id="${sec.id}"`), `Minimalism section ${sec.id} must exist in HTML`);
+  console.log(`   ✓ Section ${sec.id} (${sec.label}) found`);
+}
+
+// 9. Minimalism Interactive Components
+console.log("\n9. Checking Minimalism interactive sub-components...");
+assert(minimalismHtml.includes('id="doc-cards-grid"'), "Document cards container must exist");
+assert(minimalismHtml.includes('id="generative-canvas"'), "Hero generative fan canvas must exist");
+assert(minimalismHtml.includes('id="studio-canvas"'), "Studio parametric canvas must exist");
+assert(minimalismHtml.includes('id="view-all-downloads-btn"'), "View All Downloads button must exist");
+assert(minimalismHtml.includes('id="download-all-btn"'), "Download All Documents button must exist");
+assert(minimalismHtml.includes('id="download-selected-btn"'), "Download Selected button must exist");
+assert(minimalismHtml.includes('id="selected-count"'), "Selected count badge must exist");
+assert(minimalismHtml.includes('id="doc-search-input"'), "Document search input must exist");
+assert(minimalismHtml.includes('id="toggle-animate-btn"'), "Toggle animate button must exist");
+assert(minimalismHtml.includes('id="randomize-fan-btn"'), "Randomize fan button must exist");
+assert(minimalismHtml.includes('id="export-svg-btn"'), "Vector SVG export button must exist");
+assert(minimalismHtml.includes('id="snapshot-png-btn"'), "Snapshot PNG button must exist");
+assert(minimalismHtml.includes('id="copy-hash-btn"'), "Copy hash button must exist");
+assert(minimalismHtml.includes('id="doc-modal-overlay"'), "Document sheet reader modal must exist");
+assert(minimalismHtml.includes('id="modal-close-btn"'), "Modal close button must exist");
+assert(minimalismHtml.includes('id="min-toast"'), "Minimalist toast element must exist");
+console.log("   ✓ All 16 Minimalism interactive UI components verified in DOM");
+
+console.log("\n🎉 ALL MULTI-EDITION SPEC VERIFICATIONS PASSED WITH 100% SUCCESS!");

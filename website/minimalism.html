@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dayflit — Minimalism Edition | Swiss Architectural Precision &amp; Technical Documents</title>
+    <meta name="description" content="Dayflit Minimalism Edition: Architectural Swiss precision, interactive parametric generative UI, zero-telemetry local desktop productivity companion, and technical document specifications." />
+    <meta property="og:title" content="Dayflit — Minimalism Edition" />
+    <meta property="og:description" content="Architectural Swiss precision, interactive generative arc curves, and technical documents for the 3.7MB offline Windows productivity companion." />
+    <meta property="og:image" content="./shots/today-light.png" />
+    <meta name="theme-color" content="#F5F4EF" />
+    <link rel="icon" href="./icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/minimalism.css" />
+  </head>
+  <body>
+
+    <!-- ================= FLOATING CAPSULE NAVBAR ================= -->
+    <div class="min-header-wrapper">
+      <header class="min-navbar" id="navbar">
+        <a href="#showcase" class="min-brand-group">
+          <img class="min-brand-icon" src="./icon.png" alt="Dayflit logo" width="28" height="28" />
+          <span class="min-brand-title">Dayflit</span>
+          <span class="min-brand-badge">Minimalism</span>
+        </a>
+
+        <nav class="min-nav-links" aria-label="Minimalism Navigation">
+          <a href="#documents" class="min-nav-link">Documents</a>
+          <a href="#generative-studio" class="min-nav-link">Generative UI</a>
+          <a href="#specifications" class="min-nav-link">Specifications</a>
+          <a href="#verification" class="min-nav-link">Checksum</a>
+          <a href="#editions" class="min-nav-link">Editions</a>
+        </nav>
+
+        <div class="min-nav-actions">
+          <!-- Cross-Navigation Switcher Capsule -->
+          <div class="min-switcher-group" aria-label="Website Editions">
+            <a href="./index.html" class="min-switcher-pill" title="Switch to Apple Light Edition">
+              <span>🍏</span>
+              <span>Apple Light</span>
+            </a>
+            <a href="./bento.html" class="min-switcher-pill" title="Switch to Bento Grid Edition">
+              <span>🍱</span>
+              <span>Bento Grid</span>
+            </a>
+            <a href="./maximalism.html" class="min-switcher-pill" title="Switch to Maximalism Edition">
+              <span>🎨</span>
+              <span>Maximalism</span>
+            </a>
+            <a href="./minimalism.html" class="min-switcher-pill active" title="Current: Minimalism Edition">
+              <span>🏛️</span>
+              <span>Minimalism</span>
+            </a>
+          </div>
+
+          <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" class="min-btn-download-nav" data-download-url>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download (3.7 MB)</span>
+          </a>
+
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" type="button">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Navigation Drawer -->
+      <nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
+        <a href="#documents">📄 Technical Documents</a>
+        <a href="#generative-studio">✨ Generative UI Studio</a>
+        <a href="#specifications">📊 Performance Specifications</a>
+        <a href="#verification">🔒 Verified Checksum</a>
+        <a href="#editions">🌐 Edition Switcher</a>
+        <a href="./index.html" style="color: #059669; font-weight: 700;">🍏 Switch to Apple Light Edition</a>
+        <a href="./bento.html" style="color: #7f56d9; font-weight: 700;">🍱 Switch to Bento Grid Edition</a>
+        <a href="./maximalism.html" style="color: #FF6332; font-weight: 700;">🎨 Switch to Maximalism Edition</a>
+        <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" style="color: #191918; font-weight: 800;">⬇️ Download for Windows (3.7 MB)</a>
+      </nav>
+    </div>
+
+    <!-- ================= MAIN CONTAINER ================= -->
+    <main class="min-container">
+
+      <!-- ================= SECTION 1: ICONIC TECHNICAL DOCUMENTS SHOWCASE ================= -->
+      <!-- Faithful recreation of the reference screenshot with interactive parametric art -->
+      <section class="min-showcase-section" id="documents">
+        <div class="min-showcase-split">
+
+          <!-- Left Column: Architectural Title, Actions & Generative Arc Graphic -->
+          <div class="min-left-column">
+            <div class="min-headline-group">
+              <h1 class="min-register-title">
+                <span class="min-plus-glyph">+</span> Technical documents
+              </h1>
+              <p class="min-lead-subtitle">
+                Official specifications, thermodynamic facade data sheets, and low-level Rust architecture whitepapers for Dayflit.
+              </p>
+            </div>
+
+            <!-- Primary Action Bar (Pill button + link button) -->
+            <div class="min-actions-bar">
+              <button class="min-pill-primary" id="view-all-downloads-btn" type="button">
+                View All Downloads
+              </button>
+              <button class="min-link-action" id="download-all-btn" type="button">
+                <span>Download All Documents</span>
+                <span class="min-download-icon-circle">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                  </svg>
+                </span>
+              </button>
+            </div>
+
+            <!-- Filter Tabs & Real-time Search -->
+            <div class="min-controls-row">
+              <div class="min-filter-tabs">
+                <button class="min-tab-btn active" data-filter="all" type="button">All Documents</button>
+                <button class="min-tab-btn" data-filter="mitrex" type="button">Mitrex Architecture</button>
+                <button class="min-tab-btn" data-filter="dayflit" type="button">Dayflit Specs</button>
+              </div>
+
+              <div class="min-search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input class="min-search-input" id="doc-search-input" type="search" placeholder="Search technical documents, standards, or sizes..." aria-label="Search documents" />
+              </div>
+            </div>
+
+            <!-- Generative Arc Art Display (Screenshot Faithfulness + /generative_ui) -->
+            <div class="min-generative-card">
+              <div class="min-canvas-header">
+                <span class="min-canvas-badge">
+                  <span class="min-live-dot"></span> Parametric Fan Wireframe
+                </span>
+                <div class="min-canvas-actions">
+                  <button class="min-canvas-btn" id="toggle-animate-btn" type="button" title="Toggle organic breathing animation">Pause</button>
+                  <button class="min-canvas-btn" id="randomize-fan-btn" type="button" title="Shift harmonic phase">Perturb</button>
+                </div>
+              </div>
+
+              <div class="min-canvas-viewport">
+                <canvas id="generative-canvas" aria-label="Parametric generative fan curves canvas"></canvas>
+              </div>
+
+              <div class="min-canvas-caption">
+                <span>Interactive Bézier dispersion</span>
+                <span>Hover to deflect</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Document Grid (2x2 Matching Screenshot + Expandable) -->
+          <div class="min-right-column">
+            <div class="min-grid-header">
+              <span class="min-results-count" id="results-count">Showing documents</span>
+              <div class="min-bulk-toggles">
+                <button class="min-text-btn" id="select-all-btn" type="button">Select All</button>
+                <button class="min-text-btn" id="deselect-all-btn" type="button">Clear</button>
+              </div>
+            </div>
+
+            <!-- Dynamic 2x2 / Responsive Grid -->
+            <div class="min-doc-grid" id="doc-cards-grid">
+              <!-- Dynamically populated via minimalism.js -->
+            </div>
+
+            <!-- Grid Footer: Download Selected (N) with Dynamic Counter -->
+            <div class="min-grid-footer">
+              <button class="min-download-selected-btn" id="download-selected-btn" type="button">
+                <span>Download Selected (<span id="selected-count">1</span>)</span>
+                <span class="min-download-icon-circle">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <polyline points="19 12 12 19 5 12"></polyline>
+                  </svg>
+                </span>
+              </button>
+
+              <span class="min-total-bytes" id="total-selected-bytes">1.5 MB selected</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= SECTION 2: GENERATIVE UI PARAMETRIC STUDIO (/generative_ui) ================= -->
+      <section class="min-generative-studio-section" id="generative-studio">
+        <div class="min-section-title-wrap">
+          <span class="min-section-tag">/generative_ui Lab</span>
+          <h2 class="min-section-headline">Parametric Harmonic Ray Synthesizer</h2>
+          <p class="min-section-desc">
+            An interactive generative design studio exploring the mathematical spline dispersion of the minimalist wireframe. Tune ray density, angular spread, and curvature in real time.
+          </p>
+        </div>
+
+        <div class="min-studio-grid">
+          <!-- Live Studio Canvas Viewport -->
+          <div class="min-studio-canvas-container">
+            <canvas id="studio-canvas" aria-label="Full-width parametric curve studio canvas"></canvas>
+          </div>
+
+          <!-- Parameter Control Deck -->
+          <div class="min-studio-controls">
+            <!-- Ray Count Slider -->
+            <div class="min-control-group">
+              <div class="min-control-label-row">
+                <span>Ray Dispersion Density</span>
+                <span class="min-control-val" id="val-rays">64</span>
+              </div>
+              <input class="min-range-slider" id="slider-rays" type="range" min="16" max="128" value="64" />
+            </div>
+
+            <!-- Curvature Slider -->
+            <div class="min-control-group">
+              <div class="min-control-label-row">
+                <span>Bézier Curvature Polynomial</span>
+                <span class="min-control-val" id="val-curvature">1.20</span>
+              </div>
+              <input class="min-range-slider" id="slider-curvature" type="range" min="0.2" max="2.5" step="0.05" value="1.2" />
+            </div>
+
+            <!-- Spread Slider -->
+            <div class="min-control-group">
+              <div class="min-control-label-row">
+                <span>Angular Fan Spread</span>
+                <span class="min-control-val" id="val-spread">120°</span>
+              </div>
+              <input class="min-range-slider" id="slider-spread" type="range" min="40" max="180" value="120" />
+            </div>
+
+            <!-- Stroke Weight Slider -->
+            <div class="min-control-group">
+              <div class="min-control-label-row">
+                <span>Stroke Hairline Weight</span>
+                <span class="min-control-val" id="val-weight">1.1px</span>
+              </div>
+              <input class="min-range-slider" id="slider-weight" type="range" min="0.5" max="3.0" step="0.1" value="1.1" />
+            </div>
+
+            <!-- Harmonic Presets -->
+            <div class="min-control-group">
+              <span class="min-control-label-row">Harmonic Archetypes</span>
+              <div class="min-presets-row">
+                <button class="min-preset-chip active" data-preset="original" type="button">Acoustic Fan (Original)</button>
+                <button class="min-preset-chip" data-preset="shell" type="button">Parametric Shell</button>
+                <button class="min-preset-chip" data-preset="golden" type="button">Golden Arc</button>
+                <button class="min-preset-chip" data-preset="horizon" type="button">Minimal Horizon</button>
+              </div>
+            </div>
+
+            <!-- Action Buttons: Export SVG & Snapshot -->
+            <div class="min-studio-btn-row">
+              <button class="min-btn-action primary" id="export-svg-btn" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Export Vector SVG</span>
+              </button>
+              <button class="min-btn-action" id="snapshot-png-btn" type="button">Snapshot PNG</button>
+              <button class="min-btn-action" id="randomize-studio-btn" type="button">Randomize</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 3: TECHNICAL PERFORMANCE SPECIFICATIONS ================= -->
+      <section class="min-specs-section" id="specifications">
+        <div class="min-section-title-wrap">
+          <span class="min-section-tag">Engineering Telemetry</span>
+          <h2 class="min-section-headline">Low-Level System Specifications</h2>
+          <p class="min-section-desc">
+            Empirical runtime performance metrics of Dayflit on Windows 10 &amp; 11 hardware.
+          </p>
+        </div>
+
+        <div class="min-specs-grid">
+          <div class="min-spec-box">
+            <span class="min-spec-idx">01 // BINARY</span>
+            <span class="min-spec-label">Compiled Rust Executable</span>
+            <span class="min-spec-value">3.7 MB</span>
+            <p class="min-spec-desc">Zero bundled Chromium bloat. Native Win32 hardware acceleration with self-contained runtime.</p>
+          </div>
+
+          <div class="min-spec-box">
+            <span class="min-spec-idx">02 // MEMORY</span>
+            <span class="min-spec-label">Idle Resident Set Size</span>
+            <span class="min-spec-value">&lt; 18 MB RAM</span>
+            <p class="min-spec-desc">More than 20x lighter than typical Electron productivity wrappers, preserving CPU cache for heavy workloads.</p>
+          </div>
+
+          <div class="min-spec-box">
+            <span class="min-spec-idx">03 // INFERENCE</span>
+            <span class="min-spec-label">Offline Voice Transcription</span>
+            <span class="min-spec-value">~120 ms</span>
+            <p class="min-spec-desc">Quantized Whisper.cpp CPU inference executing entirely on-device with zero audio packets leaving the machine.</p>
+          </div>
+
+          <div class="min-spec-box">
+            <span class="min-spec-idx">04 // STORAGE</span>
+            <span class="min-spec-label">Local Cryptographic Store</span>
+            <span class="min-spec-value">100% Offline</span>
+            <p class="min-spec-desc">Atomic JSON persistence in %APPDATA%/Dayflit with optional AES-256 local encryption.</p>
+          </div>
+
+          <div class="min-spec-box">
+            <span class="min-spec-idx">05 // PRIVACY</span>
+            <span class="min-spec-label">Network Transmission</span>
+            <span class="min-spec-value">0 Packets</span>
+            <p class="min-spec-desc">No tracking pixels, no telemetry endpoints, no subscription authentication hurdles. Total ownership.</p>
+          </div>
+
+          <div class="min-spec-box">
+            <span class="min-spec-idx">06 // OVERLAY</span>
+            <span class="min-spec-label">Frameless Window IPC</span>
+            <span class="min-spec-value">0.0 ms Latency</span>
+            <p class="min-spec-desc">Global Win32 low-level keyboard hooks and instant floating bubble physics with zero input latency.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 4: CRYPTOGRAPHIC VERIFICATION & DOWNLOAD ================= -->
+      <section class="min-verify-section" id="verification">
+        <div class="min-verify-card">
+          <div class="min-verify-top">
+            <div class="min-verify-title-group">
+              <h2 class="min-verify-title">Cryptographic Manifest Verification</h2>
+              <p class="min-verify-subtitle">
+                Verify the integrity and authenticity of the official Windows release binary prior to local execution.
+              </p>
+            </div>
+
+            <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" class="min-pill-primary" data-download-url>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download Official Binary (3.7 MB)</span>
+            </a>
+          </div>
+
+          <div class="min-hash-container">
+            <code class="min-hash-code" id="sha256-code">955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053</code>
+            <button class="min-copy-hash-btn" id="copy-hash-btn" type="button">Copy Checksum</button>
+          </div>
+
+          <div class="min-verify-bottom">
+            <div class="min-verify-meta">
+              <span><strong>Algorithm:</strong> SHA-256</span>
+              <span><strong>Target:</strong> Dayflit_1.0.0_x64-setup.exe</span>
+              <span><strong>Platform:</strong> Windows 10 &amp; 11 x64</span>
+            </div>
+            <div class="min-verify-meta">
+              <span><strong>PGP Signature:</strong> Verified</span>
+              <span><strong>License:</strong> MIT Open Source</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION 5: FOUR-EDITION CROSS-SHOWCASE (/teamwork-preview) ================= -->
+      <section class="min-editions-section" id="editions">
+        <div class="min-section-title-wrap">
+          <span class="min-section-tag">Design System Archetypes</span>
+          <h2 class="min-section-headline">Explore All Four Dayflit Showcases</h2>
+          <p class="min-section-desc">
+            Dayflit is engineered across four distinct architectural design philosophies. Seamlessly transition between editions.
+          </p>
+        </div>
+
+        <div class="min-editions-grid">
+          <!-- Edition 1: Apple Light -->
+          <a href="./index.html" class="min-edition-card">
+            <div>
+              <span class="min-edition-emoji">🍏</span>
+              <h3 class="min-edition-name">Apple Light</h3>
+              <p class="min-edition-summary">Fluid Human Interface Guidelines, Emil Kowalski spring micro-interactions, and 2x retina typography.</p>
+            </div>
+            <div class="min-edition-cta">
+              <span>Launch Experience</span>
+              <span>→</span>
+            </div>
+          </a>
+
+          <!-- Edition 2: Bento Grid -->
+          <a href="./bento.html" class="min-edition-card">
+            <div>
+              <span class="min-edition-emoji">🍱</span>
+              <h3 class="min-edition-name">Bento Grid</h3>
+              <p class="min-edition-summary">Asymmetrical modular layout, real Web Audio soundscapes, interactive Spline knot, and NLP parser.</p>
+            </div>
+            <div class="min-edition-cta">
+              <span>Launch Experience</span>
+              <span>→</span>
+            </div>
+          </a>
+
+          <!-- Edition 3: Maximalism -->
+          <a href="./maximalism.html" class="min-edition-card">
+            <div>
+              <span class="min-edition-emoji">🎨</span>
+              <h3 class="min-edition-name">Maximalism</h3>
+              <p class="min-edition-summary">Tactile editorial density, habit punch-cards, dynamic island companion, and rich vintage colorways.</p>
+            </div>
+            <div class="min-edition-cta">
+              <span>Launch Experience</span>
+              <span>→</span>
+            </div>
+          </a>
+
+          <!-- Edition 4: Minimalism (Current) -->
+          <div class="min-edition-card current">
+            <div>
+              <span class="min-edition-emoji">🏛️</span>
+              <h3 class="min-edition-name">Minimalism</h3>
+              <p class="min-edition-summary">Architectural Swiss modernism, technical documents center, and interactive parametric fan curves.</p>
+            </div>
+            <div class="min-edition-cta" style="color: var(--color-orange-active);">
+              <span>● Current Active View</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="min-footer">
+      <div class="min-container">
+        <div class="min-footer-inner">
+          <div class="min-footer-left">
+            <img src="./icon.png" alt="Dayflit logo" width="22" height="22" style="border-radius: 5px;" />
+            <span><strong>Dayflit Minimalism Edition</strong> • v1.0.0</span>
+            <span>• 100% Offline &amp; Local-First</span>
+          </div>
+
+          <div class="min-footer-links">
+            <a href="./index.html" class="min-footer-link">🍏 Apple Light</a>
+            <a href="./bento.html" class="min-footer-link">🍱 Bento Grid</a>
+            <a href="./maximalism.html" class="min-footer-link">🎨 Maximalism</a>
+            <a href="https://github.com/sidhu1512/dayflit" class="min-footer-link" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/sidhu1512/dayflit/releases" class="min-footer-link" target="_blank" rel="noopener">Releases</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ================= TECHNICAL SHEET READER MODAL ================= -->
+    <div class="min-modal-overlay" id="doc-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-doc-title">
+      <div class="min-modal-window">
+        <div class="min-modal-header">
+          <div>
+            <h2 class="min-modal-title" id="modal-doc-title">Document Title</h2>
+            <div class="min-modal-meta" id="modal-doc-meta">Format &amp; Category</div>
+          </div>
+          <button class="min-modal-close-btn" id="modal-close-btn" type="button" aria-label="Close document reader">×</button>
+        </div>
+
+        <div class="min-modal-body">
+          <p id="modal-doc-abstract">Document abstract description.</p>
+
+          <table class="min-modal-table">
+            <tbody>
+              <tr>
+                <td>Pages</td>
+                <td id="modal-doc-pages">32 pages</td>
+              </tr>
+              <tr>
+                <td>Published</td>
+                <td id="modal-doc-date">2026-04-02</td>
+              </tr>
+              <tr>
+                <td>Integrity Hash</td>
+                <td id="modal-doc-sha256" style="font-size: 11px; word-break: break-all;">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="min-modal-footer">
+          <button class="min-pill-primary" id="modal-download-btn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download Document</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="min-toast" id="min-toast"></div>
+
+    <!-- Client Script -->
+    <script type="module" src="./src/minimalism.js"></script>
+  </body>
+</html>
