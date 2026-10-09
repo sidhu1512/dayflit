@@ -93,16 +93,30 @@
           <div class="phone-mockup-frame">
             <div class="phone-notch-bar">
               <span id="mockup-time">10:59</span>
-              <div class="dynamic-island">
+              <div class="dynamic-island" id="dynamic-island" title="Click to expand Dayflit Live Island">
                 <div class="island-camera"></div>
+                <div class="island-content">
+                  <span class="island-pulse-dot"></span>
+                  <span class="island-text">25m Focus</span>
+                </div>
               </div>
-              <span>5G 98%</span>
+              <span class="status-signals">5G 98%</span>
             </div>
 
+            <!-- WhatsApp Notification Pill matching reference image banner -->
+            <div class="device-whatsapp-banner">
+              <div class="whatsapp-icon-dot">💬</div>
+              <div class="whatsapp-content">
+                <span class="whatsapp-title">WhatsApp • Design Team</span>
+                <span class="whatsapp-msg">“Bento release looks unreal! Ship it 🚀”</span>
+              </div>
+            </div>
+
+            <!-- Companion Pill Header with Mode Switcher -->
             <div class="companion-pill-header">
               <span class="companion-status-text">
                 <span class="status-dot"></span>
-                <span>Dayflit Floating Dock</span>
+                <span id="companion-mode-label">Floating Dock (Win 11)</span>
               </span>
               <span class="companion-timer" id="mockup-remaining-count">3 tasks left</span>
             </div>
@@ -144,23 +158,24 @@
             </div>
           </div>
           <div class="device-footer-caption">
-            Click tasks above to toggle completion
+            Click tasks above to toggle • Click Dynamic Island to expand
           </div>
         </article>
 
         <!-- CARD 2: SAGE GREEN METRIC CARD (Row 1, Column 2) -->
         <article class="bento-card card-sage" id="card-sage">
           <div class="sage-header">
-            <span class="sage-tag">100% Offline</span>
-            <span class="sage-heart" title="Loved by local-first advocates">♥</span>
+            <span class="sage-tag">Local SSD Storage</span>
+            <span class="sage-pill-offline">Zero Cloud</span>
           </div>
-          <div>
-            <div class="sage-stat">
-              <span>4.875</span>
-              <span style="font-size: 1.8rem;">★</span>
+          <div class="sage-body">
+            <div class="sage-stat-hero">
+              <span class="sage-stat-num">4.875</span>
+              <span class="sage-heart" title="Loved by local-first advocates">♥</span>
             </div>
+            <div class="sage-stat-subheading">Active Focus Hours Logged</div>
             <p class="sage-stat-label">
-              Local JSON storage on your Windows SSD. Zero telemetry or external servers.
+              Project views &amp; offline JSON storage on your SSD. Zero telemetry or server calls.
             </p>
           </div>
         </article>
@@ -168,17 +183,27 @@
         <!-- CARD 3: DARK SLATE CHARCOAL PERFORMANCE CARD (Row 1, Column 3) -->
         <article class="bento-card card-slate" id="card-slate">
           <div>
-            <div class="slate-top-label">Native Rust Engine</div>
+            <div class="slate-top-label">New Users / Offline Sessions</div>
             <div class="slate-stat-row">
-              <span class="slate-big-number">0ms</span>
+              <span class="slate-big-number">57K</span>
               <span class="slate-pill-badge">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
-                <span>+60 FPS</span>
+                <span>+10%</span>
               </span>
             </div>
           </div>
+          <div class="slate-bottom-metrics">
+            <div class="slate-chip-metric">
+              <span class="chip-val">0ms</span>
+              <span class="chip-lbl">Cloud Latency</span>
+            </div>
+            <div class="slate-chip-metric">
+              <span class="chip-val">3.7 MB</span>
+              <span class="chip-lbl">Native Rust</span>
+            </div>
+          </div>
           <p class="slate-subtext">
-            Instant cold startup. 3.7 MB memory footprint vs 250MB+ bloated Electron apps.
+            Instant cold startup. 15x lighter than 250MB+ bloated Electron apps.
           </p>
         </article>
 
@@ -190,9 +215,10 @@
             </h2>
             <div class="butter-avatars-row">
               <div class="avatar-stack">
-                <div class="avatar-bubble" style="background: #fed7aa;">👨‍💻</div>
-                <div class="avatar-bubble" style="background: #fbcfe8;">👩‍🎨</div>
-                <div class="avatar-bubble" style="background: #bbf7d0;">🧑‍🔬</div>
+                <div class="avatar-bubble" style="background: #fed7aa;" title="Alex (Rust Engineer)">👨‍💻</div>
+                <div class="avatar-bubble" style="background: #fbcfe8;" title="Maya (Product Designer)">👩‍🎨</div>
+                <div class="avatar-bubble" style="background: #bbf7d0;" title="Sid (Founder)">🧑‍🔬</div>
+                <div class="avatar-bubble" style="background: #bae6fd;" title="Elena (Writer)">👩‍💻</div>
                 <div class="avatar-bubble more-bubble">+4k</div>
               </div>
             </div>
@@ -207,9 +233,41 @@
               </div>
             </div>
 
-            <!-- 12-point metallic rotating Sunburst badge from reference image -->
-            <svg class="sunburst-badge" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <path d="M50 0 L58 35 L93 20 L73 50 L99 65 L65 73 L58 100 L42 73 L8 65 L34 50 L14 20 L49 35 Z" opacity="0.9" />
+            <!-- 16-point mathematically symmetrical 3D faceted rotating Sunburst badge -->
+            <svg class="sunburst-badge" viewBox="0 0 100 100" aria-hidden="true">
+              <g color="#1f2326">
+                <polygon points="50,50 45.3,26.5 50,2" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 50,2 54.7,26.5" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 54.7,26.5 68.4,5.7" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 68.4,5.7 63.3,30" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 63.3,30 83.9,16.1" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 83.9,16.1 70,36.7" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 70,36.7 94.3,31.6" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 94.3,31.6 73.5,45.3" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 73.5,45.3 98,50" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 98,50 73.5,54.7" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 73.5,54.7 94.3,68.4" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 94.3,68.4 70,63.3" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 70,63.3 83.9,83.9" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 83.9,83.9 63.3,70" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 63.3,70 68.4,94.3" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 68.4,94.3 54.7,73.5" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 54.7,73.5 50,98" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 50,98 45.3,73.5" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 45.3,73.5 31.6,94.3" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 31.6,94.3 36.7,70" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 36.7,70 16.1,83.9" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 16.1,83.9 30,63.3" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 30,63.3 5.7,68.4" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 5.7,68.4 26.5,54.7" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 2,50 26.5,45.3" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 26.5,45.3 5.7,31.6" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 5.7,31.6 30,36.7" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 30,36.7 16.1,16.1" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 16.1,16.1 36.7,30" fill="currentColor" opacity="0.5" />
+                <polygon points="50,50 36.7,30 31.6,5.7" fill="currentColor" opacity="0.9" />
+                <polygon points="50,50 31.6,5.7 45.3,26.5" fill="currentColor" opacity="0.5" />
+              </g>
             </svg>
           </div>
         </article>
@@ -217,7 +275,13 @@
         <!-- CARD 5: CENTERPIECE LILAC CARD WITH SPLINE WAVE (Row 2, Column 2-3) -->
         <article class="bento-card card-lilac" id="card-lilac">
           <div class="lilac-header">
-            <span class="lilac-title-pill">Weekly Flow State &amp; Focus Velocity</span>
+            <div class="lilac-title-group">
+              <span class="lilac-title-pill">Weekly Flow State &amp; Focus Velocity</span>
+              <div class="spline-tabs" role="tablist" aria-label="Chart Timeframe">
+                <button id="btn-spline-weekly" class="spline-tab active" type="button" role="tab" aria-selected="true">Mon–Sun</button>
+                <button id="btn-spline-monthly" class="spline-tab" type="button" role="tab" aria-selected="false">Jan–Sep</button>
+              </div>
+            </div>
             <div class="lilac-stat-rate">
               <div class="lilac-main-stat" id="spline-stat-val">7h 12m</div>
               <span class="lilac-change-pill positive" id="spline-stat-change">+45% vs prev</span>
@@ -229,7 +293,7 @@
             <svg class="spline-svg" id="spline-svg" viewBox="0 0 600 110" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="lilac-area-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#7f56d9" stop-opacity="0.28" />
+                  <stop offset="0%" stop-color="#7f56d9" stop-opacity="0.32" />
                   <stop offset="100%" stop-color="#7f56d9" stop-opacity="0.0" />
                 </linearGradient>
                 <linearGradient id="lilac-stroke-grad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -242,6 +306,8 @@
               <path id="spline-area-path" fill="url(#lilac-area-grad)" d="" />
               <!-- Spline wave line -->
               <path id="spline-wave-path" fill="none" stroke="url(#lilac-stroke-grad)" stroke-width="3" stroke-linecap="round" />
+              <!-- Glowing outer halo on active dot -->
+              <circle id="spline-active-halo" cx="420" cy="30" r="14" fill="#7f56d9" opacity="0.22" />
               <!-- Hover indicator circle -->
               <circle id="spline-active-dot" cx="420" cy="30" r="5.5" fill="#ffffff" stroke="#7f56d9" stroke-width="3" />
             </svg>
@@ -250,24 +316,28 @@
           <div class="spline-x-axis" id="spline-axis">
             <!-- Populated dynamically via JS (Mon-Sun or Jan-Sep) -->
           </div>
-
-          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-            <button id="spline-view-toggle" class="sound-chip" style="font-size: 0.72rem; padding: 4px 10px;" type="button">
-              Switch to Monthly
-            </button>
-          </div>
         </article>
 
         <!-- CARD 6: PERIWINKLE SOUNDSCAPES & SPOTIFY CARD (Row 3, Column 1) -->
         <article class="bento-card card-blue" id="card-blue">
-          <h2 class="blue-card-title">Soundscapes &amp; Spotify Focus Sync</h2>
+          <div class="blue-card-header">
+            <h2 class="blue-card-title">Soundscapes &amp; Spotify Sync</h2>
+            <div class="blue-live-badge">
+              <span class="live-dot"></span>
+              <span>4.2k in flow</span>
+            </div>
+          </div>
+
           <div class="soundscape-player">
             <div class="soundscape-track-info">
+              <div class="soundscape-disc-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
               <div class="track-meta">
                 <span class="track-name" id="sound-track-name">Deep Work Flow — 40Hz</span>
                 <span class="track-artist">Dayflit Ambient Engine</span>
               </div>
-              <button class="sound-btn-play" id="sound-play-btn" title="Toggle Lo-Fi binaural audio" type="button">
+              <button class="sound-btn-play" id="sound-play-btn" title="Toggle soundscape audio synthesis" type="button">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               </button>
             </div>
@@ -281,10 +351,10 @@
             </div>
 
             <div class="soundscape-pills-row">
-              <span class="sound-chip active" data-sound-title="Deep Work Flow — 40Hz">40Hz Binaural</span>
-              <span class="sound-chip" data-sound-title="Gentle Rain on Window">Rain</span>
-              <span class="sound-chip" data-sound-title="Nordic Cafe Ambience">Cafe</span>
-              <span class="sound-chip" data-sound-title="Lo-Fi Beats (Spotify)">Lo-Fi</span>
+              <span class="sound-chip active" data-sound-title="Deep Work Flow — 40Hz" data-sound-type="binaural">40Hz Binaural</span>
+              <span class="sound-chip" data-sound-title="Gentle Rain on Window" data-sound-type="rain">Rain</span>
+              <span class="sound-chip" data-sound-title="Nordic Cafe Ambience" data-sound-type="cafe">Cafe</span>
+              <span class="sound-chip" data-sound-title="Lo-Fi Beats (Warm Chord)" data-sound-type="lofi">Lo-Fi</span>
             </div>
           </div>
         </article>
@@ -315,9 +385,9 @@
             <p class="forest-card-subtitle" id="whisper-sample-prompt">
               “Push-to-talk offline dictation without cloud leak”
             </p>
-            <button class="btn-whisper-demo" id="btn-whisper-demo" type="button">
+            <button class="btn-whisper-demo" id="btn-whisper-demo" type="button" title="Push-to-talk: Hold to speak, release to transcribe">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-              <span>Hold to Speak</span>
+              <span id="whisper-btn-label">Hold to Speak</span>
             </button>
           </div>
 
@@ -336,11 +406,12 @@
 
         <!-- CARD 9: DUSTY ROSE BRAND KNOT CARD (Row 3, Column 4) -->
         <article class="bento-card card-rose" id="card-rose">
-          <!-- Geometric Celtic/Origami Knot Emblem -->
-          <svg class="rose-geometric-knot" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="50" cy="36" r="22" stroke="#9e1c3f" />
-            <circle cx="36" cy="62" r="22" stroke="#9e1c3f" />
-            <circle cx="64" cy="62" r="22" stroke="#9e1c3f" />
+          <!-- Authentic Celtic Triquetra geometric knot logo matching reference image CUBO emblem -->
+          <svg class="rose-geometric-knot" viewBox="0 0 100 100" fill="none" stroke="#9e1c3f" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M 50 14 C 65 30 76 52 76 68 C 76 80 64 88 50 88 C 36 88 24 80 24 68 C 24 52 35 30 50 14 Z" opacity="0.95" />
+            <path d="M 22 74 C 38 60 62 52 78 52 C 90 52 98 62 94 74 C 90 86 78 90 64 84 C 48 78 32 75 22 74 Z" opacity="0.95" />
+            <path d="M 78 74 C 62 60 38 52 22 52 C 10 52 2 62 6 74 C 10 86 22 90 36 84 C 52 78 68 75 78 74 Z" opacity="0.95" />
+            <circle cx="50" cy="62" r="22" stroke="#9e1c3f" stroke-width="4.5" stroke-dasharray="24 10 24 10" />
           </svg>
           <span class="rose-brand-name">DAYFLIT</span>
           <span class="rose-brand-caption">Floating Windows Companion</span>
