@@ -19,8 +19,8 @@ console.log("\n📦 1. Building website with Vite...");
 execSync("npm run build", { cwd: websiteDir, stdio: "inherit" });
 
 // Step 2: Validate dist output
-if (!fs.existsSync(path.join(distDir, "index.html")) || !fs.existsSync(path.join(distDir, "bento.html")) || !fs.existsSync(path.join(distDir, "maximalism.html")) || !fs.existsSync(path.join(distDir, "minimalism.html"))) {
-  console.error("❌ Error: dist/index.html, dist/bento.html, dist/maximalism.html, or dist/minimalism.html was not generated.");
+if (!fs.existsSync(path.join(distDir, "index.html")) || !fs.existsSync(path.join(distDir, "bento.html")) || !fs.existsSync(path.join(distDir, "maximalism.html"))) {
+  console.error("❌ Error: dist/index.html, dist/bento.html, or dist/maximalism.html was not generated.");
   process.exit(1);
 }
 
