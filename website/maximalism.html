@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dayflit — Maximalism Edition | Smarter Daily Productivity Without the Noise</title>
+    <meta name="description" content="Dayflit Maximalism Edition: A rich, tactile, editorial showcase for the floating Windows productivity companion. Natural language tasks, focus telemetry, offline Whisper memos, and ambient soundscapes." />
+    <meta property="og:title" content="Dayflit — Maximalism Edition" />
+    <meta property="og:description" content="Smarter daily productivity without the noise. High-craft tactile editorial design, 100% offline, local JSON storage." />
+    <meta property="og:image" content="./shots/today-light.png" />
+    <meta name="theme-color" content="#FAF6EF" />
+    <link rel="icon" href="./icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..900;1,9..144,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/maximalism.css" />
+  </head>
+  <body>
+
+    <!-- ================= FLOATING CAPSULE NAVBAR ================= -->
+    <div class="max-nav-wrapper">
+      <header class="max-navbar" id="navbar">
+        <div class="brand-group">
+          <img class="brand-icon" src="./icon.png" alt="Dayflit logo" width="32" height="32" />
+          <span class="brand-title">Dayflit</span>
+          <span class="brand-pill">Maximalism</span>
+        </div>
+
+        <nav class="nav-links" aria-label="Maximalism Navigation">
+          <a href="#showcase-grid" class="nav-link">Showcase</a>
+          <a href="#balance-card" class="nav-link">Balance &amp; Focus</a>
+          <a href="#habits-card" class="nav-link">Punch-Cards</a>
+          <a href="#sound-studio" class="nav-link">Soundscapes</a>
+          <a href="#nlp-whisper" class="nav-link">Voice &amp; NLP</a>
+          <a href="#comparison" class="nav-link">Matrix</a>
+          <a href="#gallery" class="nav-link">Gallery</a>
+        </nav>
+
+        <div class="nav-actions">
+          <!-- Cross-Navigation Switcher Capsule -->
+          <div class="nav-switcher-group" aria-label="Website Editions">
+            <a href="./index.html" class="switcher-pill" title="Switch to Apple Light Edition">
+              <span>🍏</span>
+              <span>Apple Light</span>
+            </a>
+            <a href="./bento.html" class="switcher-pill" title="Switch to Bento Grid Edition">
+              <span>🍱</span>
+              <span>Bento Grid</span>
+            </a>
+            <a href="./maximalism.html" class="switcher-pill active" title="Current: Maximalism Edition">
+              <span>🎨</span>
+              <span>Maximalism</span>
+            </a>
+          </div>
+
+          <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" class="btn-download-nav" data-download-url>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download (3.7 MB)</span>
+          </a>
+
+          <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" type="button">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Navigation Drawer -->
+      <nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
+        <a href="#showcase-grid">🎨 The Maximalist Showcase</a>
+        <a href="#sound-studio">🎧 Ambient Soundscapes Studio</a>
+        <a href="#nlp-whisper">⚡ NLP &amp; Offline Whisper</a>
+        <a href="#comparison">📊 Architecture Comparison</a>
+        <a href="#gallery">🖼️ Visual Gallery</a>
+        <a href="./index.html" style="color: #059669; font-weight: 700;">🍏 Switch to Apple Light Edition</a>
+        <a href="./bento.html" style="color: #7f56d9; font-weight: 700;">🍱 Switch to Bento Grid Edition</a>
+        <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" style="color: #FF6332; font-weight: 800;">⬇️ Download for Windows (3.7 MB)</a>
+      </nav>
+    </div>
+
+    <!-- ================= EDITORIAL HERO SECTION ================= -->
+    <header class="max-hero-section">
+      <div class="hero-super-pill">
+        <span class="super-badge">✦ Editorial Craft</span>
+        <span>Windows 10 &amp; 11 • Native 3.7MB Rust • 100% Offline</span>
+      </div>
+
+      <h1 class="hero-headline">
+        Smarter daily productivity <br />
+        <span class="highlight-maximal">without the noise.</span>
+      </h1>
+
+      <p class="hero-lead">
+        A floating desktop companion designed with tactile density: natural language tasks, weekly focus sparklines, offline Whisper voice memos, and ambient soundscapes — self-contained with zero subscriptions and zero telemetry.
+      </p>
+
+      <!-- Tactile Pill Stickers Row -->
+      <div class="hero-stickers-row">
+        <span class="tactile-sticker coral">✹ 0ms Latency</span>
+        <span class="tactile-sticker yellow">★ 3.7 MB Rust Binary</span>
+        <span class="tactile-sticker emerald">✦ 100% Offline JSON</span>
+        <span class="tactile-sticker blue">✿ Local Whisper Engine</span>
+        <span class="tactile-sticker lilac">⚡ Spotify &amp; Ambient Mix</span>
+        <span class="tactile-sticker coral">🛡️ Verified SHA-256</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="hero-actions-bar">
+        <a href="#download-verified" class="btn-hero-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Get Dayflit for Windows (3.7 MB)</span>
+        </a>
+        <a href="#showcase-grid" class="btn-hero-secondary">
+          <span>Explore Maximalist Cards</span>
+          <span>↓</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ================= THE CORE MAXIMALIST SHOWCASE GRID ================= -->
+    <main class="max-container" id="showcase-grid">
+      <div class="max-grid">
+
+        <!-- CARD 1: DEVICE / PHONE COMPANION MOCKUP (Col 1-4, Row 1-2) -->
+        <article class="max-card card-companion" id="card-device">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3>Desktop Companion</h3>
+              <p>Always-on-top acrylic floating pill</p>
+            </div>
+            <span class="tactile-sticker coral">Active</span>
+          </div>
+
+          <div class="phone-companion-frame">
+            <!-- Status Bar -->
+            <div class="phone-status-bar">
+              <span id="phone-live-clock">10:59</span>
+              <div class="phone-status-icons">
+                <span>5G</span>
+                <span>📶</span>
+                <span class="battery-pill">46% ⚡</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Island Header -->
+            <div class="phone-island-pill" id="phone-island" title="Click to toggle Focus Island">
+              <div class="island-left">
+                <span class="island-dot-pulse"></span>
+                <span class="island-title">25m Focus</span>
+              </div>
+              <span class="island-timer">24:18</span>
+            </div>
+
+            <!-- Focus Sparkline Mountain Box -->
+            <div class="companion-sparkline-box">
+              <div class="sparkline-top-row">
+                <div class="sparkline-metric" id="sparkline-metric-val">8.4 hrs</div>
+                <div class="sparkline-change" id="sparkline-metric-change">+12.3%</div>
+              </div>
+
+              <!-- Time Tabs -->
+              <div class="sparkline-time-tabs">
+                <button type="button" class="time-tab active">24h</button>
+                <button type="button" class="time-tab">Week</button>
+                <button type="button" class="time-tab">Month</button>
+                <button type="button" class="time-tab">6 Month</button>
+              </div>
+
+              <!-- Area Graph SVG -->
+              <div class="sparkline-svg-wrapper">
+                <svg viewBox="0 0 300 70" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="coralMountain" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#FF6332" stop-opacity="0.45" />
+                      <stop offset="100%" stop-color="#FF6332" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path id="sparkline-area" d="M 0 52 Q 40 18, 80 40 T 160 22 T 240 38 T 300 12 L 300 70 L 0 70 Z" fill="url(#coralMountain)"></path>
+                  <path id="sparkline-wave" d="M 0 52 Q 40 18, 80 40 T 160 22 T 240 38 T 300 12" fill="none" stroke="#FF6332" stroke-width="3" stroke-linecap="round"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Interactive Tasks Checklist -->
+            <div class="companion-checklist-box">
+              <div class="checklist-title-row">
+                <span class="checklist-title">Sprint Tasks</span>
+                <span class="checklist-count-pill" id="checklist-remaining-count">2 left</span>
+              </div>
+
+              <div class="max-task-item completed">
+                <span class="max-task-check">✓</span>
+                <span>Ship v1.0.0 Windows binary</span>
+                <span class="task-tag-pill tag-rust">Rust</span>
+              </div>
+
+              <div class="max-task-item">
+                <span class="max-task-check"></span>
+                <span>Record offline Whisper memo</span>
+                <span class="task-tag-pill tag-audio">Voice</span>
+              </div>
+
+              <div class="max-task-item">
+                <span class="max-task-check"></span>
+                <span>Focus session: binaural 40Hz</span>
+                <span class="task-tag-pill tag-work">Focus</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 2: BALANCE & SUNBURST CARD (Col 5-8, Row 1) -->
+        <article class="max-card card-balance" id="card-balance">
+          <div class="balance-card-header">
+            <span class="tactile-sticker yellow">✦ Productivity Balance</span>
+            <!-- Currency Switcher Pills -->
+            <div class="currency-pills-row">
+              <button type="button" class="cur-pill active">USD</button>
+              <button type="button" class="cur-pill">EUR</button>
+              <button type="button" class="cur-pill">GBP</button>
+              <button type="button" class="cur-pill">AUD</button>
+            </div>
+          </div>
+
+          <div class="balance-main-content">
+            <!-- Starburst Sunburst Graphic -->
+            <svg class="balance-starburst-svg" id="balance-starburst-svg" viewBox="0 0 100 100" fill="currentColor">
+              <path d="M50 0 L58 35 L93 20 L72 50 L93 80 L58 65 L50 100 L42 65 L7 80 L28 50 L7 20 L42 35 Z"/>
+            </svg>
+
+            <span class="balance-label">Total Time Saved Equivalent</span>
+            <div class="balance-value" id="balance-val-text">$1,222.00</div>
+          </div>
+
+          <!-- Sub-Card: Olive Water / Subscription Status -->
+          <div class="balance-sub-card">
+            <div class="sub-card-left">
+              <span class="sub-card-title">SaaS Cost Avoidance</span>
+              <span class="sub-card-stat" id="sub-stat-text">$582.00</span>
+            </div>
+            <span class="sub-card-pill">100% Free Forever</span>
+          </div>
+        </article>
+
+        <!-- CARD 3: SAVINGS & MULTI-COLORED METER CARD (Col 9-12, Row 1) -->
+        <article class="max-card card-savings" id="card-savings">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3>Yearly Focus Savings</h3>
+              <p>Zero monthly subscription fees</p>
+            </div>
+            <span class="savings-badge">Annual ROI</span>
+          </div>
+
+          <div class="savings-amount-row">
+            <div class="savings-number">$4,113.89</div>
+            <span class="tactile-sticker emerald">18.4 hrs/wk</span>
+          </div>
+
+          <!-- Multi-colored Segmented Tactile Meter -->
+          <div class="segmented-meter-wrapper">
+            <div class="meter-header">
+              <span>Tactile Energy Meter</span>
+              <span id="meter-active-count">18 / 20 Units</span>
+            </div>
+            <div class="segmented-bar">
+              <span class="meter-segment active-green"></span>
+              <span class="meter-segment active-green"></span>
+              <span class="meter-segment active-green"></span>
+              <span class="meter-segment active-green"></span>
+              <span class="meter-segment active-lime"></span>
+              <span class="meter-segment active-lime"></span>
+              <span class="meter-segment active-lime"></span>
+              <span class="meter-segment active-yellow"></span>
+              <span class="meter-segment active-yellow"></span>
+              <span class="meter-segment active-yellow"></span>
+              <span class="meter-segment active-amber"></span>
+              <span class="meter-segment active-amber"></span>
+              <span class="meter-segment active-amber"></span>
+              <span class="meter-segment active-orange"></span>
+              <span class="meter-segment active-orange"></span>
+              <span class="meter-segment active-orange"></span>
+              <span class="meter-segment active-coral"></span>
+              <span class="meter-segment active-coral"></span>
+              <span class="meter-segment" style="opacity: 0.22;"></span>
+              <span class="meter-segment" style="opacity: 0.22;"></span>
+            </div>
+          </div>
+
+          <!-- Team / Members Row with Score Pills -->
+          <div class="team-avatars-row">
+            <div class="avatar-stack">
+              <div class="avatar-chip av-1">SJ</div>
+              <div class="avatar-chip av-2">AK</div>
+              <div class="avatar-chip av-3">MR</div>
+              <div class="avatar-chip av-4">EL</div>
+            </div>
+            <div class="team-score-pills">
+              <span class="score-pill">810</span>
+              <span class="score-pill">890</span>
+              <span class="score-pill">1,020</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 4: MASCOT & EDITORIAL CRAFT (Col 5-8, Row 2) -->
+        <article class="max-card card-mascot" id="card-mascot">
+          <div class="mascot-illustration-box">
+            <!-- Bespoke Playful Mascot Illustration SVG -->
+            <div class="mascot-svg-wrapper">
+              <svg viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Desk Surface -->
+                <rect x="20" y="115" width="200" height="8" rx="4" fill="#3D291C" />
+                <rect x="35" y="123" width="6" height="20" rx="2" fill="#78523A" />
+                <rect x="199" y="123" width="6" height="20" rx="2" fill="#78523A" />
+
+                <!-- Vintage Monitor / Companion -->
+                <rect x="80" y="35" width="80" height="65" rx="12" fill="#FFF2DC" stroke="#3D291C" stroke-width="3" />
+                <rect x="88" y="43" width="64" height="48" rx="8" fill="#1E1714" />
+                <!-- Screen Content (Glowing Face) -->
+                <circle cx="106" cy="64" r="4" fill="#10B981" />
+                <circle cx="134" cy="64" r="4" fill="#10B981" />
+                <path d="M 112 75 Q 120 81 128 75" stroke="#10B981" stroke-width="3" stroke-linecap="round" fill="none" />
+                <!-- Monitor Stand -->
+                <rect x="114" y="100" width="12" height="15" fill="#C29F78" stroke="#3D291C" stroke-width="2" />
+                <rect x="100" y="112" width="40" height="5" rx="2" fill="#3D291C" />
+
+                <!-- Steaming Coffee Mug -->
+                <rect x="42" y="85" width="22" height="28" rx="4" fill="#FF6332" stroke="#3D291C" stroke-width="2" />
+                <path d="M 64 92 C 72 92 72 104 64 104" stroke="#3D291C" stroke-width="2.5" fill="none" />
+                <!-- Steam -->
+                <path d="M 48 78 Q 50 72 47 66" stroke="#C29F78" stroke-width="2" stroke-linecap="round" fill="none" />
+                <path d="M 54 78 Q 57 71 53 64" stroke="#C29F78" stroke-width="2" stroke-linecap="round" fill="none" />
+
+                <!-- Floating Starbursts & Coins -->
+                <circle cx="190" cy="55" r="14" fill="#F5B82E" stroke="#3D291C" stroke-width="2" />
+                <text x="185" y="60" font-size="14" font-weight="bold" fill="#3D291C">$</text>
+                
+                <path d="M 175 25 L 178 35 L 188 38 L 178 41 L 175 51 L 172 41 L 162 38 L 172 35 Z" fill="#9353D3" />
+                <path d="M 52 35 L 54 42 L 61 44 L 54 46 L 52 53 L 50 46 L 43 44 L 50 42 Z" fill="#10B981" />
+              </svg>
+            </div>
+
+            <h3 class="mascot-headline">Smarter daily productivity without the noise.</h3>
+
+            <div class="mascot-badges-cluster">
+              <span class="stamp-badge tangerine">★ 100% PRIVATE</span>
+              <span class="stamp-badge">✹ ZERO CLOUD</span>
+              <span class="stamp-badge emerald">✦ 3.7 MB TINY</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 5: TACTILE HABIT STREAK PUNCH-CARD (Col 9-12, Row 2) -->
+        <article class="max-card card-habits" id="card-habits">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3>Habit Punch-Card</h3>
+              <p>Physical stamping micro-interactions</p>
+            </div>
+            <span class="tactile-sticker coral">Click to Punch</span>
+          </div>
+
+          <div class="habit-streak-banner">
+            <div class="streak-text">
+              <span>🔥</span>
+              <span>18-Day Focus Streak Active</span>
+            </div>
+            <span style="font-size: 0.76rem; font-weight: 800; color: #FF6332;">+220 pts</span>
+          </div>
+
+          <div class="punch-card-rows">
+            <!-- Habit 1 -->
+            <div class="punch-row">
+              <div class="punch-label-bar">
+                <span>90m Deep Focus Work</span>
+                <span style="color: #059669; font-weight: 800;">6/7 Days</span>
+              </div>
+              <div class="punch-dots-row">
+                <span class="punch-dot punched" data-day="M">✓</span>
+                <span class="punch-dot punched" data-day="T">✓</span>
+                <span class="punch-dot punched" data-day="W">✓</span>
+                <span class="punch-dot punched" data-day="T">✓</span>
+                <span class="punch-dot punched" data-day="F">✓</span>
+                <span class="punch-dot punched" data-day="S">✓</span>
+                <span class="punch-dot" data-day="S">S</span>
+              </div>
+            </div>
+
+            <!-- Habit 2 -->
+            <div class="punch-row">
+              <div class="punch-label-bar">
+                <span>Offline Whisper Voice Journal</span>
+                <span style="color: #FF6332; font-weight: 800;">5/7 Days</span>
+              </div>
+              <div class="punch-dots-row">
+                <span class="punch-dot punch-dot-green punched-green" data-day="M">✓</span>
+                <span class="punch-dot punch-dot-green punched-green" data-day="T">✓</span>
+                <span class="punch-dot punch-dot-green punched-green" data-day="W">✓</span>
+                <span class="punch-dot punch-dot-green" data-day="T">T</span>
+                <span class="punch-dot punch-dot-green punched-green" data-day="F">✓</span>
+                <span class="punch-dot punch-dot-green punched-green" data-day="S">✓</span>
+                <span class="punch-dot punch-dot-green" data-day="S">S</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 6: SOUNDSCAPE STUDIO WITH WEB AUDIO SYNTH (Col 1-6, Row 3) -->
+        <article class="max-card card-soundscape" id="sound-studio">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3>Ambient Soundscapes Studio</h3>
+              <p>Real Web Audio synthesizer • Zero cloud streaming</p>
+            </div>
+            <span class="tactile-sticker blue">Live Audio Synth</span>
+          </div>
+
+          <!-- Soundscape Tiles -->
+          <div class="sound-engines-grid">
+            <div class="sound-tile active" data-sound="rain">
+              <span class="sound-tile-icon">🌧️</span>
+              <div class="sound-tile-info">
+                <span class="sound-tile-name">Rain on Window</span>
+                <span class="sound-tile-desc">Brown noise filtered rainfall</span>
+              </div>
+            </div>
+
+            <div class="sound-tile" data-sound="coffee">
+              <span class="sound-tile-icon">☕</span>
+              <div class="sound-tile-info">
+                <span class="sound-tile-name">Cozy Coffee Shop</span>
+                <span class="sound-tile-desc">Warm acoustic murmur</span>
+              </div>
+            </div>
+
+            <div class="sound-tile" data-sound="binaural">
+              <span class="sound-tile-icon">🧠</span>
+              <div class="sound-tile-info">
+                <span class="sound-tile-name">40Hz Binaural Beat</span>
+                <span class="sound-tile-desc">Gamma frequency focus wave</span>
+              </div>
+            </div>
+
+            <div class="sound-tile" data-sound="lofi">
+              <span class="sound-tile-icon">🎵</span>
+              <div class="sound-tile-info">
+                <span class="sound-tile-name">Lo-Fi Tape Drone</span>
+                <span class="sound-tile-desc">Analog cassette warmth</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analog Tactile Controls Bar -->
+          <div class="analog-controls-bar">
+            <button type="button" class="btn-sound-play" id="sound-play-toggle">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Play Soundscape</span>
+            </button>
+
+            <!-- Equalizer Visualizer Bars -->
+            <div class="sound-equalizer-bars">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="volume-knob-wrapper">
+              <span style="font-size: 0.72rem; font-weight: 800;">VOL</span>
+              <input type="range" min="0" max="100" value="45" class="volume-slider" id="sound-volume-slider" aria-label="Sound volume" />
+            </div>
+          </div>
+        </article>
+
+        <!-- CARD 7: NLP PARSER & WHISPER STUDIO (Col 7-12, Row 3) -->
+        <article class="max-card card-nlp-whisper" id="nlp-whisper">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3>Natural Language &amp; Whisper Studio</h3>
+              <p>Chrono parser &amp; on-device speech engine</p>
+            </div>
+            <span class="tactile-sticker emerald">0.12ms Parser</span>
+          </div>
+
+          <!-- Input Field -->
+          <div class="nlp-input-wrapper">
+            <input type="text" class="nlp-input-field" id="nlp-input" value="Review quarterly launch Friday at 3pm #product !urgent" placeholder="Type natural tasks e.g. 'Coffee with Dan tomorrow 10am @work'..." />
+          </div>
+
+          <!-- Example Chips -->
+          <div class="nlp-chips-preset">
+            <button type="button" class="nlp-pill-preset" data-query="Deep focus coding session 90m tomorrow at 9am #rust !high">⚡ Deep focus 90m tomorrow 9am</button>
+            <button type="button" class="nlp-pill-preset" data-query="Offline Whisper memo every day at 8pm ~journal">🎙️ Whisper memo daily 8pm</button>
+            <button type="button" class="nlp-pill-preset" data-query="Pitch deck review Friday at 4pm @marketing">📊 Pitch deck Friday 4pm</button>
+          </div>
+
+          <!-- Parsed Tokens Breakdown -->
+          <div class="nlp-parsed-tokens-box">
+            <div class="parsed-token-row">
+              <span class="token-key">Parsed Action:</span>
+              <span class="token-val" id="nlp-out-title">Review quarterly launch</span>
+            </div>
+            <div class="parsed-token-row">
+              <span class="token-key">Scheduled Time:</span>
+              <span class="token-val" id="nlp-out-date">This Friday • 3:00 PM</span>
+            </div>
+            <div class="parsed-token-row">
+              <span class="token-key">Categorized Tag:</span>
+              <span class="token-val" id="nlp-out-tag">#product</span>
+            </div>
+            <div class="parsed-token-row">
+              <span class="token-key">Priority Flag:</span>
+              <span class="token-val" id="nlp-out-priority">⚡ Urgent / High</span>
+            </div>
+          </div>
+
+          <!-- Whisper Push-to-Talk Bar -->
+          <div class="whisper-ptt-bar">
+            <button type="button" class="btn-whisper-mic" id="btn-whisper-test">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+              <span>Push to Talk (Whisper)</span>
+            </button>
+            <span class="whisper-transcript" id="whisper-transcript-text">“Click button to test offline speech engine...”</span>
+          </div>
+        </article>
+
+        <!-- CARD 8: VERIFIED INSTALLER DOWNLOAD & SHA-256 (Col 1-12) -->
+        <article class="card-download-verified" id="download-verified">
+          <div class="dl-card-left">
+            <div class="tactile-sticker emerald" style="margin-bottom: 12px;">✓ Production v1.0.0 Ready</div>
+            <h2>Install Dayflit for Windows</h2>
+            <p>
+              Lightweight 3.7 MB standalone installer compiled natively in Rust with Tauri v2. 100% offline, local JSON storage in AppData, zero background network calls, and zero telemetry.
+            </p>
+
+            <div class="sha256-hash-box">
+              <span class="sha256-label">SHA-256</span>
+              <span class="sha256-code" id="sha256-val">955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053</span>
+              <button type="button" class="btn-copy-hash" id="btn-copy-sha256">Copy SHA-256</button>
+            </div>
+          </div>
+
+          <div class="dl-card-right">
+            <a href="https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe" class="btn-download-big" data-download-url>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download Dayflit v1.0.0 (3.7 MB)</span>
+            </a>
+            <span class="dl-subtext">Windows 10 &amp; 11 (64-bit) • Clean Verified Checksum</span>
+          </div>
+        </article>
+
+      </div>
+    </main>
+
+    <!-- ================= EDITORIAL COMPARISON TABLE ================= -->
+    <section class="max-comparison-section" id="comparison">
+      <div class="comparison-wrapper">
+        <div class="comparison-header">
+          <h2>Engineering &amp; Architecture Matrix</h2>
+          <p>Why Dayflit outperforms traditional bloated web and Electron apps</p>
+        </div>
+
+        <div class="max-table-responsive">
+          <table class="max-table">
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th class="col-highlight">Dayflit (Maximalism)</th>
+                <th>Notion</th>
+                <th>Todoist</th>
+                <th>Electron Apps</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Installer Size</td>
+                <td class="col-highlight">3.7 MB (Native Rust)</td>
+                <td>Web / 150 MB</td>
+                <td>120 MB</td>
+                <td>150 MB - 300 MB</td>
+              </tr>
+              <tr>
+                <td>Memory Footprint</td>
+                <td class="col-highlight">&lt; 25 MB RAM</td>
+                <td>400 MB+ RAM</td>
+                <td>180 MB RAM</td>
+                <td>350 MB+ RAM</td>
+              </tr>
+              <tr>
+                <td>Cold Startup Time</td>
+                <td class="col-highlight">&lt; 15 ms</td>
+                <td>1,800 ms - 3,500 ms</td>
+                <td>1,200 ms</td>
+                <td>2,000 ms+</td>
+              </tr>
+              <tr>
+                <td>Offline Architecture</td>
+                <td class="col-highlight">100% Local JSON</td>
+                <td>Degraded / Cloud only</td>
+                <td>Partial Sync</td>
+                <td>Cloud dependent</td>
+              </tr>
+              <tr>
+                <td>Whisper Audio Engine</td>
+                <td class="col-highlight">Included (On-Device GGML)</td>
+                <td>Cloud AI ($10/mo)</td>
+                <td>None</td>
+                <td>Cloud API</td>
+              </tr>
+              <tr>
+                <td>Telemetry / Tracking</td>
+                <td class="col-highlight">Zero Telemetry</td>
+                <td>Third-party analytics</td>
+                <td>User event tracking</td>
+                <td>Extensive trackers</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VISUAL GALLERY SECTION ================= -->
+    <section class="max-gallery-section" id="gallery">
+      <div class="gallery-headline-bar">
+        <h2>Visual Interface Gallery</h2>
+        <p style="color: #6B5E55; font-size: 0.95rem; margin-top: 4px;">Click any screenshot to inspect high-resolution Windows interface</p>
+      </div>
+
+      <div class="gallery-grid-max">
+        <div class="gallery-item">
+          <img src="./shots/today-light.png" alt="Dayflit Today View" />
+          <div class="gallery-caption">
+            <span>Today Hub</span>
+            <span style="color: #FF6332;">Inspect ↗</span>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src="./shots/focus-light.png" alt="Dayflit Deep Focus Session" />
+          <div class="gallery-caption">
+            <span>Focus &amp; Spotify</span>
+            <span style="color: #FF6332;">Inspect ↗</span>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src="./shots/tasks-light.png" alt="Dayflit Tasks View" />
+          <div class="gallery-caption">
+            <span>Natural Tasks</span>
+            <span style="color: #FF6332;">Inspect ↗</span>
+          </div>
+        </div>
+
+        <div class="gallery-item">
+          <img src="./shots/palette-light.png" alt="Dayflit Command Palette" />
+          <div class="gallery-caption">
+            <span>Command Palette</span>
+            <span style="color: #FF6332;">Inspect ↗</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="max-footer">
+      <div class="footer-brand">
+        <img src="./icon.png" alt="Dayflit logo" width="24" height="24" style="border-radius: 6px;" />
+        <span style="color: #1E1714;">Dayflit Maximalism Edition</span>
+        <span style="color: #A3968B;">• v1.0.0</span>
+      </div>
+
+      <div class="footer-nav-pills">
+        <a href="./index.html" style="font-weight: 700; color: #059669;">🍏 Apple Light Edition</a>
+        <a href="./bento.html" style="font-weight: 700; color: #7f56d9;">🍱 Bento Grid Edition</a>
+        <a href="./maximalism.html" style="font-weight: 800; color: #FF6332;">🎨 Maximalism Edition</a>
+        <a href="https://github.com/sidhu1512/dayflit" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/sidhu1512/dayflit/releases" target="_blank" rel="noopener">Releases</a>
+      </div>
+    </footer>
+
+    <!-- Lightbox Modal -->
+    <div class="gallery-modal" id="gallery-modal">
+      <div class="modal-content">
+        <button class="modal-close-btn" id="modal-close" aria-label="Close modal">×</button>
+        <img id="modal-img" src="./shots/today-light.png" alt="High-resolution interface view" />
+      </div>
+    </div>
+
+    <!-- Micro-Interaction Script -->
+    <script type="module" src="./src/maximalism.js"></script>
+  </body>
+</html>
