@@ -10,25 +10,35 @@ if (!fs.existsSync(distDir)) {
   process.exit(1);
 }
 
-const htmlFile = path.join(distDir, "index.html");
-const html = fs.readFileSync(htmlFile, "utf8");
+const htmlFiles = ["index.html", "bento.html"]
+  .map((f) => path.join(distDir, f))
+  .filter((f) => fs.existsSync(f));
+
+if (htmlFiles.length === 0) {
+  console.error("❌ Error: No HTML files found in dist/.");
+  process.exit(1);
+}
 
 // Match all relative src and href attributes starting with ./ or ../ or quotes
 const regex = /(?:src|href|content)=["'](\.[^"']+)["']/g;
-let match;
 const missing = [];
 const found = [];
 
-while ((match = regex.exec(html)) !== null) {
-  const relPath = match[1];
-  // Ignore anchor hash links or protocol links if any slipped in
-  if (relPath.startsWith("#") || relPath.startsWith("http")) continue;
+for (const htmlFile of htmlFiles) {
+  const html = fs.readFileSync(htmlFile, "utf8");
+  let match;
+  while ((match = regex.exec(html)) !== null) {
+    const relPath = match[1];
+    // Ignore anchor hash links or protocol links if any slipped in
+    if (relPath.startsWith("#") || relPath.startsWith("http")) continue;
 
-  const fullPath = path.resolve(distDir, relPath);
-  if (fs.existsSync(fullPath)) {
-    found.push(relPath);
-  } else {
-    missing.push(relPath);
+    // Handle relative links between pages e.g. ./bento.html or ./index.html
+    const fullPath = path.resolve(distDir, relPath);
+    if (fs.existsSync(fullPath)) {
+      found.push(relPath);
+    } else {
+      missing.push(`${path.basename(htmlFile)} -> ${relPath}`);
+    }
   }
 }
 
