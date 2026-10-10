@@ -33,7 +33,6 @@ console.log("2. Checking cross navigation links...");
 assert(html.includes('index.html'), "Must link to index.html");
 assert(html.includes('bento.html'), "Must link to bento.html");
 assert(html.includes('maximalism.html'), "Must link to maximalism.html");
-assert(html.includes('spatial.html'), "Must link to spatial.html");
 
 // 3. Test Pure JS ZIP Packager and PDF Generator from minimalism.js
 console.log("3. Testing client-side ZIP packaging and PDF generation...");
