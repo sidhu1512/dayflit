@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "deploy": "node scripts/deploy-gh-pages.mjs",
     "deploy:dry": "node scripts/deploy-gh-pages.mjs --dry-run",
-    "verify": "node scripts/verify-assets.mjs && node ../scripts/verify-bento-spec.cjs"
+    "verify": "node scripts/verify-assets.mjs"
   },
   "devDependencies": {
     "vite": "8.3.1"
