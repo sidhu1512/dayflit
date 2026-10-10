@@ -10,7 +10,7 @@ if (!fs.existsSync(distDir)) {
   process.exit(1);
 }
 
-const htmlFiles = ["index.html", "bento.html", "maximalism.html", "minimalism.html"]
+const htmlFiles = ["index.html", "bento.html", "maximalism.html"]
   .map((f) => path.join(distDir, f))
   .filter((f) => fs.existsSync(f));
 
