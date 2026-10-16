@@ -35,6 +35,7 @@ pub const COLLECTIONS: &[&str] = &[
     "activity",
     "life",
     "canvas",
+    "stash",
 ];
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -83,7 +83,18 @@ function normalize(raw: unknown): Task[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter((t) => t && typeof t === "object" && typeof (t as Task).title === "string")
-    .map((t) => ({ ...makeTask({ title: (t as Task).title }), ...(t as Task) }));
+    .map((t) => {
+      const task = t as Task;
+      const base = makeTask({ title: task.title });
+      return {
+        ...base,
+        ...task,
+        subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
+        tags: Array.isArray(task.tags) ? task.tags : [],
+        links: Array.isArray(task.links) ? task.links : [],
+        images: Array.isArray(task.images) ? task.images : [],
+      };
+    });
 }
 
 export function parsedToInput(p: ParsedTask, extra: Partial<Task> = {}): TaskInput {

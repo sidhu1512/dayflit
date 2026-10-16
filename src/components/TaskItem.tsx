@@ -33,7 +33,8 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
   const done = task.status === "done";
   const overdue = !done && isOverdue(task.due, task.hasTime);
   const today = !done && isDueToday(task.due);
-  const subDone = task.subtasks.filter((s) => s.done).length;
+  const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+  const subDone = subtasks.filter((s) => s.done).length;
   const domain = useLife((s) => (task.domainId ? s.data.domains.find((d) => d.id === task.domainId) : undefined));
 
   const onToggle = (e: React.MouseEvent) => {
@@ -115,9 +116,9 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
                 {formatDuration(task.focusSecs)}
               </span>
             )}
-            {task.subtasks.length > 0 && (
-              <span className={cn(subDone === task.subtasks.length && "text-success")}>
-                {subDone}/{task.subtasks.length}
+            {subtasks.length > 0 && (
+              <span className={cn(subDone === subtasks.length && "text-success")}>
+                {subDone}/{subtasks.length}
               </span>
             )}
             {showList && task.list && <span className="text-faint">{task.list}</span>}

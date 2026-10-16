@@ -1565,12 +1565,24 @@ kbd {
   background: #0d0f17;
 }
 
-.video-screen-inner video,
-.video-screen-inner img {
+.video-screen-inner video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  z-index: 1;
+}
+
+.video-screen-inner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
 }
 
 .screencast-cursor {

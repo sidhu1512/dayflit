@@ -268,9 +268,12 @@ export function TaskEditor({ taskId }: { taskId: string }) {
           </div>
         </Section>
 
-        <Section title={`Subtasks${t.subtasks.length ? ` · ${t.subtasks.filter((s) => s.done).length}/${t.subtasks.length}` : ""}`}>
-          <div className="flex flex-col gap-1">
-            {t.subtasks.map((s) => (
+        {(() => {
+          const subtasks = Array.isArray(t.subtasks) ? t.subtasks : [];
+          return (
+            <Section title={`Subtasks${subtasks.length ? ` · ${subtasks.filter((s) => s.done).length}/${subtasks.length}` : ""}`}>
+              <div className="flex flex-col gap-1">
+                {subtasks.map((s) => (
               <div key={s.id} className="group flex items-center gap-2 rounded-lg px-1 py-0.5 hover:bg-surface-2/60">
                 <button className="checkbox !h-4 !w-4 !rounded-[5px]" data-checked={s.done} onClick={() => toggleSubtask(t.id, s.id)}>
                   {s.done && <Check size={10} strokeWidth={3} />}
@@ -292,6 +295,8 @@ export function TaskEditor({ taskId }: { taskId: string }) {
             </div>
           </div>
         </Section>
+          );
+        })()}
 
         {t.source && (
           <Section title="Captured from">

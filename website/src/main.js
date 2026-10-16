@@ -641,13 +641,25 @@ function updateVideoTourStage(idx) {
     const currentSrc = video.getAttribute("src") || "";
     if (!currentSrc.includes(data.webm.replace("./", ""))) {
       video.src = data.webm;
+      video.playbackRate = videoSpeed;
       video.load();
-      video.play().catch(() => {});
+      if (videoPlaying) {
+        video.play().catch(() => {
+          // If autoplay fails or video playback is blocked, fallback to GIF
+          video.style.display = "none";
+          if (img) {
+            img.style.display = "block";
+            img.src = data.gif;
+          }
+        });
+      }
     }
   }
   if (img) {
-    img.src = data.gif;
     img.alt = data.heading;
+    if (!video || video.style.display === "none") {
+      img.src = data.gif;
+    }
   }
   if (liveLabel) liveLabel.textContent = data.label;
 
@@ -744,6 +756,14 @@ function updateVideoControlsUI() {
 videoPlayBtn?.addEventListener("click", () => {
   videoPlaying = !videoPlaying;
   updateVideoControlsUI();
+  const v = $("#video-screen-player");
+  if (v) {
+    if (videoPlaying) {
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }
   if (videoPlaying) startVideoEngine();
 });
 
@@ -752,6 +772,8 @@ videoSpeedBtn?.addEventListener("click", () => {
   else if (videoSpeed === 1.5) videoSpeed = 2.0;
   else videoSpeed = 1.0;
   videoSpeedBtn.textContent = `${videoSpeed.toFixed(1)}x`;
+  const v = $("#video-screen-player");
+  if (v) v.playbackRate = videoSpeed;
   showToast(`Screencast speed: ${videoSpeed.toFixed(1)}x`);
 });
 
