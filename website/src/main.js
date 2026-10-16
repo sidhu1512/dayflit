@@ -506,29 +506,9 @@ const videoChapters = [
     cursorY: "38%",
   },
   {
-    name: "iOS Dynamic Island",
-    time: "00:06 · 02",
-    badge: "Chapter 2 of 5 · Living Notch",
-    heading: "iOS Dynamic Island & Dropover Stash Shelf",
-    desc: "Anchored top-center to your desktop, the Dynamic Island morphs bilaterally from a compact 48px capsule into an expansive Hover Peek Strip, and springs open into a full Spatial Bento Deck with Dropover magnetic stash tray and rolling odometer digits.",
-    features: [
-      "Top-center notch anchoring with Win32 symmetrical math",
-      "Dropover magnetic shelf for dragging images, files, and links",
-      "Rolling odometer digits with sub-millisecond precision",
-    ],
-    webm: "./showcase/demo_dynamic_island.webm",
-    gif: "./showcase/demo_dynamic_island.gif",
-    shot: "pip",
-    label: "Living Dynamic Island",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>",
-    actionPill: "Dynamic Island Morphed",
-    cursorX: "50%",
-    cursorY: "25%",
-  },
-  {
     name: "Doc ↔ Edgeless Canvas",
-    time: "00:12 · 03",
-    badge: "Chapter 3 of 5 · AFFiNE Spatial",
+    time: "00:06 · 02",
+    badge: "Chapter 2 of 5 · AFFiNE Spatial",
     heading: "Bidirectional Docs & Infinite Canvas",
     desc: "Write linear Markdown notes with checklists, syntax highlighting, and callout blocks, then click Edgeless Canvas to watch blocks transform into spatial cards on an infinite dot-grid whiteboard with magnetic 4-port Bézier connectors.",
     features: [
@@ -547,8 +527,8 @@ const videoChapters = [
   },
   {
     name: "3-Mode Life Architecture",
-    time: "00:18 · 04",
-    badge: "Chapter 4 of 5 · Holistic Vision",
+    time: "00:12 · 03",
+    badge: "Chapter 3 of 5 · Holistic Vision",
     heading: "Editorial Studio, Wheel & 234-Wire Map",
     desc: "Connect daily execution to overarching purpose. Switch effortlessly between the Editorial Life Studio, interactive Wheel of Life SVG radar with historical Time-Machine scrubbing, and the 234-wire cubic-bezier spatial life map.",
     features: [
@@ -567,8 +547,8 @@ const videoChapters = [
   },
   {
     name: "Planned vs. Actual Reality",
-    time: "00:24 · 05",
-    badge: "Chapter 5 of 5 · Win32 Tracker",
+    time: "00:18 · 04",
+    badge: "Chapter 4 of 5 · Win32 Tracker",
     heading: "Automated OS Reality Timeline & Smart Clips",
     desc: "A native Rust Win32 foreground process tracker automatically compares your planned calendar blocks against real application usage (VS Code, Chrome, Terminal), paired with MyMind-style auto-detected Color Swatches and OpenGraph bookmark cards.",
     features: [
@@ -584,6 +564,26 @@ const videoChapters = [
     actionPill: "Reality Timeline Synced",
     cursorX: "55%",
     cursorY: "45%",
+  },
+  {
+    name: "iOS Dynamic Island",
+    time: "00:24 · 05",
+    badge: "Chapter 5 of 5 · Living Notch",
+    heading: "iOS Dynamic Island & Dropover Stash Shelf",
+    desc: "Anchored top-center to your desktop, the Dynamic Island morphs bilaterally from a compact 48px capsule into an expansive Hover Peek Strip, and springs open into a full Spatial Bento Deck with Dropover magnetic stash tray and rolling odometer digits.",
+    features: [
+      "Top-center notch anchoring with Win32 symmetrical math",
+      "Dropover magnetic shelf for dragging images, files, and links",
+      "Rolling odometer digits with sub-millisecond precision",
+    ],
+    webm: "./showcase/demo_dynamic_island.webm",
+    gif: "./showcase/demo_dynamic_island.gif",
+    shot: "pip",
+    label: "Living Dynamic Island",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>",
+    actionPill: "Dynamic Island Morphed",
+    cursorX: "50%",
+    cursorY: "25%",
   },
 ];
 

@@ -66,33 +66,7 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 
 ## Visual Feature Showcase
 
-### 1. Living iOS Dynamic Island & Dropover Stash Shelf
-
-<p align="center">
-  <img src="docs/showcase/demo_dynamic_island.gif" alt="DayFlit Living iOS Dynamic Island and Dropover Stash Shelf" width="100%" />
-</p>
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <img src="docs/showcase/bento_dynamic_island.png" alt="Dynamic Island Bento Deck and Stash Shelf" width="100%" />
-    </td>
-    <td width="50%" valign="top">
-      <h3>Desktop Notch Anchoring & Spring Physics</h3>
-      <p>DayFlit brings an authentic <b>Apple-caliber Dynamic Island (<code>pip</code>)</b> to Windows. Anchored top-center to your display with microsecond Win32 top-center math, it smoothly floats above all desktop workflows.</p>
-      <ul>
-        <li><b>Bilateral Spring Expansion:</b> Morphs from a sleek, compact 48px capsule into an expansive Hover Peek Strip, and springs open into a full Spatial Bento Deck.</li>
-        <li><b>Dropover Magnetic Stash Shelf:</b> Drag and drop images, project files, and URLs directly into the island to stash them for immediate use across apps.</li>
-        <li><b>Rolling Odometer Digits:</b> Millisecond-precise focus timers with smooth vertical digit rolls, Pomodoro phase states, and ambient audio controls.</li>
-        <li><b>Split-Island Satellite Orb:</b> Detaches floating status badges when multitasking.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### 2. Bidirectional Markdown Docs ↔ AFFiNE Edgeless Canvas
+### 1. Bidirectional Markdown Docs ↔ AFFiNE Edgeless Canvas
 
 <p align="center">
   <img src="docs/showcase/demo_doc_to_edgeless_canvas.gif" alt="Bidirectional Doc Mode to Edgeless Canvas" width="100%" />
@@ -119,7 +93,7 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 
 ---
 
-### 3. 3-Mode Life Architecture: Studio, Time-Machine Wheel & Spatial Map
+### 2. 3-Mode Life Architecture: Studio, Time-Machine Wheel & Spatial Map
 
 <p align="center">
   <img src="docs/showcase/demo_life_architecture.gif" alt="3-Mode Life Architecture Demo" width="100%" />
@@ -144,7 +118,7 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 
 ---
 
-### 4. "Planned vs. Actual Reality" OS Timeline & Daily Chronicle
+### 3. "Planned vs. Actual Reality" OS Timeline & Daily Chronicle
 
 <p align="center">
   <img src="docs/showcase/demo_reality_timeline_and_clips.gif" alt="Dual-Track Reality Timeline and Smart Clips" width="100%" />
@@ -170,7 +144,7 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 
 ---
 
-### 5. Raycast Command Palette, `[[Wiki-Links]]` & Smart Object Cards
+### 4. Raycast Command Palette, `[[Wiki-Links]]` & Smart Object Cards
 
 <table>
   <tr>
@@ -186,6 +160,17 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 - **Raycast-Grade Command Palette (`Ctrl+K` / `Alt+Shift+D`):** Global natural-language calculator (`15% of $4,800 + 32 * 12`), fuzzy omnisearch across tasks, notes, habits, and life goals, and quick-action slash commands (`/todo`, `/callout`, `/code`).
 - **`[[Wiki-Links]]` & Automatic Backlinks:** Link concepts between notes and journal entries with auto-complete and bi-directional reference footers.
 - **MyMind-Style Smart Object Cards:** Clipboard history (`Clips`) automatically classifies clipboard items into visual cards—detecting color codes with generated harmonic swatches, scraping rich OpenGraph web bookmark cards, and launching full-screen `<MediaLightbox />` previews.
+
+---
+
+### 5. Living iOS Dynamic Island & Dropover Stash Shelf
+
+Anchored top-center to your display with microsecond Win32 geometry calculations, DayFlit brings an authentic Apple-caliber **Dynamic Island (`pip`)** and **Dropover-style magnetic stash shelf** to Windows without dominating your workspace:
+
+- **Bilateral Spring Expansion:** Morphs smoothly from a sleek, compact 48px capsule into an expansive Hover Peek Strip, and springs open into a focused Spatial Bento Deck.
+- **Dropover Magnetic Stash Shelf:** Drag and drop images, project files, code snippets, and URLs directly into the island to stash them for immediate use across apps.
+- **Rolling Odometer Digits:** Millisecond-precise focus timers with smooth vertical digit rolls, Pomodoro phase transitions, and ambient audio controls.
+- **Split-Island Satellite Orb:** Detaches floating status badges when multitasking across multiple displays.
 
 ---
 
