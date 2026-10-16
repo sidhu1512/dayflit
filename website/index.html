@@ -9,7 +9,9 @@
     <meta property="og:description" content="Capture, plan, focus, and remember without leaving what you're doing. 100% offline, local JSON storage, zero telemetry." />
     <meta property="og:image" content="./shots/today-light.png" />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" href="./icon.png" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon.png" />
+    <link rel="apple-touch-icon" href="./icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -501,8 +503,8 @@ Surgical focus session this morning on DayFlit architecture.
             <div class="video-display-frame" id="video-screen-container">
               <!-- High-Res Screen Recording Image with dynamic state -->
               <div class="video-screen-inner">
-                <video id="video-screen-player" autoplay loop muted playsinline src="./showcase/demo_hero_tour.webm"></video>
-                <img id="video-screen-img" src="./showcase/demo_hero_tour.gif" alt="DayFlit Spatial Desktop Tour screen recording" width="1280" height="820" />
+                <video id="video-screen-player" autoplay loop muted playsinline preload="metadata" src="./showcase/demo_hero_tour.webm"></video>
+                <img id="video-screen-img" data-src="./showcase/demo_hero_tour.gif" alt="DayFlit Spatial Desktop Tour screen recording" width="1280" height="820" style="display:none;" />
                 
                 <!-- Live Screencast Animated Mouse Cursor -->
                 <div class="screencast-cursor" id="screencast-cursor">

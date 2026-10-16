@@ -602,6 +602,13 @@ function updateVideoTourStage(idx) {
       .join("");
   }
   if (video) {
+    video.onerror = () => {
+      video.style.display = "none";
+      if (img) {
+        img.style.display = "block";
+        img.src = data.gif;
+      }
+    };
     const currentSrc = video.getAttribute("src") || "";
     if (!currentSrc.includes(data.webm.replace("./", ""))) {
       video.src = data.webm;
@@ -619,11 +626,9 @@ function updateVideoTourStage(idx) {
       }
     }
   }
-  if (img) {
+  if (img && video && video.style.display === "none") {
     img.alt = data.heading;
-    if (!video || video.style.display === "none") {
-      img.src = data.gif;
-    }
+    img.src = data.gif;
   }
   if (liveLabel) liveLabel.textContent = data.label;
 
@@ -758,7 +763,31 @@ $("#video-fullscreen-btn")?.addEventListener("click", () => {
 });
 
 updateVideoTourStage(0);
-startVideoEngine();
+
+const tourBox = $("#video-tour-box");
+if (tourBox && "IntersectionObserver" in window) {
+  const tourObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (videoPlaying) {
+            const v = $("#video-screen-player");
+            v?.play().catch(() => {});
+            startVideoEngine();
+          }
+        } else {
+          clearInterval(videoTimer);
+          const v = $("#video-screen-player");
+          v?.pause();
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+  tourObserver.observe(tourBox);
+} else {
+  startVideoEngine();
+}
 
 // ==========================================================================
 // 7. 3D MECHANICAL KEYBOARD SHORTCUT STATION
