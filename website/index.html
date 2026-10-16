@@ -100,7 +100,7 @@
             </span>
             <span class="hero-meta-item">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-              <span><span data-size>3.7 MB</span> Signed Installer</span>
+              <span><span data-size>3.94 MB</span> Signed Installer</span>
             </span>
             <span class="hero-meta-item">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -427,32 +427,27 @@ Surgical focus session this morning on DayFlit architecture.
           <div class="video-chapters-bar" role="tablist" aria-label="Screen Recording Chapters">
             <button class="video-chapter-tab active" role="tab" aria-selected="true" data-chapter="0">
               <span class="chapter-time">00:00 · 01</span>
-              <span class="chapter-name">Global Palette (Alt+Shift+Space)</span>
+              <span class="chapter-name">Architectural Tour</span>
               <div class="chapter-progress"></div>
             </button>
             <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="1">
               <span class="chapter-time">00:06 · 02</span>
-              <span class="chapter-name">Tasks &amp; Natural Language</span>
+              <span class="chapter-name">iOS Dynamic Island</span>
               <div class="chapter-progress"></div>
             </button>
             <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="2">
               <span class="chapter-time">00:12 · 03</span>
-              <span class="chapter-name">Deep Focus &amp; Spotify</span>
+              <span class="chapter-name">Doc ↔ Edgeless Canvas</span>
               <div class="chapter-progress"></div>
             </button>
             <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="3">
               <span class="chapter-time">00:18 · 04</span>
-              <span class="chapter-name">Offline Whisper Voice</span>
+              <span class="chapter-name">3-Mode Life Architecture</span>
               <div class="chapter-progress"></div>
             </button>
             <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="4">
               <span class="chapter-time">00:24 · 05</span>
-              <span class="chapter-name">Calendar Timeboxing</span>
-              <div class="chapter-progress"></div>
-            </button>
-            <button class="video-chapter-tab" role="tab" aria-selected="false" data-chapter="5">
-              <span class="chapter-time">00:30 · 06</span>
-              <span class="chapter-name">Journal &amp; Heatmap</span>
+              <span class="chapter-name">Planned vs. Actual Reality</span>
               <div class="chapter-progress"></div>
             </button>
           </div>
@@ -460,23 +455,23 @@ Surgical focus session this morning on DayFlit architecture.
           <!-- Video Player Studio Stage -->
           <div class="video-stage">
             <div class="video-info">
-              <span class="hero-pill-badge" id="video-chapter-badge">Chapter 1 of 6 · Instant Summon</span>
-              <h3 id="video-chapter-heading">Fuzzy Global Command Palette</h3>
+              <span class="hero-pill-badge" id="video-chapter-badge">Chapter 1 of 5 · Full Tour</span>
+              <h3 id="video-chapter-heading">DayFlit Spatial Desktop Tour</h3>
               <p id="video-chapter-desc">
-                Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.
+                Glide across the Today Briefing, Infinite Canvas with Frame dragging and Bézier connectors, the interactive Life Wheel Time-Machine Scrubber, and the Raycast-Grade Command Palette with instant natural-language math calculation.
               </p>
               <ul class="video-feature-list" id="video-chapter-features">
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>Instant global summon with zero perceptible startup lag</span>
+                  <span>Smooth 60fps pan, cursor-centered zoom, and frame containment</span>
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>Fuzzy search across active tasks, archives, and notes</span>
+                  <span>Interactive Wheel of Life with historical time-machine scrubbing</span>
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss</span>
+                  <span>Raycast-grade command palette with instant math calculator</span>
                 </li>
               </ul>
 
@@ -488,7 +483,7 @@ Surgical focus session this morning on DayFlit architecture.
                     <div class="video-scrubber-head" id="video-scrubber-head"></div>
                   </div>
                   <div class="video-time-display">
-                    <span id="video-time-cur">00:00</span> / <span id="video-time-total">00:36</span>
+                    <span id="video-time-cur">00:00</span> / <span id="video-time-total">00:30</span>
                   </div>
                 </div>
 
@@ -508,7 +503,8 @@ Surgical focus session this morning on DayFlit architecture.
             <div class="video-display-frame" id="video-screen-container">
               <!-- High-Res Screen Recording Image with dynamic state -->
               <div class="video-screen-inner">
-                <img id="video-screen-img" src="./shots/palette-light.png" alt="Command palette screen capture" width="525" height="900" />
+                <video id="video-screen-player" autoplay loop muted playsinline src="./showcase/demo_hero_tour.webm"></video>
+                <img id="video-screen-img" src="./showcase/demo_hero_tour.gif" alt="DayFlit Spatial Desktop Tour screen recording" width="1280" height="820" />
                 
                 <!-- Live Screencast Animated Mouse Cursor -->
                 <div class="screencast-cursor" id="screencast-cursor">
@@ -518,18 +514,18 @@ Surgical focus session this morning on DayFlit architecture.
 
                 <!-- Screencast Keypress Overlay HUD -->
                 <div class="screencast-hotkey-hud" id="screencast-hotkey-hud">
-                  <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>
+                  <kbd>Ctrl</kbd> + <kbd>K</kbd>
                 </div>
 
                 <!-- Screencast Live Action Toast -->
                 <div class="screencast-action-pill" id="screencast-action-pill">
-                  <span class="action-pill-dot"></span><span>Instant Summon</span>
+                  <span class="action-pill-dot"></span><span>Architectural Tour</span>
                 </div>
 
                 <!-- Screencast Live Badge -->
                 <div class="video-live-overlay">
                   <span class="live-indicator-dot"></span>
-                  <span id="video-live-label">1080p · 60 FPS Screencast</span>
+                  <span id="video-live-label">3.94 MB Native Rust Core</span>
                 </div>
               </div>
             </div>
@@ -879,7 +875,7 @@ Surgical focus session this morning on DayFlit architecture.
             </div>
             <h2 id="download-title">Get DayFlit for Windows</h2>
             <p class="sub">
-              Installs per-user with zero administrator rights required. The core installer is signed and about 3.7 MB; offline Whisper AI models download on demand.
+              Installs per-user with zero administrator rights required. The core installer is signed and about 3.94 MB; offline Whisper AI models download on demand.
             </p>
 
             <div class="download-cta-row">

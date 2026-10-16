@@ -486,116 +486,108 @@ $$(".bento-tab-btn").forEach((btn) => {
 // ==========================================================================
 const videoChapters = [
   {
-    name: "Global Palette (Alt+Shift+Space)",
+    name: "Architectural Tour",
     time: "00:00 · 01",
-    badge: "Chapter 1 of 6 · Instant Summon",
-    heading: "Fuzzy Global Command Palette",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.",
+    badge: "Chapter 1 of 5 · Full Tour",
+    heading: "DayFlit Spatial Desktop Tour",
+    desc: "Glide across the Today Briefing, Infinite Canvas with Frame dragging and Bézier connectors, the interactive Life Wheel Time-Machine Scrubber, and the Raycast-Grade Command Palette with instant natural-language math calculation.",
     features: [
-      "Instant global summon with zero perceptible startup latency",
-      "Fuzzy search across active tasks, archives, and notes",
-      "Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss",
+      "Smooth 60fps pan, cursor-centered zoom, and frame containment",
+      "Interactive Wheel of Life with historical time-machine scrubbing",
+      "Raycast-grade command palette with instant math calculator",
     ],
-    shot: "palette",
-    label: "Alt+Shift+Space Everywhere",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd>",
-    actionPill: "Fuzzy Global Palette",
+    webm: "./showcase/demo_hero_tour.webm",
+    gif: "./showcase/demo_hero_tour.gif",
+    shot: "today",
+    label: "3.94 MB Native Rust Core",
+    hotkey: "<kbd>Ctrl</kbd> + <kbd>K</kbd>",
+    actionPill: "Architectural Tour",
     cursorX: "48%",
     cursorY: "38%",
   },
   {
-    name: "Tasks & Natural Language",
+    name: "iOS Dynamic Island",
     time: "00:06 · 02",
-    badge: "Chapter 2 of 6 · Natural Syntax",
-    heading: "Sub-Millisecond Task Intelligence",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> to open quick task prompt. Dayflit automatically parses dates, recurrences, durations, and priorities as you type without requiring mouse clicks.",
+    badge: "Chapter 2 of 5 · Living Notch",
+    heading: "iOS Dynamic Island & Dropover Stash Shelf",
+    desc: "Anchored top-center to your desktop, the Dynamic Island morphs bilaterally from a compact 48px capsule into an expansive Hover Peek Strip, and springs open into a full Spatial Bento Deck with Dropover magnetic stash tray and rolling odometer digits.",
     features: [
-      "Extracts dates, priorities, durations, and project hashtags",
-      "Organized into Today, Overdue, and Upcoming buckets",
-      "Multi-level subtasks with progress tracking",
+      "Top-center notch anchoring with Win32 symmetrical math",
+      "Dropover magnetic shelf for dragging images, files, and links",
+      "Rolling odometer digits with sub-millisecond precision",
     ],
-    shot: "tasks",
-    label: "NLP Engine Active",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
-    actionPill: "Natural Syntax Parsed",
-    cursorX: "52%",
+    webm: "./showcase/demo_dynamic_island.webm",
+    gif: "./showcase/demo_dynamic_island.gif",
+    shot: "pip",
+    label: "Living Dynamic Island",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>",
+    actionPill: "Dynamic Island Morphed",
+    cursorX: "50%",
     cursorY: "25%",
   },
   {
-    name: "Deep Focus & Spotify",
+    name: "Doc ↔ Edgeless Canvas",
     time: "00:12 · 03",
-    badge: "Chapter 3 of 6 · Flow State",
-    heading: "Deep Work Sessions with Windows Media Control",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> to launch a Pomodoro focus block. Dayflit starts your Spotify playlist, dims distractions, and floats an Acrylic picture-in-picture timer over your IDE or documents.",
+    badge: "Chapter 3 of 5 · AFFiNE Spatial",
+    heading: "Bidirectional Docs & Infinite Canvas",
+    desc: "Write linear Markdown notes with checklists, syntax highlighting, and callout blocks, then click Edgeless Canvas to watch blocks transform into spatial cards on an infinite dot-grid whiteboard with magnetic 4-port Bézier connectors.",
     features: [
-      "Windows Media Integration: Auto-pauses music on break",
-      "Smart presence detection: pauses timer when Windows locks",
-      "Distraction nudges when social tabs or games steal focus",
+      "Two-way live task & note cards: edits sync bidirectionally",
+      "Magnetic 4-port Bézier connectors and group frame containment",
+      "Full Obsidian JSON Canvas 1.0 (.canvas) compatibility",
     ],
-    shot: "focus-running",
-    label: "Spotify Linked · 25:00",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd>",
-    actionPill: "Flow State Engaged",
-    cursorX: "50%",
-    cursorY: "55%",
+    webm: "./showcase/demo_doc_to_edgeless_canvas.webm",
+    gif: "./showcase/demo_doc_to_edgeless_canvas.gif",
+    shot: "tasks",
+    label: "Edgeless Canvas Active",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>",
+    actionPill: "Doc Mode Transformed",
+    cursorX: "52%",
+    cursorY: "40%",
   },
   {
-    name: "Offline Whisper Voice",
+    name: "3-Mode Life Architecture",
     time: "00:18 · 04",
-    badge: "Chapter 4 of 6 · On-Device AI",
-    heading: "Offline Whisper Voice Dictation",
-    desc: "Hold <kbd>Alt</kbd><kbd>Shift</kbd><kbd>V</kbd> while coding, reading, or gaming. Speak freely. Lightweight local Whisper models transcribe your voice directly into tasks or journal entries with zero cloud latency.",
+    badge: "Chapter 4 of 5 · Holistic Vision",
+    heading: "Editorial Studio, Wheel & 234-Wire Map",
+    desc: "Connect daily execution to overarching purpose. Switch effortlessly between the Editorial Life Studio, interactive Wheel of Life SVG radar with historical Time-Machine scrubbing, and the 234-wire cubic-bezier spatial life map.",
     features: [
-      "100% Offline execution on your local CPU or GPU",
-      "Automatic punctuation, grammar formatting, and date tagging",
-      "Keep original WAV audio attachments whenever you choose",
+      "Editorial Pillar Studio with goals, projects, and principles",
+      "Direct-manipulation SVG radar wheel with past quarter ghost scrubbing",
+      "234-wire cubic-bezier network with full lineage illumination",
     ],
-    shot: "voice-recording",
-    label: "Offline Whisper Running",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>",
-    actionPill: "Whisper Transcription",
-    cursorX: "48%",
-    cursorY: "65%",
+    webm: "./showcase/demo_life_architecture.webm",
+    gif: "./showcase/demo_life_architecture.gif",
+    shot: "insights",
+    label: "Life Architecture Engine",
+    hotkey: "<kbd>8</kbd> (Life View)",
+    actionPill: "Wheel Time-Machine Scrub",
+    cursorX: "50%",
+    cursorY: "50%",
   },
   {
-    name: "Calendar Timeboxing",
+    name: "Planned vs. Actual Reality",
     time: "00:24 · 05",
-    badge: "Chapter 5 of 6 · 2-Way Sync",
-    heading: "Interactive Calendar Timeboxing & One-Click Join",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> to inspect your day timeline. Drag tasks into free slots to commit to exact time blocks. Dayflit detects Google Meet, Zoom, and Microsoft Teams links and opens them with one click.",
+    badge: "Chapter 5 of 5 · Win32 Tracker",
+    heading: "Automated OS Reality Timeline & Smart Clips",
+    desc: "A native Rust Win32 foreground process tracker automatically compares your planned calendar blocks against real application usage (VS Code, Chrome, Terminal), paired with MyMind-style auto-detected Color Swatches and OpenGraph bookmark cards.",
     features: [
-      "Two-way synchronization with Google Calendar & Microsoft 365",
-      "One-click 'Join Meeting' button for Zoom, Teams, Meet",
-      "Instant 'Copy Free Slots' to share availability in emails",
+      "Automated foreground window tracking without cloud telemetry",
+      "15-minute magnetic timeboxing alongside actual usage timeline",
+      "Auto-detected color swatches, harmonic palettes, and OG bookmarks",
     ],
+    webm: "./showcase/demo_reality_timeline_and_clips.webm",
+    gif: "./showcase/demo_reality_timeline_and_clips.gif",
     shot: "calendar",
-    label: "Two-Way Calendar Sync",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
-    actionPill: "Calendar Synced",
-    cursorX: "65%",
-    cursorY: "42%",
-  },
-  {
-    name: "Journal & Heatmap",
-    time: "00:30 · 06",
-    badge: "Chapter 6 of 6 · Obsidian Ready",
-    heading: "Encrypted Journal & 52-Week Consistency Matrix",
-    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>N</kbd> for quick note reflection. Daily prompts, mood logs, habit streak trackers, and year-long consistency heatmaps keep your thoughts organized and exportable to Obsidian Markdown.",
-    features: [
-      "PIN security lock with auto-lock on idle timer",
-      "Quantified consistency heatmap inspired by GitHub contributions",
-      "Direct export to Obsidian Vault with full YAML metadata",
-    ],
-    shot: "journal",
-    label: "Obsidian Compatible (.md)",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>",
-    actionPill: "Markdown Encrypted",
-    cursorX: "35%",
-    cursorY: "30%",
+    label: "Win32 Foreground Hook",
+    hotkey: "<kbd>5</kbd> (Calendar Timeline)",
+    actionPill: "Reality Timeline Synced",
+    cursorX: "55%",
+    cursorY: "45%",
   },
 ];
 
-const TOTAL_VIDEO_SECONDS = 36;
+const TOTAL_VIDEO_SECONDS = 30;
 let currentVideoChapter = 0;
 let videoCurrentSec = 0;
 let videoPlaying = true;
@@ -630,6 +622,7 @@ function updateVideoTourStage(idx) {
   const heading = $("#video-chapter-heading");
   const desc = $("#video-chapter-desc");
   const features = $("#video-chapter-features");
+  const video = $("#video-screen-player");
   const img = $("#video-screen-img");
   const liveLabel = $("#video-live-label");
 
@@ -644,12 +637,16 @@ function updateVideoTourStage(idx) {
       )
       .join("");
   }
+  if (video) {
+    const currentSrc = video.getAttribute("src") || "";
+    if (!currentSrc.includes(data.webm.replace("./", ""))) {
+      video.src = data.webm;
+      video.load();
+      video.play().catch(() => {});
+    }
+  }
   if (img) {
-    const filename =
-      data.shot.includes("voice") || data.shot.includes("bubble")
-        ? `${data.shot}.png`
-        : `${data.shot}-light.png`;
-    img.src = `./shots/${filename}`;
+    img.src = data.gif;
     img.alt = data.heading;
   }
   if (liveLabel) liveLabel.textContent = data.label;
@@ -680,6 +677,7 @@ function updateVideoTourStage(idx) {
     tab.setAttribute("aria-selected", String(isActive));
   });
 }
+
 
 function updateTimelineUI() {
   const percent = (videoCurrentSec / TOTAL_VIDEO_SECONDS) * 100;

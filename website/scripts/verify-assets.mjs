@@ -59,6 +59,36 @@ for (const extra of ["bubble.png", "voice-recording.png", "focus-running-dark.pn
   }
 }
 
+// Check showcase media files
+const showcaseFiles = [
+  "demo_hero_tour.webm",
+  "demo_hero_tour.gif",
+  "demo_dynamic_island.webm",
+  "demo_dynamic_island.gif",
+  "demo_doc_to_edgeless_canvas.webm",
+  "demo_doc_to_edgeless_canvas.gif",
+  "demo_life_architecture.webm",
+  "demo_life_architecture.gif",
+  "demo_reality_timeline_and_clips.webm",
+  "demo_reality_timeline_and_clips.gif",
+  "hero_dark.png",
+  "hero_light.png",
+  "bento_canvas.png",
+  "bento_life_map.png",
+  "bento_dynamic_island.png",
+  "bento_notes_journal.png",
+  "bento_calendar_reality.png",
+  "bento_clips_smart_cards.png",
+];
+for (const sc of showcaseFiles) {
+  const p = `./showcase/${sc}`;
+  if (fs.existsSync(path.resolve(distDir, p))) {
+    found.push(p);
+  } else {
+    missing.push(p);
+  }
+}
+
 console.log("==========================================");
 console.log(`Verified ${found.length} asset references:`);
 for (const f of new Set(found)) {
