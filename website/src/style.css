@@ -474,31 +474,9 @@ kbd {
   color: var(--text-primary);
 }
 
-/* Aceternity Flip Words */
-.flip-words-container {
+.hero-accent-text {
   display: inline-block;
-  position: relative;
   color: var(--accent);
-  min-width: 260px;
-}
-
-.flip-word {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(18px);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-}
-
-.flip-word.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.flip-word.exit {
-  opacity: 0;
-  transform: translateY(-18px);
-  position: absolute;
-  left: 0;
 }
 
 .hero-subtitle {

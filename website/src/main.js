@@ -82,43 +82,7 @@ function playKeyClick() {
   }
 }
 
-// ==========================================================================
-// 2. ACETERNITY FLIP WORDS ROTATOR
-// ==========================================================================
-function initFlipWords() {
-  const container = $("#flip-words");
-  if (!container) return;
 
-  const words = [
-    "one floating companion",
-    "plain natural language",
-    "deep focus sessions",
-    "100% offline privacy",
-    "surgical precision",
-  ];
-  let currentIndex = 0;
-
-  setInterval(() => {
-    const currentEl = container.querySelector(".flip-word.active");
-    currentIndex = (currentIndex + 1) % words.length;
-
-    const nextEl = document.createElement("span");
-    nextEl.className = "flip-word";
-    nextEl.textContent = words[currentIndex];
-    container.appendChild(nextEl);
-
-    if (currentEl) {
-      currentEl.classList.remove("active");
-      currentEl.classList.add("exit");
-      setTimeout(() => currentEl.remove(), 400);
-    }
-
-    requestAnimationFrame(() => {
-      nextEl.classList.add("active");
-    });
-  }, 3200);
-}
-initFlipWords();
 
 // ==========================================================================
 // 3. FLOATING NAVBAR & SCROLL BEHAVIOR
