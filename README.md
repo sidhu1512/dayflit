@@ -21,7 +21,7 @@
 </div>
 
 <p align="center">
-  <img src="website/public/shots/today-light.png" alt="Dayflit Desktop Application" width="760" />
+  <img src="website/public/shots/today-light.png" alt="Dayflit Desktop Application" width="340" />
 </p>
 
 Dayflit is a floating desktop companion designed for Windows. It provides natural language task capture, Pomodoro focus sessions with ambient audio, calendar timeboxing, Markdown notes, private journaling, habit tracking, and clipboard history in a translucent interface that is always a keystroke away.
@@ -73,63 +73,59 @@ Get-FileHash -Algorithm SHA256 DayFlit_1.0.0_x64-setup.exe
 
 <table>
   <tr>
-    <td width="50%" align="center">
+    <td width="33.3%" align="center">
       <b>Today View (Light)</b><br/>
-      <img src="website/public/shots/today-light.png" width="375" alt="Today View Light" />
+      <img src="website/public/shots/today-light.png" width="220" alt="Today View Light" />
     </td>
-    <td width="50%" align="center">
+    <td width="33.3%" align="center">
       <b>Today View (Dark)</b><br/>
-      <img src="website/public/shots/today-dark.png" width="375" alt="Today View Dark" />
+      <img src="website/public/shots/today-dark.png" width="220" alt="Today View Dark" />
+    </td>
+    <td width="33.3%" align="center">
+      <b>Tasks & Subtasks</b><br/>
+      <img src="website/public/shots/tasks-light.png" width="220" alt="Tasks View" />
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <b>Task Management & Subtasks</b><br/>
-      <img src="website/public/shots/tasks-light.png" width="375" alt="Tasks View" />
+    <td width="33.3%" align="center">
+      <b>Focus Timer</b><br/>
+      <img src="website/public/shots/focus-light.png" width="220" alt="Focus View" />
     </td>
-    <td width="50%" align="center">
-      <b>Focus & Pomodoro Timer</b><br/>
-      <img src="website/public/shots/focus-light.png" width="375" alt="Focus View" />
+    <td width="33.3%" align="center">
+      <b>Calendar Timeboxing</b><br/>
+      <img src="website/public/shots/calendar-light.png" width="220" alt="Calendar View" />
     </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <b>Floating Picture-in-Picture Tray</b><br/>
-      <img src="website/public/shots/pip-light.png" width="375" alt="Floating PiP Tray" />
-    </td>
-    <td width="50%" align="center">
-      <b>Micro-Bubble Mode</b><br/>
-      <img src="website/public/shots/bubble.png" width="375" alt="Micro-Bubble Mode" />
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <b>Calendar Timeboxing & Meetings</b><br/>
-      <img src="website/public/shots/calendar-light.png" width="375" alt="Calendar View" />
-    </td>
-    <td width="50%" align="center">
+    <td width="33.3%" align="center">
       <b>Private Offline Journal</b><br/>
-      <img src="website/public/shots/journal-light.png" width="375" alt="Journal View" />
+      <img src="website/public/shots/journal-light.png" width="220" alt="Journal View" />
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center">
-      <b>Habit Streaks & Heatmap</b><br/>
-      <img src="website/public/shots/habits-light.png" width="375" alt="Habits View" />
+    <td width="33.3%" align="center">
+      <b>Habit Streaks</b><br/>
+      <img src="website/public/shots/habits-light.png" width="220" alt="Habits View" />
     </td>
-    <td width="50%" align="center">
-      <b>Command Palette Fuzzy Search</b><br/>
-      <img src="website/public/shots/palette-light.png" width="375" alt="Command Palette" />
+    <td width="33.3%" align="center">
+      <b>Command Palette</b><br/>
+      <img src="website/public/shots/palette-light.png" width="220" alt="Command Palette" />
     </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
+    <td width="33.3%" align="center">
       <b>Productivity Insights</b><br/>
-      <img src="website/public/shots/insights-light.png" width="375" alt="Insights View" />
+      <img src="website/public/shots/insights-light.png" width="220" alt="Insights View" />
     </td>
-    <td width="50%" align="center">
-      <b>Offline Voice Recording</b><br/>
-      <img src="website/public/shots/voice-recording.png" width="375" alt="Voice Memo" />
+  </tr>
+  <tr>
+    <td width="33.3%" align="center">
+      <b>Floating PiP Tray</b><br/>
+      <img src="website/public/shots/pip-light.png" width="220" alt="Floating PiP Tray" />
+    </td>
+    <td width="33.3%" align="center">
+      <b>Micro-Bubble Mode</b><br/>
+      <img src="website/public/shots/bubble.png" width="110" alt="Micro-Bubble Mode" />
+    </td>
+    <td width="33.3%" align="center">
+      <b>Offline Voice Memo</b><br/>
+      <img src="website/public/shots/voice-recording.png" width="220" alt="Voice Memo" />
     </td>
   </tr>
 </table>
