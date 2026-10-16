@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Check, Database, Mic, Download, EyeOff, FileDown, FolderOpen, HardDriveDownload, Keyboard, Link2, Music, Palette, Plus, RefreshCw, RotateCcw, Trash2, X, AppWindow, Timer, Bell, CalendarDays, Clipboard as ClipboardIcon, Info } from "lucide-react";
-import { useSettings, SHORTCUT_ACTIONS, DEFAULT_SHORTCUTS } from "@/stores/settings";
+import { useSettings, SHORTCUT_ACTIONS, DEFAULT_SHORTCUTS, SYSTEM_RESERVED_SHORTCUTS } from "@/stores/settings";
 import { useCalendar } from "@/stores/calendar";
 import { useMedia } from "@/stores/media";
 import { useJournal } from "@/stores/journal";
@@ -17,6 +17,8 @@ import { Kbd } from "@/components/Kbd";
 import { openExternal } from "@/lib/open";
 import { cn } from "@/lib/ids";
 import { useElementWidth } from "@/lib/useElementWidth";
+import { InfoHint } from "@/components/ui/InfoHint";
+import { TruncatedText } from "@/components/ui/ThemedTooltip";
 import type { Settings } from "@/lib/types";
 
 type SectionId = "appearance" | "window" | "focus" | "distraction" | "journal" | "voice" | "media" | "updates" | "clipboard" | "calendar" | "tasks" | "notifications" | "shortcuts" | "data" | "about";
@@ -51,11 +53,21 @@ export function SettingsView() {
   }, [viewParam]);
   return (
     <div ref={ref} className="flex h-full">
-      <div className={cn("scroll shrink-0 border-r hairline px-1.5 py-1", iconOnly ? "w-[44px]" : "w-[132px]")}>
+      <div className={cn("scroll shrink-0 border-r hairline px-1.5 py-1", iconOnly ? "w-[44px]" : "w-[136px]")}>
         {SECTIONS.map((s) => (
-          <button key={s.id} className={cn("nav-item w-full !py-1.5 text-[0.85em]", iconOnly && "justify-center !px-0")} data-active={section === s.id} onClick={() => setSection(s.id)} aria-label={s.label}>
-            {s.icon}
-            {!iconOnly && s.label}
+          <button
+            key={s.id}
+            className={cn(
+              "w-full text-left flex items-center gap-2.5 px-2.5 h-8 rounded-lg min-w-0 whitespace-nowrap overflow-hidden transition-colors relative z-1",
+              iconOnly && "justify-center !px-0",
+              section === s.id ? "bg-accent/15 text-accent font-semibold" : "text-muted hover:bg-surface-2/70 hover:text-text"
+            )}
+            data-active={section === s.id}
+            onClick={() => setSection(s.id)}
+            aria-label={s.label}
+          >
+            <span className="shrink-0">{s.icon}</span>
+            {!iconOnly && <TruncatedText text={s.label} side="right" className="truncate flex-1 min-w-0 text-left text-[0.84em]" />}
           </button>
         ))}
       </div>
@@ -82,28 +94,28 @@ export function SettingsView() {
 
 function H({ children, sub }: { children: string; sub?: string }) {
   return (
-    <div className="mb-3">
+    <div className="mb-3 flex items-center gap-2">
       <div className="text-[1.05em] font-semibold">{children}</div>
-      {sub && <div className="text-[0.8em] text-muted">{sub}</div>}
+      {sub && <InfoHint text={sub} />}
     </div>
   );
 }
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-2">
-      <div className="min-w-[150px] flex-1">
-        <div className="text-[0.9em]">{label}</div>
-        {hint && <div className="text-[0.76em] text-faint">{hint}</div>}
+    <div className="flex items-center justify-between gap-3 h-9 min-w-0 py-1">
+      <div className="flex items-center gap-1.5 min-w-0 truncate">
+        <TruncatedText text={label} side="top" className="text-[0.9em] font-medium text-text truncate flex-1 min-w-0" />
+        {hint && <InfoHint text={hint} />}
       </div>
-      <div className="ml-auto shrink-0">{children}</div>
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) {
   return (
-    <div className="flex rounded-lg bg-surface-2/60 p-0.5">
+    <div className="flex flex-wrap rounded-lg bg-surface-2/60 p-0.5">
       {options.map((o) => (
-        <button key={o.id} className={cn("rounded-md px-2 py-0.5 text-[0.8em]", value === o.id ? "bg-surface-3 text-text" : "text-muted")} onClick={() => onChange(o.id)}>
+        <button key={o.id} className={cn("rounded-md px-2 py-0.5 text-[0.8em] transition-colors", value === o.id ? "bg-surface-3 text-text font-medium" : "text-muted hover:text-text")} onClick={() => onChange(o.id)}>
           {o.label}
         </button>
       ))}
@@ -131,7 +143,7 @@ function Appearance() {
   return (
     <div>
       <H sub="Themes, materials and density. Everything applies instantly.">Appearance</H>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(90px,1fr))]">
         {THEMES.map((t) => (
           <button key={t.id} className={cn("card card-hover flex flex-col gap-1.5 p-2 text-left", a.themeId === t.id && "!border-accent !bg-accent/10")} onClick={() => u({ appearance: { themeId: t.id } })} aria-label={`${t.name} theme`}>
             <div className="flex h-7 w-full overflow-hidden rounded-md">
@@ -170,7 +182,17 @@ function Appearance() {
         <Slider value={a.fontSize} min={12} max={18} step={1} onChange={(v) => u({ appearance: { fontSize: v } })} format={(v) => `${v}px`} />
       </Row>
       <Row label="Font">
-        <Seg value={a.fontFamily} options={[{ id: "system", label: "System" }, { id: "inter", label: "Inter" }, { id: "serif", label: "Serif" }, { id: "mono", label: "Mono" }]} onChange={(v) => u({ appearance: { fontFamily: v } })} />
+        <Seg
+          value={a.fontFamily}
+          options={[
+            { id: "system", label: "System" },
+            { id: "inter", label: "Inter" },
+            { id: "sacramento", label: "Sacramento" },
+            { id: "pacifico", label: "Pacifico" },
+            { id: "caveat", label: "Caveat" },
+          ]}
+          onChange={(v) => u({ appearance: { fontFamily: v } })}
+        />
       </Row>
       <Row label="Corner radius">
         <Slider value={a.radius} min={0} max={28} step={1} onChange={(v) => u({ appearance: { radius: v } })} format={(v) => `${v}px`} />
@@ -190,7 +212,7 @@ function WindowSection() {
   const w = s.window;
   return (
     <div>
-      <H sub="How Dayflit floats on your desktop.">Window</H>
+      <H sub="How DayFlit floats on your desktop.">Window</H>
       <Row label="Always on top">
         <Toggle value={w.alwaysOnTop} onChange={(v) => u({ window: { alwaysOnTop: v } })} />
       </Row>
@@ -213,6 +235,25 @@ function WindowSection() {
       </Row>
       <Row label="Bubble shows timer" hint="Focus progress ring on the bubble">
         <Toggle value={w.bubbleShowsTimer} onChange={(v) => u({ window: { bubbleShowsTimer: v } })} />
+      </Row>
+      <div className="section-title mt-3 mb-1">Floating Island & Widgets</div>
+      <Row label="Widget tray mode" hint="Choose between compact iOS Dynamic Island pill or modular tray">
+        <Seg
+          value={w.widgetTrayMode ?? "island"}
+          options={[
+            { id: "island", label: "Dynamic Island" },
+            { id: "expanded", label: "Expanded Tray" },
+          ]}
+          onChange={(v) => u({ window: { widgetTrayMode: v as "island" | "expanded" } })}
+        />
+      </Row>
+      <Row label="Floating tray action">
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => void ipc.showPip()}
+        >
+          Open Floating Tray
+        </button>
       </Row>
       {isTauri && (
         <>
@@ -347,7 +388,7 @@ function DistractionSection() {
       <div className="section-title mt-3 mb-1">Apps (process names)</div>
       <textarea className="input font-mono text-[0.85em]" rows={3} defaultValue={d.apps.join("\n")} onBlur={(e) => u({ distraction: { apps: e.target.value.split("\n").map((x) => x.trim().toLowerCase()).filter(Boolean) } })} placeholder="steam.exe" />
       <div className="section-title mt-3 mb-1">Window title keywords</div>
-      <div className="text-[0.76em] text-faint">Browser pages are recognised by their window title, e.g. “YouTube”. Dayflit cannot read URLs.</div>
+      <div className="text-[0.76em] text-faint">Browser pages are recognised by their window title, e.g. “YouTube”. DayFlit cannot read URLs.</div>
       <textarea className="input mt-1 font-mono text-[0.85em]" rows={3} defaultValue={d.keywords.join("\n")} onBlur={(e) => u({ distraction: { keywords: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean) } })} placeholder="YouTube" />
     </div>
   );
@@ -431,7 +472,7 @@ function VoiceSection() {
   const fmt = (b: number) => `${(b / 1e6).toFixed(0)} MB`;
   return (
     <div>
-      <H sub="Hold a key, speak, release. Dayflit turns it into a task, note or journal entry.">Voice capture</H>
+      <H sub="Hold a key, speak, release. DayFlit turns it into a task, note or journal entry.">Voice capture</H>
       <div className="card p-3 text-[0.85em]">
         <div className="flex items-center gap-2">
           <Kbd>{s.shortcuts["voice-capture"] || "none"}</Kbd>
@@ -502,7 +543,7 @@ function VoiceSection() {
           ))}
         </select>
       </Row>
-      <Row label="Default destination" hint="Where a transcript goes when Dayflit can't tell">
+      <Row label="Default destination" hint="Where a transcript goes when DayFlit can't tell">
         <Seg value={v.defaultDestination} options={[{ id: "ask", label: "Ask" }, { id: "task", label: "Task" }, { id: "note", label: "Note" }, { id: "journal", label: "Journal" }]} onChange={(x) => u({ voice: { defaultDestination: x } })} />
       </Row>
       <Row label="Save without reviewing" hint="Skips the edit step when a destination is set">
@@ -527,11 +568,11 @@ function MediaSection() {
   }, [spotify?.connected]);
   return (
     <div>
-      <H sub="Dayflit controls whatever is playing through Windows media controls. Spotify's API adds playlists and remote devices.">Media & Spotify</H>
+      <H sub="DayFlit controls whatever is playing through Windows media controls. Spotify's API adds playlists and remote devices.">Media & Spotify</H>
       <Row label="Show now-playing card" hint="On Today and Focus">
         <Toggle value={m.showCard} onChange={(v) => u({ media: { showCard: v } })} />
       </Row>
-      <Row label="Preferred app for focus music" hint="Which player Dayflit plays/pauses">
+      <Row label="Preferred app for focus music" hint="Which player DayFlit plays/pauses">
         <select className="input !w-auto !py-1" value={m.preferredApp} onChange={(e) => u({ media: { preferredApp: e.target.value } })}>
           <option value="spotify">Spotify</option>
           <option value="">Whatever is active</option>
@@ -607,7 +648,7 @@ function MediaSection() {
           {playlists.length > 0 && (
             <div className="mt-3">
               <div className="section-title mb-1">Play a playlist</div>
-              <div className="scroll grid max-h-44 grid-cols-2 gap-1">
+              <div className="scroll grid max-h-44 gap-1 [grid-template-columns:repeat(auto-fill,minmax(140px,1fr))]">
                 {playlists.map((p) => (
                   <button key={p.id} className="card card-hover flex items-center gap-2 px-2 py-1 text-left" onClick={() => void spotifyControl("play", p.uri).catch((e) => toast({ title: "Could not play", body: String(e), kind: "error" }))}>
                     {p.image ? <img src={p.image} className="h-7 w-7 rounded" alt="" /> : <Music size={14} className="text-faint" />}
@@ -632,7 +673,7 @@ function ClipboardSection() {
   }, []);
   return (
     <div>
-      <H sub="Dayflit listens for clipboard changes and records the source app and window.">Clipboard capture</H>
+      <H sub="DayFlit listens for clipboard changes and records the source app and window.">Clipboard capture</H>
       <Row label="Capture automatically">
         <Toggle value={c.enabled} onChange={(v) => u({ clipboard: { enabled: v } })} />
       </Row>
@@ -705,7 +746,7 @@ function ConnectedCalendars() {
         <div className="flex items-center gap-2">
           <div className="min-w-0 flex-1">
             <div className="font-medium">{label}</div>
-            <div className="truncate text-faint">{st?.connected ? st.account || "connected" : "Two-way sync: events you move or create in Dayflit are written back."}</div>
+            <div className="truncate text-faint">{st?.connected ? st.account || "connected" : "Two-way sync: events you move or create in DayFlit are written back."}</div>
           </div>
           {st?.connected ? (
             <button className="btn btn-ghost btn-sm text-danger" onClick={() => void ipc.syncDisconnect(p).then(() => refresh(p))}>
@@ -815,7 +856,7 @@ function CalendarSection() {
           <input type="number" className="input w-16 !py-1" min={12} max={24} value={c.dayEndHour} onChange={(e) => u({ calendar: { dayEndHour: parseInt(e.target.value, 10) || 24 } })} />
         </div>
       </Row>
-      <Row label="Auto-join meetings" hint="Open the meeting link when it starts (only while Dayflit is running)">
+      <Row label="Auto-join meetings" hint="Open the meeting link when it starts (only while DayFlit is running)">
         <Toggle value={c.autoJoin} onChange={(v) => u({ calendar: { autoJoin: v } })} />
       </Row>
       <Row label="Working hours" hint="Used for availability slots and planning">
@@ -903,6 +944,8 @@ function NotificationsSection() {
   );
 }
 
+
+
 function ShortcutsSection() {
   const { s, u } = useS();
   const failures = useSettings((x) => x.shortcutFailures);
@@ -919,6 +962,15 @@ function ShortcutsSection() {
       }
       const acc = acceleratorOf(e);
       if (acc) {
+        if (SYSTEM_RESERVED_SHORTCUTS[acc]) {
+          useUi.getState().toast({
+            title: "Cannot assign shortcut",
+            body: `${acc} is reserved by ${SYSTEM_RESERVED_SHORTCUTS[acc]}.`,
+            kind: "error",
+          });
+          setRecording(null);
+          return;
+        }
         u({ shortcuts: { ...s.shortcuts, [recording]: acc } });
         setRecording(null);
       }
@@ -928,32 +980,105 @@ function ShortcutsSection() {
   }, [recording, s.shortcuts]);
   return (
     <div>
-      <H sub="Global shortcuts work anywhere in Windows. Click one and press keys; Backspace clears.">Shortcuts</H>
+      <div className="flex items-center justify-between mb-2">
+        <H sub="System-wide hotkeys that work from any app or game even when DayFlit is in the background.">Global Shortcuts</H>
+        <button
+          className="btn btn-ghost btn-sm text-muted text-[0.8em] gap-1"
+          onClick={() => u({ shortcuts: { ...DEFAULT_SHORTCUTS } })}
+          aria-label="Reset all shortcuts to defaults"
+        >
+          <RotateCcw size={13} /> Reset all
+        </button>
+      </div>
+
       <div className="flex flex-col gap-1">
         {SHORTCUT_ACTIONS.map((a) => {
           const v = s.shortcuts[a.id] ?? "";
           const failed = failures.includes(a.id);
+          const isCustomized = v !== (DEFAULT_SHORTCUTS[a.id] ?? "");
+          const reservedConflict = v ? SYSTEM_RESERVED_SHORTCUTS[v] : null;
+          const duplicateAction = v
+            ? SHORTCUT_ACTIONS.find((other) => other.id !== a.id && (s.shortcuts[other.id] ?? DEFAULT_SHORTCUTS[other.id]) === v)
+            : null;
+
           return (
             <div key={a.id} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-surface-2/50">
               <div className="min-w-0 flex-1">
-                <div className="text-[0.9em]">{a.label}</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[0.9em] font-medium">{a.label}</span>
+                  {reservedConflict && (
+                    <span className="chip chip-danger text-[0.72em]" title={reservedConflict}>
+                      Windows reserved
+                    </span>
+                  )}
+                  {duplicateAction && (
+                    <span className="chip chip-warning text-[0.72em]" title={`Conflicts with ${duplicateAction.label}`}>
+                      duplicate: {duplicateAction.label}
+                    </span>
+                  )}
+                </div>
                 <div className="text-[0.74em] text-faint">{a.hint}</div>
               </div>
-              {failed && <span className="chip chip-danger">in use by another app</span>}
-              <button className={cn("btn btn-sm min-w-[120px] justify-center font-mono", recording === a.id && "!border-accent !bg-accent/10")} onClick={() => setRecording(a.id)}>
-                {recording === a.id ? "Press keys…" : v ? <Kbd>{v}</Kbd> : <span className="text-faint">none</span>}
-              </button>
+              {failed && <span className="chip chip-danger text-[0.72em]">in use by another app (inactive)</span>}
+              <div className="flex items-center gap-1.5">
+                <button
+                  className={cn(
+                    "btn btn-sm min-w-[125px] justify-center font-mono text-[0.85em]",
+                    recording === a.id && "!border-accent !bg-accent/10",
+                    failed && "!border-danger/40 !bg-danger/10 text-danger"
+                  )}
+                  onClick={() => setRecording(recording === a.id ? null : a.id)}
+                  aria-label={`Shortcut for ${a.label}: ${v || "none"}${failed ? " (inactive - registration failed)" : ""}`}
+                >
+                  {recording === a.id ? (
+                    "Press keys…"
+                  ) : v ? (
+                    failed ? (
+                      <span className="flex items-center gap-1 line-through opacity-60">
+                        <Kbd>{v}</Kbd>
+                      </span>
+                    ) : (
+                      <Kbd>{v}</Kbd>
+                    )
+                  ) : (
+                    <span className="text-faint">none</span>
+                  )}
+                </button>
+                {isCustomized && (
+                  <button
+                    className="btn btn-ghost btn-xs p-1 text-muted hover:text-text"
+                    onClick={() => u({ shortcuts: { ...s.shortcuts, [a.id]: DEFAULT_SHORTCUTS[a.id] ?? "" } })}
+                    aria-label={`Reset ${a.label} to default`}
+                    title="Reset to default"
+                  >
+                    <RotateCcw size={12} />
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
-      <button className="btn btn-ghost btn-sm mt-3 text-muted" onClick={() => u({ shortcuts: { ...DEFAULT_SHORTCUTS } })}>
-        <RotateCcw size={13} /> Reset to defaults
-      </button>
-      <div className="section-title mt-5 mb-1">Inside Dayflit</div>
+
+      <div className="mt-6 mb-2">
+        <H sub="Active only when the DayFlit window is focused.">In-App Shortcuts</H>
+      </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[0.82em] text-muted">
-        {[["Ctrl+K", "Search & commands"], ["Ctrl+N", "New task"], ["Ctrl+Shift+N", "New note"], ["Ctrl+1…8", "Switch views"], ["Ctrl+,", "Settings"], ["Ctrl+B", "Collapse to bubble"], ["Ctrl+Z", "Undo task delete"], ["Esc", "Close / deselect"], ["j / k", "Move selection"], ["x", "Complete task"], ["e", "Edit task"], ["f", "Focus on task"]].map(([k, l]) => (
-          <div key={k} className="flex items-center justify-between py-0.5">
+        {[
+          ["Ctrl+K", "Search & commands"],
+          ["Ctrl+N", "New task"],
+          ["Ctrl+Shift+N", "New note"],
+          ["Ctrl+1…8", "Switch views"],
+          ["Ctrl+,", "Settings"],
+          ["Ctrl+B", "Collapse to bubble"],
+          ["Ctrl+Z", "Undo task delete"],
+          ["Esc", "Close / deselect"],
+          ["j / k", "Move selection"],
+          ["x", "Complete task"],
+          ["e", "Edit task"],
+          ["f", "Focus on task"],
+        ].map(([k, l]) => (
+          <div key={k} className="flex items-center justify-between py-1 border-b border-surface-2/30">
             <span>{l}</span>
             <Kbd>{k}</Kbd>
           </div>
@@ -979,7 +1104,7 @@ function DataSection() {
   }, []);
   const changeDir = async (mode: "move" | "copy" | "adopt") => {
     const { open } = await import("@tauri-apps/plugin-dialog");
-    const dir = await open({ directory: true, title: mode === "adopt" ? "Choose a folder that already contains Dayflit data" : "Choose a new data folder" });
+    const dir = await open({ directory: true, title: mode === "adopt" ? "Choose a folder that already contains DayFlit data" : "Choose a new data folder" });
     if (typeof dir !== "string") return;
     setBusy(true);
     try {
@@ -1041,7 +1166,10 @@ function DataSection() {
         </div>
       </div>
 
-      <div className="section-title mt-5 mb-1">Backups</div>
+      <div className="section-title mt-5 mb-1 flex items-center gap-1.5">
+        <span>Backups</span>
+        <InfoHint text="Automatic backups run daily (kept for 30 days). Manual backups are kept until you delete them." />
+      </div>
       <div className="flex gap-1.5">
         <button
           className="btn btn-sm"
@@ -1068,7 +1196,6 @@ function DataSection() {
           Logs
         </button>
       </div>
-      <div className="mt-2 text-[0.78em] text-faint">Automatic backups run daily (kept for 30 days). Manual backups are kept until you delete them.</div>
       <div className="mt-2 flex flex-col gap-1">
         {backups.slice(0, 12).map((b) => (
           <div key={b.path} className="card flex items-center gap-2 px-3 py-1.5 text-[0.82em]">
@@ -1105,7 +1232,7 @@ function UpdatesSection() {
   const pct = up.progress && up.progress.total ? Math.round((up.progress.done / up.progress.total) * 100) : null;
   return (
     <div>
-      <H sub="Dayflit checks for signed releases and installs them in place. Your data and settings are never touched.">Updates</H>
+      <H sub="DayFlit checks for signed releases and installs them in place. Your data and settings are never touched.">Updates</H>
       <div className="card p-3 text-[0.85em]">
         <div className="flex items-center gap-2">
           <div className="min-w-0 flex-1">
@@ -1123,7 +1250,7 @@ function UpdatesSection() {
         </div>
         {up.available && (
           <div className="mt-3 rounded-lg bg-surface-2/60 p-2.5">
-            <div className="font-medium">Dayflit {up.available.version}</div>
+            <div className="font-medium">DayFlit {up.available.version}</div>
             {up.available.notes && <div className="selectable mt-1 whitespace-pre-wrap text-muted">{up.available.notes}</div>}
             <div className="mt-2 flex items-center gap-2">
               {up.ready ? (
@@ -1145,10 +1272,9 @@ function UpdatesSection() {
         )}
         {up.error && <div className="mt-2 text-warning">{up.error}</div>}
       </div>
-      <Row label="Check automatically on startup">
+      <Row label="Check automatically on startup" hint="Updates are verified against the public key built into DayFlit before anything is installed. The installer runs quietly and restarts the app.">
         <Toggle value={s.updates.autoCheck} onChange={(v) => u({ updates: { autoCheck: v } })} />
       </Row>
-      <div className="mt-2 text-[0.75em] text-faint">Updates are verified against the public key built into Dayflit before anything is installed. The installer runs quietly and restarts the app.</div>
     </div>
   );
 }
@@ -1162,7 +1288,7 @@ function About() {
   }, []);
   return (
     <div>
-      <H>About Dayflit</H>
+      <H>About DayFlit</H>
       <div className="text-[0.9em] text-muted">
         Version {info?.version ?? "dev"} · Built with Tauri, Rust and React.
         <br />
@@ -1174,7 +1300,7 @@ function About() {
         </button>
         {isTauri && (
           <button className="btn btn-sm" onClick={() => void ipc.relaunch()}>
-            Restart Dayflit
+            Restart DayFlit
           </button>
         )}
       </div>

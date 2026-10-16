@@ -15,9 +15,7 @@
     "website:build": "npm --prefix website run build",
     "website:verify": "npm --prefix website run verify",
     "website:deploy": "npm --prefix website run deploy",
-    "website:deploy:dry": "npm --prefix website run deploy:dry",
-    "deploy:vm": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-vm.ps1",
-    "website:vm": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-vm.ps1"
+    "website:deploy:dry": "npm --prefix website run deploy:dry"
   },
   "dependencies": {
     "@tauri-apps/api": "2.12.1",
@@ -41,12 +39,15 @@
     "zustand": "5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "4.3.3",
     "@tauri-apps/cli": "2.12.1",
     "@types/dompurify": "3.0.5",
+    "@types/node": "^26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "5.2.0",
+    "playwright": "^1.64.1",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
     "vite": "8.3.1",

@@ -50,7 +50,7 @@ export function makeTask(input: TaskInput): Task {
   const t = now();
   return {
     id: uid(),
-    title: input.title.trim(),
+    title: (input.title ?? "").trim() || "Untitled task",
     notes: input.notes ?? "",
     status: input.status ?? "open",
     priority: input.priority ?? "none",
@@ -73,6 +73,9 @@ export function makeTask(input: TaskInput): Task {
     pinned: input.pinned ?? false,
     backlog: input.backlog ?? false,
     completions: input.completions ?? 0,
+    domainId: input.domainId ?? null,
+    goalId: input.goalId ?? null,
+    projectId: input.projectId ?? null,
   };
 }
 
@@ -134,15 +137,36 @@ export const useTasks = create<TasksState>((set, get) => {
       return get().add(input);
     },
     update: (id, patch) => {
-      persist(get().tasks.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: now() } : t)));
+      const cur = get().byId(id);
+      let nextImages = patch.images ?? cur?.images ?? [];
+      if (patch.notes !== undefined && cur) {
+        const extracted = [...new Set([...patch.notes.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))];
+        if (extracted.length > 0 || (cur.images && cur.images.length > 0)) {
+          const removed = (cur.images ?? []).filter((im) => !extracted.includes(im) && !(patch.images ?? []).includes(im));
+          if (removed.length) {
+            import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+              removed.forEach((img) => void deleteImageIfUnused(img));
+            }).catch(() => {});
+          }
+          nextImages = [...new Set([...(patch.images ?? []), ...extracted])];
+        }
+      }
+      persist(get().tasks.map((t) => (t.id === id ? { ...t, ...patch, images: nextImages, updatedAt: now() } : t)));
     },
     remove: (id) => {
+      const target = get().tasks.find((t) => t.id === id);
+      if (target?.images?.length) {
+        import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+          target.images?.forEach((img) => void deleteImageIfUnused(img));
+        }).catch(() => {});
+      }
       set({ undoStack: snapshot(get, "Delete task") });
       persist(get().tasks.filter((t) => t.id !== id));
     },
     complete: (id) => {
       const t = get().tasks.find((x) => x.id === id);
       if (!t || t.status === "done") return null;
+      set({ undoStack: snapshot(get, "Complete task") });
       const ts = now();
       let spawned: Task | null = null;
       let updated: Task = { ...t, status: "done", completedAt: ts, updatedAt: ts, snoozedUntil: null };
@@ -173,6 +197,7 @@ export const useTasks = create<TasksState>((set, get) => {
       return spawned ?? updated;
     },
     uncomplete: (id) => {
+      set({ undoStack: snapshot(get, "Uncomplete task") });
       persist(get().tasks.map((t) => (t.id === id ? { ...t, status: "open", completedAt: null, updatedAt: now() } : t)));
     },
     toggle: (id) => {

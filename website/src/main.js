@@ -49,7 +49,7 @@ export function showToast(message) {
     toastEl.className = "site-toast";
     document.body.appendChild(toastEl);
   }
-  toastEl.innerHTML = `<span>✓</span><span>${message}</span>`;
+  toastEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>${message}</span>`;
   toastEl.classList.add("active");
   clearTimeout(toastEl._timer);
   toastEl._timer = setTimeout(() => toastEl.classList.remove("active"), 2600);
@@ -212,38 +212,38 @@ function parseNaturalLanguage(text) {
   // Date parsing
   if (lower.includes("tomorrow")) {
     const timeMatch = text.match(/(?:at\s+)?(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
-    chips.push({ type: "date", label: `📅 Tomorrow ${timeMatch ? timeMatch[1] : "9:00 AM"}` });
+    chips.push({ type: "date", label: `Tomorrow ${timeMatch ? timeMatch[1] : "9:00 AM"}` });
   } else if (lower.includes("friday")) {
-    chips.push({ type: "date", label: "📅 Friday 10:00 AM" });
+    chips.push({ type: "date", label: "Friday 10:00 AM" });
   } else if (lower.includes("monday")) {
-    chips.push({ type: "date", label: "📅 Every Monday 9:00 AM" });
+    chips.push({ type: "date", label: "Every Monday 9:00 AM" });
   } else if (lower.includes("today")) {
-    chips.push({ type: "date", label: "📅 Today 5:00 PM" });
+    chips.push({ type: "date", label: "Today 5:00 PM" });
   } else if (lower.includes("in 2 hours")) {
-    chips.push({ type: "date", label: "📅 In 2 Hours" });
+    chips.push({ type: "date", label: "In 2 Hours" });
   }
 
   // Duration
   const durMatch = text.match(/(?:for\s+)?(\d+\s*(?:m|min|mins|h|hr|hours?))\b/i);
   if (durMatch) {
-    chips.push({ type: "duration", label: `⏱ ${durMatch[1]} duration` });
+    chips.push({ type: "duration", label: `${durMatch[1]} duration` });
   }
 
   // Tags (#word)
   const tagMatches = text.match(/#(\w+)/g);
   if (tagMatches) {
-    tagMatches.forEach((t) => chips.push({ type: "tag", label: `🏷 ${t}` }));
+    tagMatches.forEach((t) => chips.push({ type: "tag", label: `#${t}` }));
   }
 
   // Priorities
   if (lower.includes("!urgent")) {
-    chips.push({ type: "priority", label: "🔥 Urgent" });
+    chips.push({ type: "priority", label: "Urgent" });
   } else if (lower.includes("!high")) {
-    chips.push({ type: "priority", label: "🔺 High Priority" });
+    chips.push({ type: "priority", label: "High Priority" });
   } else if (lower.includes("!med")) {
-    chips.push({ type: "priority", label: "⚡ Medium Priority" });
+    chips.push({ type: "priority", label: "Medium Priority" });
   } else if (lower.includes("!low")) {
-    chips.push({ type: "priority", label: "🌱 Low Priority" });
+    chips.push({ type: "priority", label: "Low Priority" });
   }
 
   return chips;
@@ -315,7 +315,7 @@ function toggleFocusTimer() {
   if (focusRunning) {
     clearInterval(focusInterval);
     focusRunning = false;
-    if (focusToggleBtn) focusToggleBtn.textContent = "▶";
+    if (focusToggleBtn) focusToggleBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
     spotifyEq?.classList.remove("active");
     if (spotifyStatusTag) {
       spotifyStatusTag.textContent = "Paused";
@@ -324,7 +324,7 @@ function toggleFocusTimer() {
     showToast("Focus session paused");
   } else {
     focusRunning = true;
-    if (focusToggleBtn) focusToggleBtn.textContent = "⏸";
+    if (focusToggleBtn) focusToggleBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
     spotifyEq?.classList.add("active");
     if (spotifyStatusTag) {
       spotifyStatusTag.textContent = "Playing";
@@ -353,7 +353,7 @@ focusResetBtn?.addEventListener("click", () => {
   clearInterval(focusInterval);
   focusRunning = false;
   focusSeconds = TOTAL_FOCUS_SECONDS;
-  if (focusToggleBtn) focusToggleBtn.textContent = "▶";
+  if (focusToggleBtn) focusToggleBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
   spotifyEq?.classList.remove("active");
   if (spotifyStatusTag) {
     spotifyStatusTag.textContent = "Ready";
@@ -486,20 +486,20 @@ $$(".bento-tab-btn").forEach((btn) => {
 // ==========================================================================
 const videoChapters = [
   {
-    name: "Global Palette (Alt+Space)",
+    name: "Global Palette (Alt+Shift+Space)",
     time: "00:00 · 01",
     badge: "Chapter 1 of 6 · Instant Summon",
     heading: "Fuzzy Global Command Palette",
-    desc: "Press <kbd>Alt</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.",
+    desc: "Press <kbd>Alt</kbd><kbd>Shift</kbd><kbd>Space</kbd> from any application or game. Type shorthand commands to capture tasks, search your archives, trigger focus blocks, or access your clipboard history with sub-10ms response.",
     features: [
       "Instant global summon with zero perceptible startup latency",
       "Fuzzy search across active tasks, archives, and notes",
       "Full keyboard navigation: arrow keys, Enter to execute, Esc to dismiss",
     ],
     shot: "palette",
-    label: "Alt+Space Everywhere",
-    hotkey: "<kbd>Alt</kbd> + <kbd>Space</kbd>",
-    actionPill: "● Fuzzy Global Palette",
+    label: "Alt+Shift+Space Everywhere",
+    hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd>",
+    actionPill: "Fuzzy Global Palette",
     cursorX: "48%",
     cursorY: "38%",
   },
@@ -517,7 +517,7 @@ const videoChapters = [
     shot: "tasks",
     label: "NLP Engine Active",
     hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
-    actionPill: "● Natural Syntax Parsed",
+    actionPill: "Natural Syntax Parsed",
     cursorX: "52%",
     cursorY: "25%",
   },
@@ -535,7 +535,7 @@ const videoChapters = [
     shot: "focus-running",
     label: "Spotify Linked · 25:00",
     hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd>",
-    actionPill: "● Flow State Engaged",
+    actionPill: "Flow State Engaged",
     cursorX: "50%",
     cursorY: "55%",
   },
@@ -553,7 +553,7 @@ const videoChapters = [
     shot: "voice-recording",
     label: "Offline Whisper Running",
     hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>",
-    actionPill: "● Whisper Transcription",
+    actionPill: "Whisper Transcription",
     cursorX: "48%",
     cursorY: "65%",
   },
@@ -571,7 +571,7 @@ const videoChapters = [
     shot: "calendar",
     label: "Two-Way Calendar Sync",
     hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>",
-    actionPill: "● Calendar Synced",
+    actionPill: "Calendar Synced",
     cursorX: "65%",
     cursorY: "42%",
   },
@@ -589,7 +589,7 @@ const videoChapters = [
     shot: "journal",
     label: "Obsidian Compatible (.md)",
     hotkey: "<kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>",
-    actionPill: "● Markdown Encrypted",
+    actionPill: "Markdown Encrypted",
     cursorX: "35%",
     cursorY: "30%",
   },
@@ -670,7 +670,7 @@ function updateVideoTourStage(idx) {
     setTimeout(() => screencastHotkeyHud.classList.remove("visible"), 1800);
   }
   if (screencastActionPill) {
-    screencastActionPill.textContent = data.actionPill;
+    screencastActionPill.innerHTML = `<span class="action-pill-dot"></span><span>${data.actionPill}</span>`;
   }
 
   // Update chapter tabs
@@ -735,10 +735,10 @@ $$(".video-chapter-tab").forEach((tab) => {
 function updateVideoControlsUI() {
   if (!videoPlayBtn) return;
   if (videoPlaying) {
-    if (videoPlayIcon) videoPlayIcon.textContent = "⏸";
+    if (videoPlayIcon) videoPlayIcon.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
     if (videoPlayLabel) videoPlayLabel.textContent = "Pause";
   } else {
-    if (videoPlayIcon) videoPlayIcon.textContent = "▶";
+    if (videoPlayIcon) videoPlayIcon.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
     if (videoPlayLabel) videoPlayLabel.textContent = "Play";
   }
 }
@@ -989,7 +989,7 @@ async function copyChecksum() {
   try {
     await navigator.clipboard.writeText(hash);
     if (copyShaBtn) {
-      copyShaBtn.innerHTML = `<span>✓</span><span>Copied!</span>`;
+      copyShaBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Copied!</span>`;
       setTimeout(() => {
         copyShaBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span>`;
       }, 2000);

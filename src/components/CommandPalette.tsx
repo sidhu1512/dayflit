@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUp, BookOpen, CalendarDays, CheckSquare, Clipboard, Command, Play, Repeat, Search, StickyNote, Zap } from "lucide-react";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { ArrowDown, ArrowRight, ArrowUp, BookOpen, CalendarDays, Calculator, CheckSquare, Clipboard, Command, Compass, Play, Repeat, Search, StickyNote, X, Zap } from "lucide-react";
 import Fuse from "fuse.js";
 import { commandList, type CommandDef, type PaletteAction, type PaletteData } from "@/lib/actions";
 import { parseQuickAdd } from "@/lib/nlp";
 import { formatDue } from "@/lib/dates";
 import { describeRecurrence } from "@/lib/recurrence";
+import { parseCalculatorQuery, type CalculatorResult } from "@/lib/calculator";
 import { Kbd } from "./Kbd";
 import { cn } from "@/lib/ids";
-import type { RawClip } from "@/lib/ipc";
+import { ipc, type RawClip } from "@/lib/ipc";
+import { extractCleanTitleAndExcerpt } from "@/lib/markdown";
 
 export type PaletteMode = "commands" | "search" | "task" | "note" | "capture" | "voice" | "journal";
 
 interface Item {
   id: string;
-  kind: "command" | "task" | "note" | "journal" | "habit" | "clip" | "event" | "create-task" | "create-note";
+  kind: "command" | "task" | "note" | "journal" | "habit" | "clip" | "event" | "life-domain" | "life-goal" | "life-project" | "create-task" | "create-note";
   label: string;
   hint?: string;
   section: string;
@@ -55,11 +58,26 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
   const fuseData = useMemo(() => {
     const docs = [
       ...(data?.tasks ?? []).map((t) => ({ kind: "task" as const, id: t.id, title: t.title, body: t.notes ?? "", tags: t.tags, done: t.status === "done", sub: [t.list, t.due ? formatDue(t.due, t.hasTime) : ""].filter(Boolean).join(" · ") })),
-      ...(data?.notes ?? []).map((n) => ({ kind: "note" as const, id: n.id, title: n.title, body: n.body, tags: n.tags, done: false, sub: "Note" })),
+      ...(data?.notes ?? []).map((n) => {
+        const { title, excerpt } = extractCleanTitleAndExcerpt(n.body, n.title, { defaultImageTitle: "Image Note" });
+        return { kind: "note" as const, id: n.id, title, body: n.body, tags: n.tags, done: false, sub: excerpt ? `Note · ${excerpt.slice(0, 50)}` : "Note" };
+      }),
       ...(data?.events ?? []).map((e) => ({ kind: "event" as const, id: e.id, title: e.title, body: e.body, tags: [] as string[], done: false, sub: e.when, url: e.url })),
-      ...(data?.journal ?? []).map((j) => ({ kind: "journal" as const, id: j.id, title: j.title, body: j.body, tags: j.tags, done: false, sub: `Journal · ${j.date}` })),
+      ...(data?.journal ?? []).map((j) => {
+        const { title, excerpt } = extractCleanTitleAndExcerpt(j.body, j.title, { defaultImageTitle: "Photo Entry" });
+        return { kind: "journal" as const, id: j.id, title, body: j.body, tags: j.tags, done: false, sub: excerpt ? `Journal · ${j.date} · ${excerpt.slice(0, 40)}` : `Journal · ${j.date}` };
+      }),
       ...(data?.habits ?? []).map((h) => ({ kind: "habit" as const, id: h.id, title: h.name, body: "", tags: [], done: h.doneToday, sub: "Habit" })),
       ...(data?.clips ?? []).map((c) => ({ kind: "clip" as const, id: c.id, title: c.text.slice(0, 80) || "Image clip", body: c.text.slice(0, 1500), tags: [], done: false, sub: `Clip · ${c.app}` })),
+      ...(data?.domains ?? []).map((d) => ({ kind: "life-domain" as const, id: d.id, title: d.name, body: "", tags: [], done: false, sub: `Life Pillar · Score ${d.score}/10` })),
+      ...(data?.goals ?? []).map((g) => {
+        const domName = data?.domains?.find((d) => d.id === g.domainId)?.name;
+        return { kind: "life-goal" as const, id: g.id, title: g.title, body: "", tags: [], done: false, sub: domName ? `${domName} · Goal` : "Life Goal" };
+      }),
+      ...(data?.projects ?? []).map((p) => {
+        const domName = data?.domains?.find((d) => d.id === p.domainId)?.name;
+        return { kind: "life-project" as const, id: p.id, title: p.title, body: "", tags: [], done: false, sub: domName ? `${domName} · Project` : "Life Project" };
+      }),
     ];
     return new Fuse(docs, { keys: [{ name: "title", weight: 0.6 }, { name: "body", weight: 0.25 }, { name: "tags", weight: 0.15 }], threshold: 0.38, ignoreLocation: true, minMatchCharLength: 2 });
   }, [data]);
@@ -68,6 +86,7 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
   const isCommandEntry = q.startsWith(">");
   const query = isTaskEntry || isCommandEntry ? q.slice(1).trim() : q.trim();
   const parsed = useMemo(() => (isTaskEntry && query ? parseQuickAdd(query, { knownLists: data?.lists }) : null), [isTaskEntry, query, data?.lists]);
+  const calcResult = useMemo(() => parseCalculatorQuery(q.trim()), [q]);
 
   const items: Item[] = useMemo(() => {
     const cmdItem = (c: CommandDef): Item => ({ id: c.id, kind: "command", label: c.label, hint: c.hint, section: c.section, icon: c.id.includes("note") ? <StickyNote size={15} /> : c.id === "capture" ? <Clipboard size={15} /> : sectionIcon(c.section), action: c.action, shortcut: c.shortcut });
@@ -83,10 +102,24 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
       const recent = (data?.tasks ?? []).filter((t) => t.status === "open").slice(0, 6).map<Item>((t) => ({ id: t.id, kind: "task", label: t.title, hint: t.due ? formatDue(t.due, t.hasTime) : t.list, section: "Open tasks", icon: <CheckSquare size={15} />, action: { type: "open-task", id: t.id } }));
       return [...recent, ...commands.slice(0, 8).map(cmdItem)];
     }
+    const calcItems: Item[] = calcResult
+      ? [
+          {
+            id: "calculator-result",
+            kind: "command",
+            label: `= ${calcResult.result}`,
+            hint: calcResult.detail || calcResult.query,
+            section: "Calculator",
+            icon: <Calculator size={15} className="text-accent" />,
+            action: { type: "system-action", id: "copy-calc" } as unknown as PaletteAction,
+            shortcut: "Enter to copy",
+          },
+        ]
+      : [];
     const hits = fuseData.search(query, { limit: 14 }).map<Item>((r) => {
       const d = r.item;
-      const icon = d.kind === "task" ? <CheckSquare size={15} /> : d.kind === "note" ? <StickyNote size={15} /> : d.kind === "journal" ? <BookOpen size={15} /> : d.kind === "habit" ? <Repeat size={15} /> : d.kind === "event" ? <CalendarDays size={15} /> : <Clipboard size={15} />;
-      const action: PaletteAction = d.kind === "task" ? { type: "open-task", id: d.id } : d.kind === "note" ? { type: "open-note", id: d.id } : d.kind === "journal" ? { type: "open-journal", id: d.id } : d.kind === "habit" ? { type: "open-habit", id: d.id } : d.kind === "event" ? { type: "open-event", id: d.id, url: (d as { url?: string | null }).url ?? null } : { type: "open-clip", id: d.id };
+      const icon = d.kind === "task" ? <CheckSquare size={15} /> : d.kind === "note" ? <StickyNote size={15} /> : d.kind === "journal" ? <BookOpen size={15} /> : d.kind === "habit" ? <Repeat size={15} /> : d.kind === "event" ? <CalendarDays size={15} /> : (d.kind === "life-domain" || d.kind === "life-goal" || d.kind === "life-project") ? <Compass size={15} /> : <Clipboard size={15} />;
+      const action: PaletteAction = d.kind === "task" ? { type: "open-task", id: d.id } : d.kind === "note" ? { type: "open-note", id: d.id } : d.kind === "journal" ? { type: "open-journal", id: d.id } : d.kind === "habit" ? { type: "open-habit", id: d.id } : d.kind === "event" ? { type: "open-event", id: d.id, url: (d as { url?: string | null }).url ?? null } : d.kind === "life-domain" ? { type: "navigate", view: "life", param: d.id } : d.kind === "life-goal" ? { type: "navigate", view: "life", param: `goal:${d.id}` } : d.kind === "life-project" ? { type: "navigate", view: "life", param: `proj:${d.id}` } : { type: "open-clip", id: d.id };
       return { id: `${d.kind}-${d.id}`, kind: d.kind, label: d.title, hint: d.sub, section: "Results", icon, action, done: d.done };
     });
     const cmds = fuseCommands.search(query, { limit: 5 }).map((r) => cmdItem(r.item));
@@ -94,8 +127,8 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
       { id: "create-task", kind: "create-task", label: `Add task “${query}”`, section: "Create", icon: <CheckSquare size={15} />, action: { type: "add-task", text: query } },
       { id: "create-note", kind: "create-note", label: `New note “${query.slice(0, 40)}”`, section: "Create", icon: <StickyNote size={15} />, action: { type: "add-note", text: query } },
     ];
-    return [...hits, ...cmds, ...create];
-  }, [mode, q, query, isTaskEntry, isCommandEntry, commands, fuseCommands, fuseData, data, parsed]);
+    return [...calcItems, ...hits, ...cmds, ...create];
+  }, [mode, q, query, isTaskEntry, isCommandEntry, commands, fuseCommands, fuseData, data, parsed, calcResult]);
 
   useEffect(() => setSel(0), [q, mode]);
   useEffect(() => {
@@ -104,6 +137,11 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
   }, [sel]);
 
   const run = (it: Item) => {
+    if (it.id === "calculator-result" && calcResult) {
+      void ipc.clipboardWriteText(calcResult.result);
+      onClose();
+      return;
+    }
     onAction(it.action);
     onClose();
   };
@@ -219,6 +257,39 @@ export function PaletteCore({ mode: initialMode, data, clip, onAction, onClose, 
           ))}
         </div>
       )}
+      {calcResult && (
+        <div
+          className="mx-3 my-2 flex items-center justify-between rounded-xl bg-accent/10 border border-accent/25 p-3 cursor-pointer hover:bg-accent/15 transition-all shadow-sm"
+          onClick={() => {
+            void ipc.clipboardWriteText(calcResult.result);
+            onClose();
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-fg font-bold shadow">
+              <Calculator size={18} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[0.76em] font-medium text-muted truncate">
+                {calcResult.query}
+              </div>
+              <div className="text-[1.35em] font-bold text-text tabular-nums tracking-tight leading-snug">
+                = {calcResult.result}
+              </div>
+              {calcResult.detail && (
+                <div className="text-[0.72em] text-faint truncate">
+                  {calcResult.detail}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0 pl-2">
+            <span className="text-[0.74em] text-muted font-medium">Press</span>
+            <Kbd>Enter</Kbd>
+            <span className="text-[0.74em] text-muted font-medium">to copy</span>
+          </div>
+        </div>
+      )}
       <div ref={listRef} className="scroll max-h-[340px] py-1.5">
         {items.length === 0 && <div className="px-4 py-6 text-center text-[0.9em] text-faint">{isTaskEntry ? "Type your task, e.g. “Email Sam tomorrow 9am !high”" : "No matches"}</div>}
         {items.map((it, i) => {
@@ -269,8 +340,58 @@ function sectionIcon(s: CommandDef["section"]) {
 }
 
 function Frame({ children, floating, title, onClose }: { children: React.ReactNode; floating?: boolean; title: string; onClose: () => void }) {
+  const onDrag = async (e: React.MouseEvent) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest("button, input, textarea, a, select, [contenteditable]")) return;
+    try {
+      await getCurrentWindow().startDragging();
+    } catch {
+      /* ignore */
+    }
+  };
+
   return (
-    <div className={cn("flex flex-col overflow-hidden", floating ? "glass !rounded-2xl shadow-2xl" : "glass anim-pop w-full max-w-xl shadow-2xl")} role="dialog" aria-label={title} onMouseDown={(e) => e.stopPropagation()}>
+    <div
+      className={cn(
+        "flex flex-col overflow-hidden w-full max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]",
+        floating
+          ? "glass !rounded-2xl transition-shadow max-w-[672px]"
+          : "glass max-w-xl shadow-2xl rounded-2xl",
+      )}
+      style={
+        floating
+          ? {
+              background: "rgb(var(--bg) / 0.95)",
+              boxShadow: "0 0 0 1px rgb(var(--border) / 0.12), 0 8px 24px -2px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25)",
+            }
+          : undefined
+      }
+      role="dialog"
+      aria-label={title}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {floating && (
+        <div
+          data-tauri-drag-region
+          className="flex h-8 cursor-grab select-none items-center justify-between border-b hairline px-3.5 active:cursor-grabbing"
+          style={{ background: "rgb(var(--surface) / 0.5)" }}
+          onMouseDown={onDrag}
+        >
+          <div className="flex items-center gap-1.5 text-[0.76em] font-medium text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            <span>DayFlit {title}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div data-tauri-drag-region className="h-1 w-8 rounded-full bg-border/20 cursor-grab" aria-label="Drag handle" />
+            <button
+              className="btn btn-ghost btn-icon btn-sm ml-1 !p-1 text-muted hover:text-text hover:bg-surface-2/60 transition-colors"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X size={13} />
+            </button>
+          </div>
+        </div>
+      )}
       {children}
       {!floating && (
         <button className="sr-only" onClick={onClose}>

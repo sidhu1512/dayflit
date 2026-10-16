@@ -7,6 +7,7 @@ import { FocusPanel } from "@/components/FocusPanel";
 import { MediaCard } from "@/components/MediaCard";
 import { dateKey, formatDuration, relativeDay } from "@/lib/dates";
 import { cn } from "@/lib/ids";
+import { InfoHint } from "@/components/ui/InfoHint";
 
 export function FocusView() {
   const history = useFocus((s) => s.history);
@@ -32,7 +33,7 @@ export function FocusView() {
         <FocusPanel size={running ? 210 : 160} />
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(120px,1fr))] min-w-0">
         <Stat icon={<Timer size={14} />} label="Today" value={formatDuration(todaySecs)} sub={goal ? `${Math.min(100, Math.round((todaySecs / goal) * 100))}% of ${settings.focus.dailyGoalMin}m` : undefined} progress={goal ? todaySecs / goal : undefined} />
         <Stat icon={<Flame size={14} />} label="Streak" value={`${streak}d`} sub="days with focus" />
         <Stat icon={<CheckCircle2 size={14} />} label="Blocks" value={String(workEntries(history).filter((e) => dateKey(new Date(e.endedAt)) === dateKey()).length)} sub="completed today" />
@@ -44,7 +45,10 @@ export function FocusView() {
         </div>
       )}
 
-      <div className="section-title mt-5 mb-1 px-1">Recent sessions</div>
+      <div className="section-title mt-5 mb-1 px-1 flex items-center gap-1.5">
+        <span>Recent sessions</span>
+        <InfoHint text="Completed focus blocks and stopwatch intervals tracked across the current week." />
+      </div>
       {recent.length === 0 ? (
         <div className="px-1 py-2 text-[0.85em] text-faint">Completed focus blocks appear here.</div>
       ) : (
@@ -70,12 +74,12 @@ export function FocusView() {
 
 function Stat({ icon, label, value, sub, progress }: { icon: React.ReactNode; label: string; value: string; sub?: string; progress?: number }) {
   return (
-    <div className="card relative overflow-hidden px-3 py-2">
-      <div className="flex items-center gap-1 text-[0.72em] uppercase tracking-wider text-faint">
-        {icon} {label}
+    <div className="card relative overflow-hidden px-3 py-2 min-w-0">
+      <div className="flex items-center gap-1 text-[0.72em] uppercase tracking-wider text-faint truncate">
+        {icon} <span className="truncate">{label}</span>
       </div>
-      <div className="mt-0.5 text-[1.3em] font-semibold tabular">{value}</div>
-      {sub && <div className="text-[0.72em] text-muted">{sub}</div>}
+      <div className="mt-0.5 text-[1.3em] font-semibold tabular truncate">{value}</div>
+      {sub && <div className="text-[0.72em] text-muted truncate">{sub}</div>}
       {progress !== undefined && <div className="absolute bottom-0 left-0 h-0.5 bg-accent transition-[width]" style={{ width: `${Math.min(100, progress * 100)}%` }} />}
     </div>
   );

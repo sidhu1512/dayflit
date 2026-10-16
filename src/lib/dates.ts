@@ -1,7 +1,10 @@
 import { addDays, differenceInCalendarDays, format, isSameDay, parseISO, startOfDay } from "date-fns";
 
 export function dateKey(d: Date = new Date()): string {
-  return format(d, "yyyy-MM-dd");
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${y}-${m < 10 ? "0" + m : m}-${day < 10 ? "0" + day : day}`;
 }
 
 export function parseKey(key: string): Date {
@@ -12,9 +15,8 @@ export function parseKey(key: string): Date {
 
 export function parseDue(due: string | null): Date | null {
   if (!due) return null;
-  if (due.length <= 10) return parseKey(due);
-  const d = parseISO(due);
-  return isNaN(d.getTime()) ? null : d;
+  const d = due.length <= 10 ? parseKey(due) : parseISO(due);
+  return !d || isNaN(d.getTime()) ? null : d;
 }
 
 export function toDueString(d: Date, hasTime: boolean): string {
@@ -88,9 +90,30 @@ export function timeAgo(ts: number, now = Date.now()): string {
   return format(new Date(ts), "d MMM");
 }
 
+export function formatSmartDate(ts: number | Date, now: number | Date = new Date()): string {
+  const d = typeof ts === "number" ? new Date(ts) : ts;
+  if (!d || isNaN(d.getTime())) return "";
+  const nowDate = typeof now === "number" ? new Date(now) : now;
+  const diffDays = differenceInCalendarDays(nowDate, d);
+  if (diffDays === 0) {
+    // Exact tabular time: 12:15 PM
+    return format(d, "h:mm a");
+  }
+  if (diffDays === 1) {
+    return "Yesterday";
+  }
+  if (d.getFullYear() === nowDate.getFullYear()) {
+    // Within this year: "15 Oct"
+    return format(d, "d MMM");
+  }
+  // Otherwise: "15 Oct 2025"
+  return format(d, "d MMM yyyy");
+}
+
 export function weekDays(anchor: Date, weekStartsOn: 0 | 1 | 6): Date[] {
   const day = anchor.getDay();
   const offset = (day - weekStartsOn + 7) % 7;
   const start = startOfDay(addDays(anchor, -offset));
   return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 }
+

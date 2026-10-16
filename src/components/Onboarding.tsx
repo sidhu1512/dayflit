@@ -21,7 +21,7 @@ export function Onboarding() {
   const pickFolder = async () => {
     if (!isTauri) return;
     const { open } = await import("@tauri-apps/plugin-dialog");
-    const dir = await open({ directory: true, title: "Choose where Dayflit keeps your data" });
+    const dir = await open({ directory: true, title: "Choose where DayFlit keeps your data" });
     if (typeof dir === "string") {
       try {
         const p = await ipc.changeDataDir(dir, "move");
@@ -32,7 +32,7 @@ export function Onboarding() {
         if (String(e).includes("already contains")) {
           const p = await ipc.changeDataDir(dir, "adopt");
           setDataDir(p);
-          toast({ title: "Using existing Dayflit data", body: p, kind: "success" });
+          toast({ title: "Using existing DayFlit data", body: p, kind: "success" });
           window.location.reload();
         } else toast({ title: "Could not change folder", body: String(e), kind: "error" });
       }
@@ -47,10 +47,10 @@ export function Onboarding() {
           <Sparkles size={28} />
         </div>
       </div>
-      <h1 className="text-[1.5em] font-semibold">Welcome to Dayflit</h1>
+      <h1 className="text-[1.5em] font-semibold">Welcome to DayFlit</h1>
       <p className="mt-2 max-w-sm text-muted">A floating companion for tasks, notes, focus sessions, habits and your calendar. Always a keystroke away.</p>
       <div className="mt-5 grid w-full max-w-sm grid-cols-1 gap-1.5 text-left text-[0.88em]">
-        <Hint k="Alt+Space">Show or hide Dayflit from anywhere</Hint>
+        <Hint k="Alt+Shift+D">Show or hide DayFlit from anywhere</Hint>
         <Hint k="Alt+Shift+Space">Global command palette</Hint>
         <Hint k="Alt+Shift+T">Capture a task instantly</Hint>
         <Hint k="Alt+Shift+C">Grab the clipboard with its source app</Hint>

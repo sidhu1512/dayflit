@@ -7,7 +7,7 @@ import type { Settings } from "@/lib/types";
 export const SETTINGS_VERSION = 1;
 
 export const DEFAULT_SHORTCUTS: Record<string, string> = {
-  "toggle-main": "Alt+Space",
+  "toggle-main": "Alt+Shift+D",
   palette: "Alt+Shift+Space",
   "quick-task": "Alt+Shift+T",
   "quick-note": "Alt+Shift+N",
@@ -21,8 +21,19 @@ export const DEFAULT_SHORTCUTS: Record<string, string> = {
   "media-next": "",
 };
 
+export const SYSTEM_RESERVED_SHORTCUTS: Record<string, string> = {
+  "Alt+Space": "Windows system window menu (Restore/Move/Size)",
+  "Alt+Tab": "Windows task switcher",
+  "Alt+F4": "Windows close window",
+  "Ctrl+Alt+Delete": "Windows security screen",
+  "Ctrl+Shift+Escape": "Windows Task Manager",
+  "Ctrl+Escape": "Windows Start menu",
+  "Super+L": "Windows lock screen",
+  "Super+D": "Windows show desktop",
+};
+
 export const SHORTCUT_ACTIONS: { id: string; label: string; hint: string }[] = [
-  { id: "toggle-main", label: "Show / hide Dayflit", hint: "Brings the workspace forward or collapses it" },
+  { id: "toggle-main", label: "Show / hide DayFlit", hint: "Brings the workspace forward or collapses it" },
   { id: "palette", label: "Command palette", hint: "Global launcher: search, commands, quick actions" },
   { id: "quick-task", label: "Quick task", hint: "Capture a task from anywhere" },
   { id: "quick-note", label: "Quick note", hint: "Capture a note from anywhere" },
@@ -49,7 +60,7 @@ export function defaultSettings(): Settings {
       radius: 18,
       reduceMotion: false,
       fontFamily: "system",
-      showBackgroundGlow: true,
+      showBackgroundGlow: false,
     },
     window: {
       alwaysOnTop: false,
@@ -60,6 +71,9 @@ export function defaultSettings(): Settings {
       smartDock: true,
       autostart: false,
       bubbleShowsTimer: true,
+      widgetTrayMode: "island",
+      enabledWidgets: ["focus", "tasks", "habits", "media", "clock"],
+      activeWidget: "focus",
     },
     focus: {
       defaults: {
@@ -134,6 +148,9 @@ export const useSettings = create<SettingsState>((set, get) => ({
     const { data, recoveredFrom } = await loadCollection<Partial<Settings> | null>("settings", null);
     const merged = deepMerge(defaultSettings(), data ?? {});
     merged.shortcuts = { ...DEFAULT_SHORTCUTS, ...(data?.shortcuts ?? {}) };
+    if ((merged.appearance.fontFamily as string) === "serif" || (merged.appearance.fontFamily as string) === "mono") {
+      merged.appearance.fontFamily = "system";
+    }
     set({ settings: merged, loaded: true, recoveredFrom });
     applyTheme(merged.appearance);
     await get().applySideEffects(null);

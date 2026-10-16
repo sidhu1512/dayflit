@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Pacifico&family=Sacramento&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -33,12 +34,53 @@
   --radius: 18px;
   --font-size: 14px;
   --density: 1;
-  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --inactive-opacity: 1;
   --glass-blur: 28px;
   /* Windows 11 rounds top-level windows at 8px; the shell must match so the native
      backdrop never shows outside the surface. */
   --shell-radius: 8px;
+  /* Emil Kowalski custom curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+:root[data-font="sacramento"] {
+  --font-size: 16px;
+  line-height: 1.25;
+}
+:root[data-font="sacramento"] .btn,
+:root[data-font="sacramento"] .chip,
+:root[data-font="sacramento"] input,
+:root[data-font="sacramento"] select {
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+:root[data-font="pacifico"] {
+  --font-size: 13px;
+  line-height: 1.25;
+}
+:root[data-font="pacifico"] .btn,
+:root[data-font="pacifico"] .chip,
+:root[data-font="pacifico"] input,
+:root[data-font="pacifico"] select {
+  font-size: 0.88em;
+  letter-spacing: -0.01em;
+}
+
+:root[data-font="caveat"] {
+  --font-size: 15px;
+  line-height: 1.25;
+}
+:root[data-font="caveat"] .btn,
+:root[data-font="caveat"] .chip,
+:root[data-font="caveat"] input,
+:root[data-font="caveat"] select {
+  font-size: 0.95em;
+  line-height: 1.25;
 }
 
 html,
@@ -46,17 +88,25 @@ body,
 #root {
   height: 100%;
   margin: 0;
-  background: transparent;
+  background: transparent !important;
   overflow: hidden;
 }
 
 body {
   font-family: var(--font);
   font-size: var(--font-size);
+  line-height: var(--line-height, 1.4);
   color: rgb(var(--text));
   -webkit-font-smoothing: antialiased;
   user-select: none;
   cursor: default;
+}
+
+code,
+kbd,
+pre,
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 
 * {
@@ -97,7 +147,7 @@ button:disabled {
   overflow: hidden;
   background: rgb(var(--bg) / var(--opacity));
   box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.07);
-  transition: opacity 220ms ease;
+  transition: opacity 220ms var(--ease-out);
   opacity: var(--inactive-opacity);
 }
 
@@ -106,42 +156,47 @@ button:disabled {
 }
 
 :root[data-mode="light"] .app-shell {
-  box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.1);
+  box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.08);
 }
 
+/* Subtle accent ambient illumination only when explicitly enabled by user */
 .app-shell::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(60% 40% at 80% -10%, rgb(var(--glow) / 0.22), transparent 70%),
-    radial-gradient(40% 30% at 10% 110%, rgb(var(--glow) / 0.12), transparent 70%);
-  opacity: 1;
-  transition: opacity 400ms ease;
+    radial-gradient(60% 40% at 80% -10%, rgb(var(--glow) / 0.12), transparent 70%),
+    radial-gradient(40% 30% at 10% 110%, rgb(var(--glow) / 0.08), transparent 70%);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out);
 }
 
-:root[data-glow="off"] .app-shell::before {
-  opacity: 0;
+:root[data-glow="on"] .app-shell::before {
+  opacity: 1;
 }
 
 .glass {
-  background: rgb(var(--surface) / 0.55);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  background: rgb(var(--surface) / 0.65);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.25);
   border: 1px solid rgb(var(--border) / 0.08);
   border-radius: calc(var(--radius) * 0.75);
 }
 
 .card {
-  background: rgb(var(--surface) / 0.7);
-  border: 1px solid rgb(var(--border) / 0.07);
-  border-radius: calc(var(--radius) * 0.7);
+  background: rgb(var(--surface) / 0.55);
+  border: 1px solid rgb(var(--border) / 0.065);
+  border-radius: calc(var(--radius) * 0.65);
+  transition:
+    background-color 150ms var(--ease-out),
+    border-color 150ms var(--ease-out),
+    box-shadow 150ms var(--ease-out);
 }
 
 .card-hover:hover {
-  background: rgb(var(--surface-2) / 0.9);
-  border-color: rgb(var(--border) / 0.12);
+  background: rgb(var(--surface-2) / 0.75);
+  border-color: rgb(var(--border) / 0.11);
 }
 
 .surface-2 {
@@ -187,6 +242,14 @@ button:disabled {
   background: transparent;
 }
 
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---------- controls ---------- */
 
 .btn {
@@ -194,42 +257,53 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: calc(0.42rem * var(--density)) calc(0.8rem * var(--density));
-  border-radius: 10px;
-  font-size: 0.92em;
+  padding: calc(0.42rem * var(--density)) calc(0.78rem * var(--density));
+  border-radius: 9px;
+  font-size: 0.9em;
   font-weight: 500;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   color: rgb(var(--text));
-  background: rgb(var(--surface-2) / 0.9);
-  border: 1px solid rgb(var(--border) / 0.08);
+  background: rgb(var(--surface-2) / 0.85);
+  border: 1px solid rgb(var(--border) / 0.07);
   transition:
-    background 120ms ease,
-    transform 80ms ease,
-    border-color 120ms ease;
+    transform 220ms var(--ease-spring),
+    background-color 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out);
   white-space: nowrap;
 }
 .btn:hover {
   background: rgb(var(--surface-3) / 0.95);
-  border-color: rgb(var(--border) / 0.14);
+  border-color: rgb(var(--border) / 0.12);
 }
 .btn:active {
   transform: scale(0.97);
+  transition: transform 75ms cubic-bezier(0.2, 0, 0.38, 0.9);
 }
 .btn-primary {
   background: rgb(var(--accent));
   color: rgb(var(--accent-fg));
   border-color: transparent;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
 }
 .btn-primary:hover {
-  background: rgb(var(--accent) / 0.88);
+  background: rgb(var(--accent) / 0.9);
+  box-shadow: 0 2px 6px rgb(var(--accent) / 0.25);
+}
+.btn-primary:active {
+  transform: scale(0.97);
 }
 .btn-ghost {
   background: transparent;
   border-color: transparent;
 }
 .btn-ghost:hover {
-  background: rgb(var(--surface-2) / 0.9);
+  background: rgb(var(--surface-2) / 0.7);
   border-color: transparent;
+}
+.btn-ghost:active {
+  transform: scale(0.97);
 }
 .btn-danger {
   color: #fff;
@@ -238,6 +312,9 @@ button:disabled {
 }
 .btn-danger:hover {
   background: #e04858;
+}
+.btn-danger:active {
+  transform: scale(0.97);
 }
 .btn-sm {
   padding: calc(0.28rem * var(--density)) calc(0.55rem * var(--density));
@@ -249,30 +326,32 @@ button:disabled {
   border-radius: 9px;
 }
 .btn-icon.btn-sm {
-  padding: 0.3rem;
+  padding: 0.32rem;
 }
 
 .input {
   width: 100%;
-  padding: calc(0.5rem * var(--density)) calc(0.7rem * var(--density));
-  border-radius: 10px;
-  background: rgb(var(--surface-2) / 0.7);
+  padding: calc(0.48rem * var(--density)) calc(0.72rem * var(--density));
+  border-radius: 9px;
+  background: rgb(var(--surface-2) / 0.65);
   border: 1px solid rgb(var(--border) / 0.08);
   color: rgb(var(--text));
   outline: none;
   font: inherit;
+  font-size: 0.92em;
+  letter-spacing: -0.01em;
   transition:
-    border-color 120ms ease,
-    background 120ms ease,
-    box-shadow 120ms ease;
+    border-color 150ms var(--ease-out),
+    background-color 150ms var(--ease-out),
+    box-shadow 150ms var(--ease-out);
 }
 .input::placeholder {
   color: rgb(var(--text-faint));
 }
 .input:focus {
-  border-color: rgb(var(--accent) / 0.6);
-  background: rgb(var(--surface-2) / 0.95);
-  box-shadow: 0 0 0 3px rgb(var(--accent) / 0.18);
+  border-color: rgb(var(--accent) / 0.55);
+  background: rgb(var(--surface-2) / 0.92);
+  box-shadow: 0 0 0 3px rgb(var(--accent) / 0.15);
 }
 textarea.input {
   resize: none;
@@ -296,8 +375,8 @@ select.input option {
   height: 22px;
   border-radius: 999px;
   background: rgb(var(--surface-3));
-  border: 1px solid rgb(var(--border) / 0.1);
-  transition: background 150ms ease;
+  border: 1px solid rgb(var(--border) / 0.08);
+  transition: background-color 160ms var(--ease-out);
   flex-shrink: 0;
 }
 .toggle::after {
@@ -309,8 +388,8 @@ select.input option {
   height: 16px;
   border-radius: 50%;
   background: rgb(var(--text));
-  transition: transform 150ms ease;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 180ms var(--ease-spring);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
 }
 .toggle[aria-checked="true"] {
   background: rgb(var(--accent));
@@ -332,6 +411,15 @@ select.input option {
   color: rgb(var(--text-muted));
   border: 1px solid rgb(var(--border) / 0.06);
   white-space: nowrap;
+  transition:
+    transform 220ms var(--ease-spring),
+    background-color 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    color 140ms var(--ease-out);
+}
+.chip:active {
+  transform: scale(0.97);
+  transition: transform 75ms cubic-bezier(0.2, 0, 0.38, 0.9);
 }
 .chip-accent {
   background: rgb(var(--accent) / 0.16);
@@ -386,18 +474,69 @@ kbd {
   justify-content: center;
   flex-shrink: 0;
   transition:
-    background 120ms ease,
-    border-color 120ms ease,
-    transform 100ms ease;
+    background 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 180ms ease,
+    transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
   color: rgb(var(--accent-fg));
 }
 .checkbox:hover {
   border-color: rgb(var(--accent));
-  transform: scale(1.06);
+  transform: scale(1.08);
+}
+.checkbox:active {
+  transform: scale(0.88);
+  transition-duration: 60ms;
 }
 .checkbox[data-checked="true"] {
   background: rgb(var(--accent));
   border-color: rgb(var(--accent));
+  animation: checkbox-spring 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes checkbox-spring {
+  0% { transform: scale(0.88); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.checkbox svg {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 0;
+  animation: check-draw 220ms ease-out forwards;
+}
+
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 20;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Sweeping horizontal strikethrough */
+.task-row[data-done="true"] .task-title {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  opacity: 0.55;
+  transition: opacity 220ms ease, color 220ms ease;
+}
+
+/* Things 3 Paper Sheet Expansion */
+.things-sheet-expand {
+  animation: things-sheet 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes things-sheet {
+  from {
+    transform: scale(0.98);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .checkbox[data-priority="urgent"] {
   border-color: #ef5b6b;
@@ -426,30 +565,52 @@ kbd {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  padding: calc(0.45rem * var(--density)) calc(0.6rem * var(--density));
-  border-radius: 10px;
+  padding: calc(0.42rem * var(--density)) calc(0.65rem * var(--density));
+  border-radius: 9px;
   color: rgb(var(--text-muted));
-  font-weight: 500;
-  font-size: 0.92em;
+  font-weight: 450;
+  font-size: 0.88em;
+  letter-spacing: -0.01em;
   transition:
-    background 120ms ease,
-    color 120ms ease;
+    transform 220ms var(--ease-spring),
+    color 140ms var(--ease-out);
+  position: relative;
+  z-index: 1;
 }
 .nav-item:hover {
-  background: rgb(var(--surface-2) / 0.8);
   color: rgb(var(--text));
 }
+.nav-item:active {
+  transform: scale(0.97);
+  transition: transform 75ms cubic-bezier(0.2, 0, 0.38, 0.9);
+}
 .nav-item[data-active="true"] {
-  background: rgb(var(--accent) / 0.16);
   color: rgb(var(--accent));
+  font-weight: 550;
 }
 
 .section-title {
-  font-size: 0.72em;
+  font-size: 0.7em;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: rgb(var(--text-faint));
+}
+
+h1, .h1 {
+  letter-spacing: -0.024em;
+  font-weight: 650;
+  line-height: 1.2;
+}
+h2, .h2 {
+  letter-spacing: -0.018em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+h3, .h3 {
+  letter-spacing: -0.012em;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .prose {
@@ -560,7 +721,7 @@ kbd {
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
@@ -580,7 +741,7 @@ kbd {
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -589,10 +750,10 @@ kbd {
 }
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgb(var(--accent) / 0.45);
+    box-shadow: 0 0 0 0 rgb(var(--accent) / 0.4);
   }
   100% {
-    box-shadow: 0 0 0 14px rgb(var(--accent) / 0);
+    box-shadow: 0 0 0 12px rgb(var(--accent) / 0);
   }
 }
 @keyframes spin {
@@ -601,27 +762,43 @@ kbd {
   }
 }
 .anim-fade {
-  animation: fade-in 160ms ease both;
+  animation: fade-in 170ms var(--ease-out) both;
 }
 .anim-pop {
-  animation: pop-in 140ms ease both;
+  animation: pop-in 150ms var(--ease-out) both;
+  transform-origin: var(--transform-origin, center);
 }
 .anim-slide {
-  animation: slide-up 180ms ease both;
+  animation: slide-up 190ms var(--ease-out) both;
 }
 .spin {
   animation: spin 900ms linear infinite;
 }
-:root[data-motion="reduce"] * {
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
   animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .task-row {
   transition:
-    background 120ms ease,
-    opacity 200ms ease,
-    transform 160ms ease;
+    background-color 140ms var(--ease-out),
+    opacity 180ms var(--ease-out),
+    transform 160ms var(--ease-out);
 }
 .task-row[data-done="true"] .task-title {
   text-decoration: line-through;
@@ -629,7 +806,7 @@ kbd {
 }
 .task-row[data-selected="true"] {
   background: rgb(var(--accent) / 0.12);
-  box-shadow: inset 0 0 0 1px rgb(var(--accent) / 0.3);
+  box-shadow: inset 0 0 0 1px rgb(var(--accent) / 0.28);
 }
 
 .ring-track {
@@ -641,7 +818,26 @@ kbd {
 }
 
 .tabular {
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif !important;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.img-unavailable-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.78em;
+  color: rgb(var(--text-faint));
+  background: rgb(var(--surface-2) / 0.8);
+  border: 1px dashed rgb(var(--border) / 0.18);
+  border-radius: 8px;
+  user-select: none;
+}
+
+img.img-fallback {
+  display: none !important;
 }
 
 .mask-fade-bottom {
@@ -682,3 +878,79 @@ kbd {
   background: rgb(var(--accent) / 0.85);
   transition: height 300ms ease;
 }
+
+/* Document Surface 150ms Crossfade */
+@keyframes doc-crossfade {
+  0% {
+    opacity: 0.35;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-doc-crossfade {
+  animation: doc-crossfade 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Global Interactive Press Physics (iOS / Emil Kowalski) */
+.btn,
+.chip,
+.nav-item,
+.interactive-press,
+button.card,
+.card-interactive {
+  transition:
+    transform 220ms var(--ease-spring),
+    background-color 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out);
+}
+
+.btn:active,
+.chip:active,
+.nav-item:active,
+.interactive-press:active,
+button.card:active,
+.card-interactive:active {
+  transform: scale(0.97);
+  transition: transform 75ms cubic-bezier(0.2, 0, 0.38, 0.9);
+}
+
+/* Apple Fluid Entrance for Dynamic Island Content */
+@keyframes island-blur-in {
+  0% {
+    transform: scale(0.97) translateY(-3px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.island-blur-enter {
+  animation: island-blur-in 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Satellite Split-Island Pop Entrance */
+@keyframes satellite-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.satellite-pop-enter {
+  animation: satellite-pop 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

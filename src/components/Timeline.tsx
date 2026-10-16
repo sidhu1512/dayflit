@@ -16,6 +16,7 @@ export const SNAP_MIN = 15;
 const DEFAULT_MIN = 30;
 
 export const TASK_DRAG_TYPE = "application/x-dayflit-task";
+let activeDraggingTaskId: string | null = null;
 
 interface Laid<T> {
   item: T;
@@ -36,7 +37,7 @@ function layout<T>(items: T[], start: (t: T) => number, end: (t: T) => number): 
   });
   return laid.map((x) => {
     const overlapping = laid.filter((y) => start(y.item) < end(x.item) && end(y.item) > start(x.item));
-    return { ...x, total: Math.max(...overlapping.map((y) => y.col)) + 1 };
+    return { ...x, total: Math.max(1, ...overlapping.map((y) => y.col + 1)) };
   });
 }
 
@@ -81,19 +82,27 @@ export function Timeline({ day, events, tasks, now, startHour, endHour, onOpenTa
   const dayStart = startOfDay(day).getTime();
   const timed = events.filter((e) => !e.allDay);
   const boxed = tasks.filter((t) => timeboxOf(t));
-  let sh = startHour;
-  let eh = endHour;
+  let sh = Number.isFinite(startHour) ? startHour : 7;
+  let eh = Number.isFinite(endHour) ? endHour : 22;
   for (const e of timed) {
-    sh = Math.min(sh, Math.floor((e.start - dayStart) / 3_600_000));
-    eh = Math.max(eh, Math.ceil((e.end - dayStart) / 3_600_000));
+    if (Number.isFinite(e.start)) {
+      sh = Math.min(sh, Math.floor((e.start - dayStart) / 3_600_000));
+    }
+    if (Number.isFinite(e.end)) {
+      eh = Math.max(eh, Math.ceil((e.end - dayStart) / 3_600_000));
+    }
   }
   for (const t of boxed) {
-    const b = timeboxOf(t)!;
-    sh = Math.min(sh, Math.floor((b.start - dayStart) / 3_600_000));
-    eh = Math.max(eh, Math.ceil((b.end - dayStart) / 3_600_000));
+    const b = timeboxOf(t);
+    if (b && Number.isFinite(b.start)) {
+      sh = Math.min(sh, Math.floor((b.start - dayStart) / 3_600_000));
+    }
+    if (b && Number.isFinite(b.end)) {
+      eh = Math.max(eh, Math.ceil((b.end - dayStart) / 3_600_000));
+    }
   }
-  sh = Math.max(0, sh);
-  eh = Math.min(24, Math.max(eh, sh + 1));
+  sh = Math.max(0, Math.min(23, isNaN(sh) ? 7 : sh));
+  eh = Math.min(24, Math.max(sh + 1, isNaN(eh) ? 22 : eh));
   const height = (eh - sh) * HOUR_PX;
   const top = (ms: number) => ((ms - dayStart) / 3_600_000 - sh) * HOUR_PX;
   const msAtY = useCallback(
@@ -199,13 +208,14 @@ export function Timeline({ day, events, tasks, now, startHour, endHour, onOpenTa
     if (!e.dataTransfer.types.includes(TASK_DRAG_TYPE)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    const id = e.dataTransfer.getData(TASK_DRAG_TYPE);
-    const t = tasks.find((x) => x.id === id);
+    const id = activeDraggingTaskId || e.dataTransfer.getData(TASK_DRAG_TYPE);
+    const t = tasks.find((x) => x.id === id) ?? useTasks.getState().byId(id);
     setDropPreview({ start: msAtY(relY(e.clientY)), mins: t?.estimateMin || DEFAULT_MIN });
   };
   const onDrop = (e: React.DragEvent) => {
-    const id = e.dataTransfer.getData(TASK_DRAG_TYPE);
+    const id = activeDraggingTaskId || e.dataTransfer.getData(TASK_DRAG_TYPE);
     setDropPreview(null);
+    activeDraggingTaskId = null;
     if (!id) return;
     e.preventDefault();
     const t = tasks.find((x) => x.id === id) ?? useTasks.getState().byId(id);
@@ -220,20 +230,21 @@ export function Timeline({ day, events, tasks, now, startHour, endHour, onOpenTa
   const runningTaskId = snap.session && snap.session.status !== "finished" ? snap.session.config.taskId : null;
 
   return (
-    <div
-      ref={ref}
-      className={cn("relative ml-12 select-none", dropPreview && "ring-1 ring-accent/30 rounded-lg")}
-      data-timeline
-      style={{ height }}
-      onDragOver={onDragOver}
-      onDragLeave={() => setDropPreview(null)}
-      onDrop={onDrop}
-      onDoubleClick={(e) => {
-        if (!editableSources.length || (e.target as HTMLElement).closest("[data-block]")) return;
-        const start = msAtY(relY(e.clientY));
-        setCreating({ start, end: start + 30 * 60_000, title: "" });
-      }}
-    >
+    <div className="flex flex-col">
+      <div
+        ref={ref}
+        className={cn("relative ml-12 select-none", dropPreview && "ring-1 ring-accent/30 rounded-lg")}
+        data-timeline
+        style={{ height }}
+        onDragOver={onDragOver}
+        onDragLeave={() => setDropPreview(null)}
+        onDrop={onDrop}
+        onDoubleClick={(e) => {
+          if (!editableSources.length || (e.target as HTMLElement).closest("[data-block]")) return;
+          const start = msAtY(relY(e.clientY));
+          setCreating({ start, end: start + 30 * 60_000, title: "" });
+        }}
+      >
       {Array.from({ length: eh - sh + 1 }).map((_, i) => (
         <div key={i} className="absolute left-0 right-0 border-t hairline" style={{ top: i * HOUR_PX }}>
           <span className="absolute -left-12 -top-2 w-10 text-right text-[0.68em] tabular text-faint">{format(new Date(dayStart + (sh + i) * 3_600_000), "h a")}</span>
@@ -243,17 +254,17 @@ export function Timeline({ day, events, tasks, now, startHour, endHour, onOpenTa
         <div key={"h" + i} className="absolute left-0 right-0 border-t border-dashed hairline opacity-50" style={{ top: i * HOUR_PX + HOUR_PX / 2 }} />
       ))}
       {isToday && nowTop >= 0 && nowTop <= height && (
-        <div className="absolute left-0 right-0 z-10 border-t-2 border-danger" style={{ top: nowTop }}>
+        <div className="absolute left-0 right-0 z-20 border-t-2 border-danger" style={{ top: nowTop }}>
           <span className="absolute -left-1.5 -top-[5px] h-2 w-2 rounded-full bg-danger" />
         </div>
       )}
       {dropPreview && (
-        <div className="pointer-events-none absolute left-0 right-0 z-20 rounded-lg border-2 border-dashed border-accent/70 bg-accent/10 px-2 py-1 text-[0.75em] text-accent" style={{ top: top(dropPreview.start), height: Math.max(22, (dropPreview.mins / 60) * HOUR_PX) }}>
+        <div className="pointer-events-none absolute left-0 z-20 rounded-lg border-2 border-dashed border-accent/70 bg-accent/10 px-2 py-1 text-[0.75em] text-accent" style={{ top: top(dropPreview.start), height: Math.max(22, (dropPreview.mins / 60) * HOUR_PX), width: "calc(100% - 4px)" }}>
           {formatTime(new Date(dropPreview.start))} · {dropPreview.mins}m
         </div>
       )}
       {creating && (
-        <div className="absolute left-0 right-0 z-30 rounded-lg border border-accent bg-bg/95 p-2 shadow-xl" style={{ top: top(creating.start) }} onMouseDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+        <div className="absolute left-0 z-30 rounded-lg border border-accent bg-bg/95 p-2 shadow-xl" style={{ top: top(creating.start), width: "calc(100% - 4px)" }} onMouseDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
           <input
             autoFocus
             className="input !py-1 text-[0.85em]"
@@ -315,136 +326,192 @@ export function Timeline({ day, events, tasks, now, startHour, endHour, onOpenTa
           </div>
         </div>
       )}
-      {laidEvents.map(({ item: e, col, total }) => {
-        const t = Math.max(0, top(e.start));
-        const h = Math.max(22, top(e.end) - t);
-        const past = e.end <= now;
-        const live = e.start <= now && e.end > now;
-        const editable = isEditable(e);
-        const dragging = evDrag?.ev.id === e.id;
-        return (
-          <div
-            key={e.id}
-            data-block
-            className={cn("absolute overflow-hidden rounded-lg border px-2 py-1 text-[0.78em] leading-tight", past && "opacity-50", editable && "cursor-grab", dragging && "z-30 shadow-xl ring-2 ring-accent/40")}
-            style={{ top: t, height: h, left: `${(col / total) * 100}%`, width: `calc(${100 / total}% - 4px)`, background: `color-mix(in srgb, ${e.color} 22%, transparent)`, borderColor: `color-mix(in srgb, ${e.color} 55%, transparent)` }}
-            onMouseDown={(me) => {
-              if (!editable || me.button !== 0 || (me.target as HTMLElement).closest("button")) return;
-              setEvDrag({ ev: e, mode: "move", originY: me.clientY, start: e.start, end: e.end });
-            }}
-            onDoubleClick={(me) => {
-              me.stopPropagation();
-              if (editable) setEditingEvent(e);
-            }}
-          >
-            {editable && !past && (
-              <div
-                className="absolute inset-x-0 bottom-0 h-2 cursor-ns-resize"
-                onMouseDown={(me) => {
-                  me.stopPropagation();
-                  setEvDrag({ ev: e, mode: "resize", originY: me.clientY, start: e.start, end: e.end });
-                }}
-              />
-            )}
-            <div className="flex items-center gap-1">
-              <span className="truncate font-medium">{e.title || "(untitled)"}</span>
-              {live && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />}
-            </div>
-            {h > 34 && (
-              <div className="truncate text-faint">
-                {formatTime(new Date(e.start))} – {formatTime(new Date(e.end))}
-                {e.location && !e.meeting ? ` · ${e.location}` : ""}
-                {e.meeting ? ` · ${e.meeting.provider}` : ""}
+        {/* PLANNED EVENTS */}
+        {laidEvents.map(({ item: e, col, total }) => {
+          const t = Math.max(0, top(e.start));
+          const h = Math.max(22, top(e.end) - t);
+          const past = e.end <= now;
+          const live = e.start <= now && e.end > now;
+          const editable = isEditable(e);
+          const dragging = evDrag?.ev.id === e.id;
+          return (
+            <div
+              key={e.id}
+              data-block
+              className={cn("absolute overflow-hidden rounded-lg border px-2 py-1 text-[0.78em] leading-tight", past && "opacity-50", editable && "cursor-grab", dragging && "z-30 shadow-xl ring-2 ring-accent/40")}
+              style={{
+                top: t,
+                height: h,
+                left: `${(col / total) * 100}%`,
+                width: `calc(${100 / total}% - 4px)`,
+                background: `color-mix(in srgb, ${e.color || "var(--color-accent)"} 22%, transparent)`,
+                borderColor: `color-mix(in srgb, ${e.color || "var(--color-accent)"} 55%, transparent)`,
+              }}
+              onMouseDown={(me) => {
+                if (!editable || me.button !== 0 || (me.target as HTMLElement).closest("button")) return;
+                setEvDrag({ ev: e, mode: "move", originY: me.clientY, start: e.start, end: e.end });
+              }}
+              onDoubleClick={(me) => {
+                me.stopPropagation();
+                if (editable) setEditingEvent(e);
+              }}
+            >
+              {editable && !past && (
+                <div
+                  className="absolute inset-x-0 bottom-0 h-2.5 cursor-ns-resize z-10"
+                  onMouseDown={(me) => {
+                    me.stopPropagation();
+                    setEvDrag({ ev: e, mode: "resize", originY: me.clientY, start: e.start, end: e.end });
+                  }}
+                />
+              )}
+              <div className="flex items-center gap-1">
+                <span className="truncate font-medium">{e.title || "(untitled)"}</span>
+                {live && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />}
               </div>
-            )}
-            {e.meeting && !past && h > 50 && (
-              <button className="mt-1 inline-flex items-center gap-1 rounded-md bg-accent px-1.5 py-0.5 text-[0.9em] font-medium text-accent-fg" onClick={() => void openExternal(e.meeting!.url)}>
-                <Video size={10} /> Join
-              </button>
-            )}
-          </div>
-        );
-      })}
-      {laidTasks.map(({ item, col, total }) => {
-        const { t, start, end } = item;
-        const y = Math.max(0, top(start));
-        const h = Math.max(24, top(end) - y);
-        const done = t.status === "done";
-        const dragging = drag?.id === t.id;
-        const running = runningTaskId === t.id;
-        return (
-          <div
-            key={t.id}
-            data-block
-            className={cn(
-              "group absolute z-[5] overflow-hidden rounded-lg border px-2 py-1 text-[0.78em] leading-tight transition-shadow",
-              done ? "border-success/40 bg-success/10 opacity-70" : "border-accent/50 bg-accent/15",
-              dragging && "z-30 shadow-xl ring-2 ring-accent/40",
-              running && "ring-2 ring-accent",
-            )}
-            style={{ top: y, height: h, left: `${(col / total) * 100}%`, width: `calc(${100 / total}% - 4px)`, cursor: dragging ? "grabbing" : "grab" }}
-            onMouseDown={(e) => {
-              if (e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
-              const box = timeboxOf(t)!;
-              setDrag({ id: t.id, mode: "move", originY: e.clientY, start: box.start, end: box.end, cur: 0 });
-            }}
-            onDoubleClick={() => (onOpenTask ?? setEditing)(t.id)}
-          >
-            <div className="flex items-center gap-1">
-              <button
-                className={cn("checkbox !h-3.5 !w-3.5 !rounded-[4px]", done && "")}
-                data-checked={done}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!done) uiSound("complete", 0.3);
-                  toggle(t.id);
-                }}
-                aria-label={done ? "Mark open" : "Complete"}
-              >
-                {done && <Check size={9} strokeWidth={3} />}
-              </button>
-              <span className={cn("min-w-0 flex-1 truncate font-medium", done && "line-through")}>{t.title}</span>
-              <GripVertical size={11} className="shrink-0 text-faint opacity-0 group-hover:opacity-100" />
+              {h > 34 && (
+                <div className="truncate text-faint">
+                  {formatTime(new Date(e.start))} – {formatTime(new Date(e.end))}
+                  {e.location && !e.meeting ? ` · ${e.location}` : ""}
+                  {e.meeting ? ` · ${e.meeting.provider}` : ""}
+                </div>
+              )}
+              {e.meeting && !past && h > 50 && (
+                <button className="mt-1 inline-flex items-center gap-1 rounded-md bg-accent px-1.5 py-0.5 text-[0.9em] font-medium text-accent-fg" onClick={() => void openExternal(e.meeting!.url)}>
+                  <Video size={10} /> Join
+                </button>
+              )}
             </div>
-            {h > 36 && (
-              <div className="flex items-center gap-1 text-faint">
-                <span className="truncate">
-                  {formatTime(new Date(start))} · {Math.round((end - start) / 60_000)}m
+          );
+        })}
+
+        {/* PLANNED TASKS WITH AMIE-STYLE 15M RESIZE HANDLES & DURATION PILLS */}
+        {laidTasks.map(({ item, col, total }) => {
+          const { t, start, end } = item;
+          const y = Math.max(0, top(start));
+          const h = Math.max(26, top(end) - y);
+          const done = t.status === "done";
+          const dragging = drag?.id === t.id;
+          const running = runningTaskId === t.id;
+          const mins = Math.max(15, Math.round((end - start) / 60_000));
+          const durHours = Math.floor(mins / 60);
+          const durRemMins = mins % 60;
+          const durPill = durHours > 0 ? (durRemMins > 0 ? `${durHours}h ${durRemMins}m` : `${durHours}h`) : `${durRemMins}m`;
+
+          return (
+            <div
+              key={t.id}
+              data-block
+              className={cn(
+                "group absolute z-[5] overflow-hidden rounded-xl border px-2.5 py-1.5 text-[0.78em] leading-tight transition-all",
+                done ? "border-success/40 bg-success/10 opacity-70" : "border-accent/40 bg-accent/15",
+                dragging && "z-30 shadow-2xl ring-2 ring-accent/60 scale-[1.01]",
+                running && "ring-2 ring-accent shadow-lg",
+              )}
+              style={{
+                top: y,
+                height: h,
+                left: `${(col / total) * 100}%`,
+                width: `calc(${100 / total}% - 4px)`,
+                cursor: dragging ? "grabbing" : "grab",
+              }}
+              onMouseDown={(e) => {
+                if (e.button !== 0 || (e.target as HTMLElement).closest("button, [data-resize-handle]")) return;
+                const box = timeboxOf(t)!;
+                setDrag({ id: t.id, mode: "move", originY: e.clientY, start: box.start, end: box.end, cur: 0 });
+              }}
+              onDoubleClick={() => (onOpenTask ?? setEditing)(t.id)}
+            >
+              <div className="flex items-center gap-1.5">
+                <button
+                  className={cn("checkbox !h-3.5 !w-3.5 !rounded-[4px]")}
+                  data-checked={done}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!done) uiSound("complete", 0.3);
+                    toggle(t.id);
+                  }}
+                  aria-label={done ? "Mark open" : "Complete"}
+                >
+                  {done && <Check size={9} strokeWidth={3} />}
+                </button>
+                <span className={cn("min-w-0 flex-1 truncate font-semibold", done && "line-through opacity-70")}>{t.title}</span>
+                <GripVertical size={11} className="shrink-0 text-faint opacity-0 group-hover:opacity-100" />
+              </div>
+
+              {/* Live duration pill & time display */}
+              <div className="mt-0.5 flex items-center justify-between gap-1 text-[0.74em] text-muted">
+                <span className="truncate tabular-nums">
+                  {formatTime(new Date(start))} – {formatTime(new Date(end))} · {durPill}
                 </span>
                 {!done && !running && (
                   <button
-                    className="ml-auto inline-flex items-center gap-1 rounded-md bg-accent px-1.5 py-0.5 text-[0.9em] font-medium text-accent-fg opacity-0 transition group-hover:opacity-100"
+                    className="ml-auto inline-flex items-center gap-1 rounded-md bg-accent px-1.5 py-0.5 text-[0.9em] font-medium text-accent-fg opacity-0 transition group-hover:opacity-100 shadow-sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      void startForTask(t.id, { mode: "deep", workSecs: Math.max(5, Math.round((end - start) / 60_000)) * 60, targetWorkPhases: 1 });
+                      void startForTask(t.id, { mode: "deep", workSecs: Math.max(5, mins) * 60, targetWorkPhases: 1 });
                     }}
                   >
-                    <Play size={10} /> Focus
+                    <Play size={9} /> Focus
                   </button>
                 )}
-                {running && <span className="ml-auto text-accent">focusing</span>}
+                {running && <span className="ml-auto text-accent font-semibold">focusing</span>}
               </div>
-            )}
-            {!done && (
-              <div
-                className="absolute inset-x-0 bottom-0 h-2 cursor-ns-resize"
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                  const box = timeboxOf(t)!;
-                  setDrag({ id: t.id, mode: "resize", originY: e.clientY, start: box.start, end: box.end, cur: 0 });
-                }}
-              />
-            )}
-          </div>
-        );
-      })}
+
+              {/* Amie-style bottom-edge 15-minute drag-resize handles */}
+              {!done && (
+                <div
+                  data-resize-handle
+                  className="absolute inset-x-0 bottom-0 h-3 cursor-ns-resize group/handle flex items-center justify-center z-20"
+                  onPointerDown={(pe) => {
+                    pe.stopPropagation();
+                    try {
+                      pe.currentTarget.setPointerCapture(pe.pointerId);
+                    } catch {}
+                    const box = timeboxOf(t)!;
+                    setDrag({ id: t.id, mode: "resize", originY: pe.clientY, start: box.start, end: box.end, cur: 0 });
+                  }}
+                  onPointerMove={(pe) => {
+                    if (!drag || drag.id !== t.id || drag.mode !== "resize") return;
+                    const dy = pe.clientY - drag.originY;
+                    const dMin = Math.round((dy / HOUR_PX) * 60 / SNAP_MIN) * SNAP_MIN;
+                    const box = timeboxOf(t)!;
+                    setDrag((d) => (d ? { ...d, end: Math.max(box.start + SNAP_MIN * 60_000, box.end + dMin * 60_000) } : d));
+                  }}
+                  onPointerUp={(pe) => {
+                    if (drag && drag.id === t.id) {
+                      try {
+                        pe.currentTarget.releasePointerCapture(pe.pointerId);
+                      } catch {}
+                      const box = timeboxOf(t)!;
+                      if (drag.start !== box.start || drag.end !== box.end) {
+                        update(t.id, {
+                          due: toDueString(new Date(drag.start), true),
+                          hasTime: true,
+                          estimateMin: Math.round((drag.end - drag.start) / 60_000),
+                        });
+                        uiSound("tick", 0.3);
+                      }
+                      setDrag(null);
+                    }
+                  }}
+                >
+                  <div className="h-1 w-8 rounded-full bg-accent/30 group-hover/handle:bg-accent/80 transition-colors" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 /** Draggable list of tasks that are not yet placed on the timeline. */
-export function UnscheduledList({ tasks, day }: { tasks: Task[]; day: Date }) {
+export function UnscheduledList({ tasks, day, events = [] }: { tasks: Task[]; day: Date; events?: CalEvent[] }) {
   const update = useTasks((s) => s.update);
+  const allTasks = useTasks((s) => s.tasks);
+  const toast = useUi((s) => s.toast);
   if (!tasks.length) return null;
   return (
     <div className="mt-2">
@@ -455,8 +522,12 @@ export function UnscheduledList({ tasks, day }: { tasks: Task[]; day: Date }) {
             key={t.id}
             draggable
             onDragStart={(e) => {
+              activeDraggingTaskId = t.id;
               e.dataTransfer.setData(TASK_DRAG_TYPE, t.id);
               e.dataTransfer.effectAllowed = "move";
+            }}
+            onDragEnd={() => {
+              activeDraggingTaskId = null;
             }}
             className="card flex cursor-grab items-center gap-2 px-2.5 py-1.5 text-[0.85em] active:cursor-grabbing"
           >
@@ -466,11 +537,31 @@ export function UnscheduledList({ tasks, day }: { tasks: Task[]; day: Date }) {
             <button
               className="btn btn-ghost btn-sm text-[0.85em] text-muted"
               onClick={() => {
-                // Place at the next free quarter hour from now (or 9:00 on other days).
-                const base = isSameDay(day, new Date()) ? new Date() : new Date(startOfDay(day).getTime() + 9 * 3_600_000);
-                const mins = Math.ceil((base.getHours() * 60 + base.getMinutes()) / SNAP_MIN) * SNAP_MIN;
-                const start = new Date(startOfDay(day).getTime() + mins * 60_000);
-                update(t.id, { due: toDueString(start, true), hasTime: true, estimateMin: t.estimateMin || DEFAULT_MIN, backlog: false });
+                // Find next free collision-free slot from now (or 9:00 on other days)
+                const mins = t.estimateMin || DEFAULT_MIN;
+                const dayStart = startOfDay(day).getTime();
+                const baseTime = isSameDay(day, new Date())
+                  ? Math.max(Date.now(), dayStart + 8 * 3_600_000)
+                  : dayStart + 9 * 3_600_000;
+                let candidate = Math.ceil(baseTime / (SNAP_MIN * 60_000)) * SNAP_MIN * 60_000;
+                const busy = [
+                  ...events.filter((e) => !e.allDay).map((e) => [e.start, e.end] as [number, number]),
+                  ...allTasks.filter((x) => timeboxOf(x)).map((x) => {
+                    const b = timeboxOf(x)!;
+                    return [b.start, b.end] as [number, number];
+                  }),
+                ].sort((a, b) => a[0] - b[0]);
+
+                for (;;) {
+                  const clash = busy.find(([s, e]) => s < candidate + mins * 60_000 && e > candidate);
+                  if (!clash) break;
+                  candidate = Math.ceil(clash[1] / (SNAP_MIN * 60_000)) * SNAP_MIN * 60_000;
+                }
+                if (candidate + mins * 60_000 > dayStart + 24 * 3_600_000) {
+                  toast({ title: "Day is full", body: "No free time slots remaining today", kind: "info" });
+                  return;
+                }
+                update(t.id, { due: toDueString(new Date(candidate), true), hasTime: true, estimateMin: mins, backlog: false });
               }}
             >
               Place
@@ -483,11 +574,26 @@ export function UnscheduledList({ tasks, day }: { tasks: Task[]; day: Date }) {
 }
 
 /** Fit unscheduled tasks into free gaps between events, starting from `from`. */
-export function autoPlan(day: Date, tasks: Task[], events: CalEvent[], from: number, endHour: number, update: (id: string, patch: Partial<Task>) => void): number {
+export function autoPlan(
+  day: Date,
+  tasks: Task[],
+  events: CalEvent[],
+  from: number,
+  endHour: number,
+  update: (id: string, patch: Partial<Task>) => void,
+  startHour = 8,
+): number {
   const dayStart = startOfDay(day).getTime();
   const dayEnd = dayStart + endHour * 3_600_000;
-  const busy = [...events.filter((e) => !e.allDay).map((e) => [e.start, e.end] as [number, number]), ...tasks.filter((t) => timeboxOf(t)).map((t) => { const b = timeboxOf(t)!; return [b.start, b.end] as [number, number]; })].sort((a, b) => a[0] - b[0]);
-  let cursor = Math.ceil(Math.max(from, dayStart) / (SNAP_MIN * 60_000)) * SNAP_MIN * 60_000;
+  const dayEarliest = dayStart + startHour * 3_600_000;
+  const busy = [
+    ...events.filter((e) => !e.allDay).map((e) => [e.start, e.end] as [number, number]),
+    ...tasks.filter((t) => timeboxOf(t)).map((t) => {
+      const b = timeboxOf(t)!;
+      return [b.start, b.end] as [number, number];
+    }),
+  ].sort((a, b) => a[0] - b[0]);
+  let cursor = Math.ceil(Math.max(from, dayEarliest) / (SNAP_MIN * 60_000)) * SNAP_MIN * 60_000;
   let placed = 0;
   for (const t of tasks.filter((x) => !timeboxOf(x) && x.status === "open")) {
     const mins = t.estimateMin || DEFAULT_MIN;

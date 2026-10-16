@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { emitTo, emit } from "@tauri-apps/api/event";
+import { X } from "lucide-react";
 import { useSettings } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
 import { useTasks } from "@/stores/tasks";
@@ -11,7 +12,7 @@ import { useCalendar } from "@/stores/calendar";
 import { useFocus } from "@/stores/focus";
 import { useMedia } from "@/stores/media";
 import { ipc, isTauri, on, type RawClip } from "@/lib/ipc";
-import { onSaveError } from "@/lib/persist";
+import { cancelPending, onSaveError } from "@/lib/persist";
 import { initImages } from "@/lib/imageUrl";
 import { notify, setQuietState } from "@/lib/notify";
 import { runAction, collectPaletteData } from "@/lib/runAction";
@@ -22,8 +23,12 @@ import { TitleBar } from "@/components/TitleBar";
 import { Nav } from "@/components/Nav";
 import { Toasts } from "@/components/Toasts";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { PromptDialog } from "@/components/PromptDialog";
+import { ViewErrorBoundary } from "@/components/ErrorBoundary";
+import { ViewStage } from "@/components/ui/MotionPrimitives";
 import { PaletteCore } from "@/components/CommandPalette";
 import { TaskEditor } from "@/components/TaskEditor";
+import { MediaLightbox } from "@/components/ui/MediaLightbox";
 import { Onboarding } from "@/components/Onboarding";
 import { TodayView } from "@/views/Today";
 import { TasksView } from "@/views/Tasks";
@@ -35,14 +40,37 @@ import { StatsView } from "@/views/Stats";
 import { ClipsView } from "@/views/Clips";
 import { SettingsView } from "@/views/Settings";
 import { JournalView } from "@/views/Journal";
+import { LifeView } from "@/views/Life";
+import { CanvasView } from "@/views/Canvas";
 import { useJournal, entriesOn } from "@/stores/journal";
+import { useLife } from "@/stores/life";
+import { useCanvas } from "@/stores/canvas";
+import { useActivity } from "@/stores/activity";
 import { useUpdater } from "@/lib/updater";
 import { useElementWidth } from "@/lib/useElementWidth";
 import { cn } from "@/lib/ids";
 import type { View } from "@/stores/ui";
 import { openExternal } from "@/lib/open";
 
-const VIEW_KEYS: Record<string, View> = { "1": "today", "2": "tasks", "3": "notes", "4": "journal", "5": "calendar", "6": "focus", "7": "habits", "8": "clips", "9": "stats" };
+const VIEW_KEYS: Record<string, View> = { "1": "today", "2": "tasks", "3": "notes", "4": "journal", "5": "calendar", "6": "focus", "7": "habits", "8": "life", "9": "clips", "0": "stats" };
+
+if (typeof window !== "undefined") {
+  (window as unknown as { __DAYFLIT__?: unknown }).__DAYFLIT__ = {
+    useUi,
+    useSettings,
+    useTasks,
+    useNotes,
+    useCanvas,
+    useHabits,
+    useLife,
+    useCalendar,
+    useFocus,
+    useClips,
+    useJournal,
+    useActivity,
+    ipc,
+  };
+}
 
 export default function App() {
   const [booted, setBooted] = useState(false);
@@ -56,8 +84,15 @@ export default function App() {
   const editingTaskId = useUi((s) => s.editingTaskId);
   const focused = useUi((s) => s.focused);
   const snap = useFocus((s) => s.snap);
+  const sidebarPinned = useUi((s) => s.sidebarPinned);
+  const sidebarCollapsed = useUi((s) => s.sidebarCollapsed);
   const [shellRef, width] = useElementWidth<HTMLDivElement>();
-  const compactNav = width > 0 && width < 560;
+  // 3-Stage Responsive Desktop Shell:
+  // 1. Wide Desktop (>= 960px): Full sidebar (unless user collapsed)
+  // 2. Compact Split-Screen (640px – 959px): Sleek 52px Icon Rail (unless user pinned full sidebar)
+  // 3. Narrow Focused Window (520px – 639px): Sleek 52px Icon Rail + Single-Pane Drill-Down
+  const currentWidth = width > 0 ? width : (typeof window !== "undefined" ? window.innerWidth : 1024);
+  const isRail = currentWidth < 960 ? !sidebarPinned : sidebarCollapsed;
   const [clipForPalette, setClipForPalette] = useState<RawClip | null>(null);
   const notified = useRef(new Set<string>());
 
@@ -67,8 +102,25 @@ export default function App() {
     (async () => {
       try {
         await useSettings.getState().load();
-        await Promise.all([useTasks.getState().load(), useNotes.getState().load(), useHabits.getState().load(), useClips.getState().load(), useCalendar.getState().load(), useFocus.getState().load(), useJournal.getState().load(), initImages()]);
-        await useMedia.getState().init();
+        await Promise.all([
+          useTasks.getState().load(),
+          useNotes.getState().load(),
+          useCanvas.getState().load(),
+          useHabits.getState().load(),
+          useLife.getState().load(),
+          useClips.getState().load(),
+          useCalendar.getState().load().catch((err) => {
+            void ipc.log(`[Startup] Calendar load failed: ${err}`);
+          }),
+          useFocus.getState().load(),
+          useJournal.getState().load(),
+          initImages().catch((err) => {
+            void ipc.log(`[Startup] initImages failed: ${err}`);
+          }),
+        ]);
+        await useMedia.getState().init().catch((err) => {
+          void ipc.log(`[Startup] Media init failed: ${err}`);
+        });
         if (cancelled) return;
         setBooted(true);
         const recovered = [useTasks.getState(), useNotes.getState(), useHabits.getState(), useClips.getState(), useSettings.getState()].map((s) => s.recoveredFrom).filter(Boolean);
@@ -77,7 +129,7 @@ export default function App() {
         if (useSettings.getState().settings.updates.autoCheck && isTauri) {
           window.setTimeout(() => {
             void useUpdater.getState().check(true).then((u) => {
-              if (u) useUi.getState().toast({ title: `Dayflit ${u.version} is available`, body: "Install it from Settings → Updates.", kind: "info", ttl: 20_000, action: { label: "Open", onClick: () => useUi.getState().navigate("settings", "updates") } });
+              if (u) useUi.getState().toast({ title: `DayFlit ${u.version} is available`, body: "Install it from Settings → Updates.", kind: "info", ttl: 20_000, action: { label: "Open", onClick: () => useUi.getState().navigate("settings", "updates") } });
             });
           }, 30_000);
         }
@@ -104,9 +156,20 @@ export default function App() {
     add(on<string>("sid://shortcut", (action) => {
       if (action === "focus-start") void useFocus.getState().start({});
     }));
-    add(on<string[]>("sid://store/reload", async () => {
-      await Promise.all([useTasks.getState().reload(), useNotes.getState().reload(), useHabits.getState().reload(), useClips.getState().reload(), useCalendar.getState().load(), useFocus.getState().reloadHistory(), useJournal.getState().reload(), useSettings.getState().load(), initImages()]);
-      useUi.getState().toast({ title: "Data reloaded", kind: "success" });
+    add(on<string[]>("sid://store/reload", async (cols) => {
+      cancelPending();
+      await Promise.all([
+        useTasks.getState().reload(),
+        useNotes.getState().reload(),
+        useHabits.getState().reload(),
+        useLife.getState().reload(),
+        useClips.getState().reload(),
+        useCalendar.getState().load(),
+        useFocus.getState().reloadHistory(),
+        useJournal.getState().reload(),
+        useSettings.getState().load(),
+        initImages(),
+      ]);
     }));
     add(on<RawClip | null>("sid://clipboard/capture", (c) => {
       setClipForPalette(c);
@@ -147,7 +210,7 @@ export default function App() {
   // Broadcast settings changes to helper windows (they re-read settings from disk).
   useEffect(() => {
     if (!booted || !isTauri) return;
-    const t = window.setTimeout(() => void emit("sid://settings/changed", null), 600);
+    const t = window.setTimeout(() => void emit("sid://settings/changed", settings), 100);
     return () => window.clearTimeout(t);
   }, [settings, booted]);
 
@@ -212,7 +275,6 @@ export default function App() {
           if (s.calendar.autoJoin && e.meeting && e.start <= now && e.start > now - 90_000 && !notified.current.has(jkey)) {
             notified.current.add(jkey);
             void openExternal(e.meeting.url);
-            useUi.getState().toast({ title: `Joined ${e.meeting.provider}`, body: e.title, kind: "info" });
           }
         }
       }
@@ -242,7 +304,7 @@ export default function App() {
           const key = `habit:${h.id}:${dateKey(d)}`;
           if (!notified.current.has(key)) {
             notified.current.add(key);
-            void notify(`${h.icon} ${h.name}`, "Time for your habit");
+            void notify(h.name, "Time for your habit");
           }
         }
       }
@@ -315,13 +377,36 @@ export default function App() {
 
   if (bootError) {
     return (
-      <div className="app-shell flex items-center justify-center p-6">
-        <div className="glass max-w-sm p-5 text-center">
-          <div className="font-semibold text-danger">Dayflit could not start</div>
-          <div className="selectable mt-2 text-[0.85em] text-muted">{bootError}</div>
-          <button className="btn mt-4" onClick={() => window.location.reload()}>
-            Retry
+      <div className="app-shell flex flex-col h-full w-full bg-bg">
+        <div
+          data-tauri-drag-region
+          className="flex h-10 items-center justify-between border-b hairline px-3.5 bg-surface/60"
+        >
+          <div className="flex items-center gap-2 text-xs font-medium text-muted">
+            <span className="h-2 w-2 rounded-full bg-danger animate-pulse" />
+            <span>DayFlit Startup</span>
+          </div>
+          <button
+            className="btn btn-ghost btn-icon btn-sm text-muted hover:!bg-danger/80 hover:!text-white"
+            aria-label="Close"
+            onClick={() => (isTauri ? void ipc.quit() : window.close())}
+          >
+            <X size={14} />
           </button>
+        </div>
+        <div className="flex flex-1 items-center justify-center p-6">
+          <div className="glass max-w-sm w-full p-5 text-center rounded-2xl border hairline shadow-lg">
+            <div className="font-semibold text-danger text-[1.05em]">DayFlit could not start</div>
+            <div className="selectable mt-2 text-[0.82em] text-muted leading-relaxed">{bootError}</div>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <button className="btn btn-primary btn-sm" onClick={() => window.location.reload()}>
+                Retry Startup
+              </button>
+              <button className="btn btn-sm" onClick={() => (isTauri ? void ipc.quit() : window.close())}>
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -335,34 +420,37 @@ export default function App() {
           <span className="h-5 w-5 animate-pulse rounded-full bg-accent/70" />
         </div>
       ) : (
-        <div className="relative flex min-h-0 flex-1">
-          {!compactNav && <Nav compact={false} />}
-          <div className={cn("relative min-w-0 flex-1", !compactNav && "border-l hairline")}>
-            <div className="h-full">
-              {view === "today" && <TodayView />}
-              {view === "tasks" && <TasksView />}
-              {view === "notes" && <NotesView />}
-              {view === "journal" && <JournalView />}
-              {view === "calendar" && <CalendarView />}
-              {view === "focus" && <FocusView />}
-              {view === "habits" && <HabitsView />}
-              {view === "stats" && <StatsView />}
-              {view === "clips" && <ClipsView />}
-              {view === "settings" && <SettingsView />}
-            </div>
+        <div className="relative flex min-h-0 flex-1 overflow-hidden">
+          <Nav rail={isRail} />
+          <div className="relative min-w-0 min-h-0 flex-1 h-full overflow-hidden">
+            <ViewStage viewKey={view} className="h-full w-full min-w-0 min-h-0">
+              {view === "today" && <ViewErrorBoundary viewName="Today"><TodayView /></ViewErrorBoundary>}
+              {view === "tasks" && <ViewErrorBoundary viewName="Tasks"><TasksView /></ViewErrorBoundary>}
+              {view === "notes" && <ViewErrorBoundary viewName="Notes"><NotesView /></ViewErrorBoundary>}
+              {view === "canvas" && <ViewErrorBoundary viewName="Canvas"><CanvasView /></ViewErrorBoundary>}
+              {view === "journal" && <ViewErrorBoundary viewName="Journal"><JournalView /></ViewErrorBoundary>}
+              {view === "calendar" && <ViewErrorBoundary viewName="Calendar"><CalendarView /></ViewErrorBoundary>}
+              {view === "focus" && <ViewErrorBoundary viewName="Focus"><FocusView /></ViewErrorBoundary>}
+              {view === "habits" && <ViewErrorBoundary viewName="Habits"><HabitsView /></ViewErrorBoundary>}
+              {view === "life" && <ViewErrorBoundary viewName="Life Library"><LifeView /></ViewErrorBoundary>}
+              {view === "stats" && <ViewErrorBoundary viewName="Statistics"><StatsView /></ViewErrorBoundary>}
+              {view === "clips" && <ViewErrorBoundary viewName="Clipboard Clips"><ClipsView /></ViewErrorBoundary>}
+              {view === "settings" && <ViewErrorBoundary viewName="Settings"><SettingsView /></ViewErrorBoundary>}
+            </ViewStage>
             {editingTaskId && <TaskEditor key={editingTaskId} taskId={editingTaskId} />}
           </div>
         </div>
       )}
-      {booted && compactNav && <Nav compact />}
       {paletteOpen && (
-        <div className="absolute inset-0 z-[65] flex items-start justify-center bg-black/30 px-4 pt-10 anim-fade" onMouseDown={closePalette}>
+        <div className="absolute inset-0 z-[65] flex items-start justify-center bg-black/35 px-4 pt-10" onMouseDown={closePalette}>
           <PaletteCore mode={paletteMode as "search"} data={collectPaletteData()} clip={clipForPalette} onAction={(a) => void runAction(a)} onClose={closePalette} refreshData={() => {}} />
         </div>
       )}
       <Toasts />
       <ConfirmDialog />
-      {booted && !settings.onboardingDone && <Onboarding />}
+      <PromptDialog />
+      <MediaLightbox />
+      {booted && !settings.onboardingDone && !(typeof window !== "undefined" && new URLSearchParams(window.location.search).get("onboarding") === "done") && <Onboarding />}
     </div>
   );
 }

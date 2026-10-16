@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { addDays, format, startOfDay } from "date-fns";
-import { ArrowRight, CalendarDays, Play, Sun, Video, Wand2 } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, Compass, Moon, Play, RotateCcw, Sparkles, Sun, Video, Wand2 } from "lucide-react";
 import { autoPlan, timeboxOf } from "@/components/Timeline";
 import { JournalTodayCard } from "@/views/Journal";
 import { MeetingPrep } from "@/components/MeetingPrep";
@@ -8,8 +8,10 @@ import { useTasks, todayTasks, overdueTasks, completedOn, sortTasks } from "@/st
 import { useHabits, habitsForDay, isDoneOn } from "@/stores/habits";
 import { useCalendar, eventsOnDay, nextMeeting } from "@/stores/calendar";
 import { useFocus, focusSecondsOn } from "@/stores/focus";
+import { useLife } from "@/stores/life";
 import { useSettings } from "@/stores/settings";
 import { useUi } from "@/stores/ui";
+import { uiSound } from "@/lib/audio";
 import { QuickAdd } from "@/components/QuickAdd";
 import { TaskItem } from "@/components/TaskItem";
 import { HabitRow } from "@/components/HabitRow";
@@ -20,6 +22,8 @@ import { Empty } from "@/components/Empty";
 import { dateKey, formatDuration } from "@/lib/dates";
 import { openExternal } from "@/lib/open";
 import { useNow } from "@/lib/useNow";
+import { cn } from "@/lib/ids";
+
 
 export function TodayView() {
   const now = useNow(30_000);
@@ -52,6 +56,73 @@ export function TodayView() {
   const greeting = hour < 5 ? "Night owl mode" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const total = due.length + done.length;
 
+  const lifeData = useLife((s) => s.data);
+  const domains = lifeData.domains;
+  const goals = lifeData.goals;
+  const projects = lifeData.projects;
+
+  const todaysDomainCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    due.forEach((t) => {
+      let dId = t.domainId;
+      if (!dId && t.goalId) {
+        dId = goals.find((g) => g.id === t.goalId)?.domainId || null;
+      }
+      if (!dId && t.projectId) {
+        dId = projects.find((p) => p.id === t.projectId)?.domainId || null;
+      }
+      if (dId && domains.some((d) => d.id === dId)) {
+        counts[dId] = (counts[dId] || 0) + 1;
+      }
+    });
+    todaysHabits.forEach((h) => {
+      let dId = h.domainId;
+      if (!dId && h.goalId) {
+        dId = goals.find((g) => g.id === h.goalId)?.domainId || null;
+      }
+      if (dId && domains.some((d) => d.id === dId)) {
+        counts[dId] = (counts[dId] || 0) + 1;
+      }
+    });
+    return Object.entries(counts)
+      .map(([id, count]) => {
+        const dom = domains.find((d) => d.id === id);
+        return dom ? { domain: dom, count } : null;
+      })
+      .filter(Boolean) as { domain: (typeof domains)[0]; count: number }[];
+  }, [due, todaysHabits, domains, goals, projects]);
+
+  const toast = useUi((s) => s.toast);
+  const updateTask = useTasks((s) => s.update);
+
+  // Sunsama-Style Daily Capacity Meter
+  const workdayEndHour = 18;
+  const currentHourDecimal = today.getHours() + today.getMinutes() / 60;
+  const remainingWorkdayHours = Math.max(0, Math.round((workdayEndHour - currentHourDecimal) * 10) / 10);
+  const plannedMins = due.reduce((acc, t) => acc + (t.estimateMin || 30), 0);
+  const plannedHours = Math.round((plannedMins / 60) * 10) / 10;
+  const capacityPercent = remainingWorkdayHours > 0 ? Math.min(100, Math.round((plannedHours / remainingWorkdayHours) * 100)) : 100;
+  const isOverCapacity = remainingWorkdayHours > 0 && plannedHours > remainingWorkdayHours;
+
+  const unfinishedTasks = useMemo(() => [...overdue, ...due], [overdue, due]);
+
+  const handleEveningWrapUp = () => {
+    if (unfinishedTasks.length === 0) {
+      toast({ title: "Evening Wrap-Up", body: "All tasks completed for today! Enjoy your evening.", kind: "success" });
+      return;
+    }
+    const tomorrowKey = dateKey(addDays(today, 1));
+    for (const t of unfinishedTasks) {
+      updateTask(t.id, { due: tomorrowKey });
+    }
+    uiSound("pop", 0.35);
+    toast({
+      title: "Evening Wrap-Up Complete",
+      body: `Rolled over ${unfinishedTasks.length} unfinished task${unfinishedTasks.length > 1 ? "s" : ""} to Tomorrow. Rest well!`,
+      kind: "success",
+    });
+  };
+
   return (
     <div className="scroll h-full px-4 pb-4">
       <div className="flex items-end justify-between pt-1">
@@ -73,6 +144,51 @@ export function TodayView() {
         </div>
       </div>
 
+      {/* Sunsama-Style Daily Capacity Meter & Evening Wrap-Up Ritual */}
+      <div className="mt-3 flex flex-col gap-2 rounded-2xl bg-surface-2/40 p-3.5 border hairline transition-all hover:bg-surface-2/60">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent/15 text-accent">
+              <Clock size={13} />
+            </span>
+            <span className="text-[0.82em] font-semibold text-text">Daily Capacity Meter</span>
+          </div>
+          <div className="text-[0.76em] text-muted tabular-nums">
+            <span className="font-semibold text-text">{plannedHours}h</span> planned ·{" "}
+            <span className="font-semibold text-text">{remainingWorkdayHours}h</span> remaining
+          </div>
+        </div>
+
+        {/* Capacity Bar */}
+        <div className="relative h-2 w-full overflow-hidden rounded-full bg-surface-3">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-500",
+              isOverCapacity ? "bg-amber-400" : "bg-accent",
+            )}
+            style={{ width: `${Math.min(100, Math.max(6, capacityPercent))}%` }}
+          />
+        </div>
+
+        <div className="mt-0.5 flex items-center justify-between text-[0.74em] gap-2 min-w-0">
+          <span className="text-muted truncate min-w-0 flex-1">
+            {isOverCapacity
+              ? "Careful: Planned tasks exceed remaining workday hours."
+              : remainingWorkdayHours === 0
+              ? "Workday complete. Time for evening wind-down!"
+              : `${remainingWorkdayHours}h of available focus time left.`}
+          </span>
+          <button
+            className="btn btn-ghost btn-sm flex items-center gap-1.5 text-[0.9em] font-medium text-accent hover:bg-accent/10 transition-colors shrink-0 whitespace-nowrap"
+            onClick={handleEveningWrapUp}
+            title="Roll over all unfinished tasks to tomorrow"
+          >
+            <Moon size={12} />
+            <span>Evening Wrap-Up<span className="hidden sm:inline"> / Roll Over</span></span>
+          </button>
+        </div>
+      </div>
+
       {meeting && (
         <button className="card card-hover anim-slide mt-3 flex w-full items-center gap-3 !border-accent/40 !bg-accent/10 px-3 py-2.5 text-left" onClick={() => void openExternal(meeting.meeting!.url)}>
           <Video size={18} className="shrink-0 text-accent" />
@@ -87,35 +203,82 @@ export function TodayView() {
       )}
       {meeting && <MeetingPrep ev={meeting} />}
 
+      {todaysDomainCounts.length > 0 && (
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-surface-2/40 px-3 py-2 border hairline text-[0.78em] transition-colors hover:bg-surface-2/70 min-w-0">
+          <div
+            className="flex items-center gap-2 overflow-x-auto overflow-y-hidden no-scrollbar min-w-0 flex-1 flex-nowrap"
+            onWheel={(e) => {
+              if (e.deltaY !== 0 && e.currentTarget.scrollWidth > e.currentTarget.clientWidth) {
+                e.currentTarget.scrollLeft += e.deltaY;
+              }
+            }}
+          >
+            <span className="flex items-center gap-1 font-semibold text-text shrink-0">
+              <Compass size={13} className="text-accent" /> Life Alignment
+            </span>
+            <div className="flex items-center gap-1.5">
+              {todaysDomainCounts.map(({ domain, count }) => (
+                <span
+                  key={domain.id}
+                  className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-medium shrink-0"
+                  style={{
+                    background: `color-mix(in srgb, ${domain.color} 15%, transparent)`,
+                    color: domain.color,
+                  }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: domain.color }} />
+                  {domain.name.split(" ")[0]} ({count})
+                </span>
+              ))}
+            </div>
+          </div>
+          <button
+            className="btn btn-ghost btn-sm flex items-center gap-1 text-[0.82em] text-muted hover:text-text shrink-0 ml-2"
+            onClick={() => navigate("life")}
+          >
+            Vision & Map <ArrowRight size={11} />
+          </button>
+        </div>
+      )}
+
       <div className="mt-3">
         {running ? (
           <div className="card p-3">
             <FocusPanel size={150} />
           </div>
         ) : (
-          <div className="flex gap-2">
-            <button className="btn flex-1 justify-start" onClick={() => navigate("focus")}>
-              <Play size={14} className="text-accent" /> Start a focus session
+          <div className="flex items-center justify-between rounded-xl bg-surface-2/40 px-3 py-2 border hairline transition-colors hover:bg-surface-2/70">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/15 text-accent">
+                <Play size={14} className="ml-0.5" />
+              </span>
+              <div>
+                <div className="text-[0.88em] font-medium leading-tight">Ready to focus?</div>
+                <div className="text-[0.74em] text-muted">Pomodoro or deep work block</div>
+              </div>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("focus")}>
+              Start Focus
             </button>
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex items-start gap-2">
+      <div className="mt-3 flex items-center gap-2">
         <div className="min-w-0 flex-1">
           <QuickAdd extra={{ due: key }} placeholder="Add a task for today…" />
         </div>
         {due.some((t) => !timeboxOf(t)) && (
           <button
-            className="btn shrink-0 !py-2"
+            className="btn btn-ghost btn-icon h-[38px] w-[38px] shrink-0 rounded-xl bg-surface-2/70 text-muted hover:text-accent hover:bg-surface-2"
             onClick={() => {
               const n = autoPlan(today, due, events, now, settings.calendar.dayEndHour, useTasks.getState().update);
               useUi.getState().toast({ title: n ? `Planned ${n} task${n === 1 ? "" : "s"} on the calendar` : "No room left today", kind: n ? "success" : "info", action: n ? { label: "Open", onClick: () => navigate("calendar") } : undefined });
             }}
             aria-label="Plan my day"
-            data-tip="Plan my day"
+            title="Auto-plan tasks on calendar"
           >
-            <Wand2 size={15} />
+            <Wand2 size={16} />
           </button>
         )}
       </div>

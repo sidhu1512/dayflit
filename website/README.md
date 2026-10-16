@@ -1,6 +1,6 @@
-# Sid website
+# DayFlit website
 
-Static marketing site for Sid. No framework at runtime: one HTML page, one stylesheet, one script, built with Vite.
+Static marketing site for DayFlit. No framework at runtime: one HTML page, one stylesheet, one script, built with Vite.
 
 ```
 cd website
@@ -11,7 +11,7 @@ npm run build    # → dist/ (deploy this folder anywhere static: Netlify, Verce
 
 ## Before launch
 Edit `src/config.js`:
-- `downloadUrl`, `releasesUrl`, `version`, `releaseDate`, `sha256` (from `certutil -hashfile Sid_x.y.z_x64-setup.exe SHA256`)
+- `downloadUrl`, `releasesUrl`, `version`, `releaseDate`, `sha256` (from `certutil -hashfile Dayflit_x.y.z_x64-setup.exe SHA256`)
 - `docsUrl`, `supportUrl`, `contactUrl`, `privacyUrl`, `sourceUrl`, `betaUrl`
 - `demoVideoUrl` (a local `public/demo.mp4` or a YouTube/Vimeo embed URL)
 - `analytics.plausibleDomain` (optional, privacy-friendly analytics; leave empty to disable)

@@ -84,7 +84,7 @@ export function FocusPanel({ size = 200 }: { size?: number }) {
                 </label>
                 <label className="flex items-center gap-1.5">
                   <span className="text-muted">×</span>
-                  <input type="number" className="input !w-14 !py-1" min={0} max={20} value={phases} onChange={(e) => setPhases(Math.max(0, parseInt(e.target.value, 10) || 0))} aria-label="Work blocks (0 = unlimited)" data-tip="Work blocks (0 = unlimited)" />
+                  <input type="number" className="input !w-14 !py-1" min={0} max={20} value={phases} onChange={(e) => setPhases(Math.max(0, parseInt(e.target.value, 10) || 0))} aria-label="Work blocks (0 = unlimited)" />
                 </label>
               </>
             )}
@@ -99,9 +99,6 @@ export function FocusPanel({ size = 200 }: { size?: number }) {
             </option>
           ))}
         </select>
-        <button className="btn btn-ghost btn-sm self-start text-muted" onClick={() => setShowOptions((v) => !v)}>
-          <ChevronDown size={13} className={cn("transition", showOptions && "rotate-180")} /> Options
-        </button>
         {showOptions && (
           <div className="card flex flex-col gap-2 p-3 text-[0.85em] anim-fade">
             <Row label="Auto-start breaks">
@@ -133,9 +130,14 @@ export function FocusPanel({ size = 200 }: { size?: number }) {
             </Row>
           </div>
         )}
-        <button className="btn btn-primary !py-2.5 text-[1em]" onClick={begin}>
-          <Play size={16} /> Start {PRESETS.find((p) => p.id === mode)?.label.toLowerCase()}
-        </button>
+        <div className="flex items-center justify-between pt-1">
+          <button className="btn btn-ghost btn-sm text-muted" onClick={() => setShowOptions((v) => !v)}>
+            <ChevronDown size={13} className={cn("transition-transform duration-200", showOptions && "rotate-180")} /> Options
+          </button>
+          <button className="btn btn-primary !px-5 !py-2 text-[0.92em] font-semibold" onClick={begin}>
+            <Play size={14} className="fill-current ml-0.5" /> Start {PRESETS.find((p) => p.id === mode)?.label}
+          </button>
+        </div>
       </div>
     );
   }
@@ -159,13 +161,13 @@ export function FocusPanel({ size = 200 }: { size?: number }) {
         </div>
       </ProgressRing>
       <div className="flex items-center gap-1.5">
-        <button className="btn btn-icon" onClick={() => void stop(false)} aria-label="Stop session" data-tip="Stop session">
+        <button className="btn btn-icon" onClick={() => void stop(false)} aria-label="Stop session">
           <Square size={16} />
         </button>
-        <button className={cn("btn btn-icon !h-12 !w-12 !rounded-full", s.status === "running" ? "" : "btn-primary pulse")} style={s.status !== "running" ? { animation: "pulse-ring 1.6s infinite" } : undefined} onClick={() => void (s.status === "running" ? pause() : resume())} aria-label={s.status === "running" ? "Pause" : s.status === "awaiting" ? "Start next" : "Resume"} data-tip={s.status === "running" ? "Pause" : s.status === "awaiting" ? "Start next" : "Resume"}>
+        <button className={cn("btn btn-icon !h-12 !w-12 !rounded-full", s.status === "running" ? "" : "btn-primary pulse")} style={s.status !== "running" ? { animation: "pulse-ring 1.6s infinite" } : undefined} onClick={() => void (s.status === "running" ? pause() : resume())} aria-label={s.status === "running" ? "Pause" : s.status === "awaiting" ? "Start next" : "Resume"}>
           {s.status === "running" ? <Pause size={20} /> : <Play size={20} className="ml-0.5" />}
         </button>
-        <button className="btn btn-icon" onClick={() => void skip()} aria-label={isBreak ? "Skip break" : "Skip to break"} data-tip={isBreak ? "Skip break" : "Skip to break"}>
+        <button className="btn btn-icon" onClick={() => void skip()} aria-label={isBreak ? "Skip break" : "Skip to break"}>
           <SkipForward size={16} />
         </button>
       </div>
@@ -181,11 +183,11 @@ export function FocusPanel({ size = 200 }: { size?: number }) {
           </>
         )}
         {isTauri && (
-          <button className="btn btn-sm" onClick={() => void ipc.togglePip()} aria-label="Floating timer" data-tip="Floating timer">
+          <button className="btn btn-sm" onClick={() => void ipc.togglePip()} aria-label="Floating timer">
             <PictureInPicture2 size={13} />
           </button>
         )}
-        <button className={cn("btn btn-sm", ambientOn && "btn-primary")} onClick={() => setAmbient(!ambientOn)} aria-label="Ambient sound" data-tip="Ambient sound">
+        <button className={cn("btn btn-sm", ambientOn && "btn-primary")} onClick={() => setAmbient(!ambientOn)} aria-label="Ambient sound">
           <Volume2 size={13} /> {AMBIENT_OPTIONS.find((o) => o.id === settings.focus.ambient.kind)?.name ?? "Ambient"}
         </button>
         {ambientOn && (

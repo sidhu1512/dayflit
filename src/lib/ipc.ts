@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
+  ActivitySession,
   CalEvent,
   CalendarSource,
   Clip,
@@ -46,6 +47,7 @@ export interface ExportReport {
   sessions: number;
   clips: number;
   attachments: number;
+  life?: number;
 }
 
 export interface SyncStatus {
@@ -165,6 +167,12 @@ export const ipc = {
   notificationState: () => call<string>("system_notification_state"),
   setLockBehavior: (pauseOnLock: boolean, resumeOnUnlock: boolean) => call<void>("system_set_lock_behavior", { pauseOnLock, resumeOnUnlock }),
 
+  // activity timeline
+  activityGetSessions: () => call<ActivitySession[]>("activity_get_sessions"),
+  activitySetPaused: (paused: boolean) => call<void>("activity_set_paused", { paused }),
+  activityIsPaused: () => call<boolean>("activity_is_paused"),
+  activityClear: () => call<void>("activity_clear"),
+
   // clipboard
   clipboardSetMonitoring: (enabled: boolean, captureImages: boolean, ignored: string[]) =>
     call<void>("clipboard_set_monitoring", { enabled, captureImages, ignored }),
@@ -186,6 +194,7 @@ export const ipc = {
   syncDelete: (id: string) => call<void>("sync_delete", { id }),
   detectMeeting: (text: string) => call<MeetingLink | null>("calendar_detect_meeting", { text }),
   linkPreview: (url: string) => call<LinkPreview>("link_preview", { url }),
+  scrapeLinkMetadata: (url: string) => call<LinkPreview>("link_preview", { url }),
   linkSeed: (items: LinkPreview[]) => call<void>("link_seed", { items }),
 
   // windows
@@ -202,6 +211,8 @@ export const ipc = {
   showPip: () => call<void>("window_show_pip"),
   hidePip: () => call<void>("window_hide_pip"),
   togglePip: () => call<boolean>("window_toggle_pip"),
+  adjustPip: (width: number, height: number) => call<void>("window_adjust_pip", { width, height }),
+  snapPipTopCenter: () => call<void>("window_snap_pip_top_center"),
   showPalette: (mode: string) => call<void>("window_show_palette", { mode }),
   hidePalette: () => call<void>("window_hide_palette"),
   windowState: () => call<WindowStateInfo>("window_get_state"),
@@ -224,6 +235,7 @@ export const ipc = {
   distractionSetConfig: (enabled: boolean, apps: string[], keywords: string[], cooldownMin: number, sound: boolean, detectFullscreen: boolean) =>
     call<void>("distraction_set_config", { enabled, apps, keywords, cooldownMin, sound, detectFullscreen }),
   hideVoice: () => call<void>("window_hide_voice"),
+  resizeVoice: (width: number, height: number) => call<void>("window_resize_voice", { width, height }),
 
   // misc
   soundPlay: (name: string, volume: number) => call<void>("sound_play", { name, volume }),

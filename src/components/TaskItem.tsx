@@ -5,6 +5,7 @@ import { formatDue, formatDuration, isOverdue, isDueToday } from "@/lib/dates";
 import { useTasks } from "@/stores/tasks";
 import { useUi } from "@/stores/ui";
 import { useFocus } from "@/stores/focus";
+import { useLife } from "@/stores/life";
 import { uiSound } from "@/lib/audio";
 import { describeRecurrence } from "@/lib/recurrence";
 import { cn } from "@/lib/ids";
@@ -28,15 +29,26 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
   const toast = useUi((s) => s.toast);
   const startForTask = useFocus((s) => s.startForTask);
   const [menu, setMenu] = useState(false);
+  const [menuPlacement, setMenuPlacement] = useState<"down" | "up">("down");
   const done = task.status === "done";
   const overdue = !done && isOverdue(task.due, task.hasTime);
   const today = !done && isDueToday(task.due);
   const subDone = task.subtasks.filter((s) => s.done).length;
+  const domain = useLife((s) => (task.domainId ? s.data.domains.find((d) => d.id === task.domainId) : undefined));
 
   const onToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!done) uiSound("complete", 0.35);
     toggle(task.id);
+  };
+
+  const handleOpenMenu = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (window.innerHeight - rect.bottom < 260) {
+      setMenuPlacement("up");
+    } else {
+      setMenuPlacement("down");
+    }
   };
 
   const snoozeOptions = [
@@ -58,6 +70,7 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
       onDrop={onDrop}
       onContextMenu={(e) => {
         e.preventDefault();
+        handleOpenMenu(e);
         setMenu(true);
       }}
     >
@@ -67,7 +80,7 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
       </button>
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-1.5">
-          <div className="task-title min-w-0 flex-1 truncate text-[0.95em] leading-snug">{task.title}</div>
+          <div className="task-title min-w-0 flex-1 line-clamp-2 break-words text-[0.95em] leading-snug">{task.title}</div>
           {task.pinned && <Pin size={12} className="mt-1 shrink-0 text-accent" />}
         </div>
         {(task.due || task.tags.length > 0 || task.recurrence || task.estimateMin || task.subtasks.length > 0 || (showList && task.list) || task.focusSecs > 0 || task.snoozedUntil) && (
@@ -108,8 +121,20 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
               </span>
             )}
             {showList && task.list && <span className="text-faint">{task.list}</span>}
+            {domain && (
+              <span
+                className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[0.72em] font-medium"
+                style={{
+                  background: `color-mix(in srgb, ${domain.color} 14%, transparent)`,
+                  color: domain.color,
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: domain.color }} />
+                {domain.name.split(" ")[0]}
+              </span>
+            )}
             {task.tags.map((t) => (
-              <span key={t} className="text-faint">
+              <span key={t} className="inline-flex items-center rounded-md bg-surface-2/80 px-1.5 py-0.5 text-[0.72em] font-medium text-muted hover:text-accent transition-colors">
                 #{t}
               </span>
             ))}
@@ -120,7 +145,7 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
         {!done && (
           <button
             className="btn btn-ghost btn-icon btn-sm text-muted"
-            aria-label="Focus on this task" data-tip="Focus on this task"
+            aria-label="Focus on this task"
             onClick={(e) => {
               e.stopPropagation();
               void startForTask(task.id);
@@ -131,7 +156,7 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
         )}
         <button
           className="btn btn-ghost btn-icon btn-sm text-muted"
-          aria-label="Edit" data-tip="Edit"
+          aria-label="Edit"
           onClick={(e) => {
             e.stopPropagation();
             setEditing(task.id);
@@ -141,9 +166,10 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
         </button>
         <button
           className="btn btn-ghost btn-icon btn-sm text-muted"
-          aria-label="More" data-tip="More"
+          aria-label="More"
           onClick={(e) => {
             e.stopPropagation();
+            handleOpenMenu(e);
             setMenu((m) => !m);
           }}
         >
@@ -153,7 +179,14 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
       {menu && (
         <>
           <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setMenu(false); }} onContextMenu={(e) => { e.preventDefault(); setMenu(false); }} />
-          <div className="glass anim-pop absolute right-2 top-full z-50 mt-1 w-48 p-1 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className={cn(
+              "glass anim-pop absolute right-2 z-50 w-48 rounded-xl p-1 shadow-xl",
+              menuPlacement === "up" ? "bottom-full mb-1" : "top-full mt-1"
+            )}
+            style={{ transformOrigin: menuPlacement === "up" ? "bottom right" : "top right" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <MenuItem icon={<Pencil size={13} />} label="Edit" onClick={() => { setMenu(false); setEditing(task.id); }} />
             {!done && <MenuItem icon={<Play size={13} />} label="Start focus" onClick={() => { setMenu(false); void startForTask(task.id); }} />}
             <MenuItem icon={<Pin size={13} />} label={task.pinned ? "Unpin" : "Pin to top"} onClick={() => { setMenu(false); update(task.id, { pinned: !task.pinned }); }} />
@@ -175,7 +208,6 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
                           until = d.getTime();
                         } else until = Date.now() + o.ms;
                         update(task.id, { snoozedUntil: until });
-                        toast({ title: "Snoozed", body: `Hidden until ${o.label.toLowerCase()}`, kind: "info" });
                       }}
                     >
                       {o.label}
@@ -206,9 +238,9 @@ export const TaskItem = memo(function TaskItem({ task, selected, dense, showList
 
 function MenuItem({ icon, label, onClick, danger }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   return (
-    <button className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[0.88em] hover:bg-surface-2", danger && "text-danger")} onClick={onClick}>
+    <button className={cn("flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[0.85em] transition-colors hover:bg-surface-2/80 active:scale-[0.98]", danger && "text-danger hover:!bg-danger/10")} onClick={onClick}>
       {icon}
-      {label}
+      <span>{label}</span>
     </button>
   );
 }

@@ -2,8 +2,8 @@
 export const SITE = {
   version: "1.0.0",
   releaseDate: "October 2026",
-  installerSize: "3.7 MB",
-  sha256: "955a2f3ade41f34584e5cd463cd37042d24d9440e6dd8967ad3d715837622053",
+  installerSize: "3.8 MB",
+  sha256: "dfb50ebd3b64b14030e0187ff4bd54327ef1493260ced079cbf7e90d0bddae70",
   downloadUrl: "https://github.com/sidhu1512/dayflit/releases/latest/download/Dayflit_1.0.0_x64-setup.exe",
   releasesUrl: "https://github.com/sidhu1512/dayflit/releases",
   betaUrl: "",

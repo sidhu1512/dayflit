@@ -75,21 +75,21 @@ pub fn run() {
             app.manage(engine);
             system::start(handle.clone());
             media::start_poller(handle.clone());
-            log::info!("Dayflit starting; data dir {}", store.data_dir().display());
+            log::info!("DayFlit starting; data dir {}", store.data_dir().display());
 
             // Tray
-            let show = MenuItemBuilder::with_id("show", "Open Dayflit").build(app)?;
+            let show = MenuItemBuilder::with_id("show", "Open DayFlit").build(app)?;
             let capture = MenuItemBuilder::with_id("palette", "Quick capture…").build(app)?;
             let focus_toggle = MenuItemBuilder::with_id("focus-toggle", "Start / pause focus").build(app)?;
             let pip = MenuItemBuilder::with_id("pip-toggle", "Floating timer").build(app)?;
             let bubble = MenuItemBuilder::with_id("bubble-toggle", "Collapse to bubble").build(app)?;
             let settings = MenuItemBuilder::with_id("settings", "Settings").build(app)?;
-            let quit = MenuItemBuilder::with_id("quit", "Quit Dayflit").build(app)?;
+            let quit = MenuItemBuilder::with_id("quit", "Quit DayFlit").build(app)?;
             let menu = MenuBuilder::new(app).items(&[&show, &capture, &focus_toggle, &pip, &bubble]).separator().items(&[&settings]).separator().items(&[&quit]).build()?;
             let icon = app.default_window_icon().cloned().expect("icon");
             TrayIconBuilder::with_id("main")
                 .icon(icon)
-                .tooltip("Dayflit")
+                .tooltip("DayFlit")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, ev| match ev.id().as_ref() {
@@ -152,24 +152,38 @@ pub fn run() {
             let app = window.app_handle();
             match event {
                 WindowEvent::CloseRequested { api, .. } => {
+                    api.prevent_close();
                     if window.label() == "main" {
                         let behavior = app.state::<CloseBehavior>().0.lock().clone();
-                        match behavior.as_str() {
-                            "quit" => {
-                                windows::remember_main(window);
-                                windows::flush_now();
-                            }
-                            "tray" => {
-                                api.prevent_close();
-                                windows::hide_main(app);
-                            }
-                            _ => {
-                                api.prevent_close();
-                                windows::minimize_to_bubble(app);
+                        let pip_open = app.get_webview_window("pip").map(|w| w.is_visible().unwrap_or(false)).unwrap_or(false);
+                        let bubble_open = app.get_webview_window("bubble").map(|w| w.is_visible().unwrap_or(false)).unwrap_or(false);
+
+                        if pip_open {
+                            // When Dynamic Island (pip) is active, closing the main window keeps the island active
+                            // and safely hides main so it can be restored instantly without recreating WebView2 or popping up the bubble.
+                            windows::remember_main(window);
+                            windows::hide_main(app);
+                        } else {
+                            match behavior.as_str() {
+                                "quit" => {
+                                    if bubble_open {
+                                        windows::remember_main(window);
+                                        windows::hide_main(app);
+                                    } else {
+                                        windows::remember_main(window);
+                                        windows::flush_now();
+                                        app.exit(0);
+                                    }
+                                }
+                                "tray" => {
+                                    windows::hide_main(app);
+                                }
+                                _ => {
+                                    windows::minimize_to_bubble(app);
+                                }
                             }
                         }
                     } else {
-                        api.prevent_close();
                         let _ = window.hide();
                     }
                 }
@@ -265,6 +279,8 @@ pub fn run() {
             commands::window_show_pip,
             commands::window_hide_pip,
             commands::window_toggle_pip,
+            commands::window_adjust_pip,
+            commands::window_snap_pip_top_center,
             commands::window_show_palette,
             commands::window_hide_palette,
             commands::window_get_state,
@@ -280,9 +296,14 @@ pub fn run() {
             commands::voice_set_config,
             commands::window_show_voice,
             commands::window_hide_voice,
+            commands::window_resize_voice,
             commands::window_hide_nudge,
             commands::nudge_snooze,
             commands::distraction_set_config,
+            commands::activity_get_sessions,
+            commands::activity_set_paused,
+            commands::activity_is_paused,
+            commands::activity_clear,
             commands::sound_play,
             commands::shortcuts_apply,
             commands::app_quit,
@@ -290,7 +311,7 @@ pub fn run() {
             commands::app_info,
         ])
         .build(tauri::generate_context!())
-        .expect("error while building Dayflit")
+        .expect("error while building DayFlit")
         .run(|_app, event| {
             if let tauri::RunEvent::Exit = event {
                 windows::flush_now();

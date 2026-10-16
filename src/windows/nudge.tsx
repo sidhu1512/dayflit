@@ -8,6 +8,7 @@ import type { Settings } from "@/lib/types";
 import { applyTheme } from "@/lib/themes";
 import { loadCollection } from "@/lib/persist";
 import { defaultSettings } from "@/stores/settings";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface Nudge {
   app: string;
@@ -42,17 +43,47 @@ function NudgeWindow() {
     const el = rootRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      const h = Math.max(56, Math.ceil(el.getBoundingClientRect().height) + 12);
-      void getCurrentWindow().setSize(new LogicalSize(480, h)).catch(() => {});
+      const h = Math.max(54, Math.ceil(el.getBoundingClientRect().height) + 40);
+      void getCurrentWindow().setSize(new LogicalSize(516, h)).catch(() => {});
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  // Escape to close nudge
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        void ipc.hideNudge();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const drag = async (e: React.MouseEvent) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
+    try {
+      await getCurrentWindow().startDragging();
+    } catch {
+      /* ignore */
+    }
+  };
+
   const mins = Math.max(1, Math.round(left / 60));
   return (
-    <div className="w-full p-1.5">
-      <div ref={rootRef} className="glass flex items-center gap-3 !rounded-2xl px-3.5 py-2.5 shadow-2xl anim-slide" style={{ background: "rgb(var(--bg) / 0.95)" }}>
+    <div className="w-fit select-none flex justify-center p-5 bg-transparent">
+      <div
+        ref={rootRef}
+        data-tauri-drag-region
+        className="glass flex items-center gap-3 !rounded-2xl px-3.5 py-2.5 anim-slide select-none w-[476px]"
+        style={{
+          background: "rgb(var(--bg) / 0.95)",
+          boxShadow: "0 0 0 1px rgb(var(--border) / 0.12), 0 8px 24px -2px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25)",
+        }}
+        onMouseDown={drag}
+      >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent">
           <Timer size={17} />
         </div>
@@ -63,9 +94,9 @@ function NudgeWindow() {
           </div>
         </div>
         <button className="btn btn-ghost btn-sm text-[0.8em] text-muted" onClick={() => { void ipc.showMain(); void ipc.hideNudge(); }}>
-          Back to Dayflit
+          Back to DayFlit
         </button>
-        <button className="btn btn-ghost btn-icon btn-sm text-faint" onClick={() => void ipc.nudgeSnooze()} aria-label="Snooze reminders for this session" data-tip="Snooze for this session" data-tip-pos="top">
+        <button className="btn btn-ghost btn-icon btn-sm text-faint" onClick={() => void ipc.nudgeSnooze()} aria-label="Snooze reminders for this session">
           <BellOff size={14} />
         </button>
         <button className="btn btn-ghost btn-icon btn-sm text-faint" onClick={() => void ipc.hideNudge()} aria-label="Dismiss">
@@ -78,6 +109,8 @@ function NudgeWindow() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <NudgeWindow />
+    <ErrorBoundary fallbackTitle="Nudge Error">
+      <NudgeWindow />
+    </ErrorBoundary>
   </StrictMode>,
 );

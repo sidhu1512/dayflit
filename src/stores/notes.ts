@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { uid } from "@/lib/ids";
 import { loadCollection, scheduleSave } from "@/lib/persist";
 import { extractTags } from "@/lib/nlp";
-import { firstLineTitle } from "@/lib/markdown";
+import { firstLineTitle, extractCleanTitleAndExcerpt } from "@/lib/markdown";
 import type { CaptureSource, Note } from "@/lib/types";
 
 export type NoteInput = Partial<Omit<Note, "id" | "createdAt" | "updatedAt">>;
@@ -22,6 +22,7 @@ interface NotesState {
   togglePin: (id: string) => void;
   archive: (id: string, archived?: boolean) => void;
   addImage: (id: string, name: string) => void;
+  removeAttachment: (id: string, name: string) => void;
   byId: (id: string) => Note | undefined;
 }
 
@@ -40,6 +41,7 @@ export function makeNote(input: NoteInput = {}): Note {
     updatedAt: t,
     images: input.images ?? [],
     source: input.source ?? null,
+    domainId: input.domainId ?? null,
   };
 }
 
@@ -71,19 +73,53 @@ export const useNotes = create<NotesState>((set, get) => {
       persist([n, ...get().notes]);
       return n;
     },
-    update: (id, patch) => persist(get().notes.map((n) => (n.id === id ? { ...n, ...patch, updatedAt: Date.now() } : n))),
+    update: (id, patch) =>
+      persist(
+        get().notes.map((n) => {
+          if (n.id !== id) return n;
+          const body = patch.body !== undefined ? patch.body : n.body;
+          const images =
+            patch.images !== undefined
+              ? patch.images
+              : patch.body !== undefined
+                ? [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))]
+                : n.images;
+          const tags =
+            patch.tags !== undefined
+              ? patch.tags
+              : patch.body !== undefined
+                ? extractTags(body)
+                : n.tags;
+          return { ...n, ...patch, body, images, tags, updatedAt: Date.now() };
+        }),
+      ),
     setBody: (id, body) => {
       const n = get().byId(id);
       if (!n || n.body === body) return;
       const tags = extractTags(body);
       const images = [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))];
+      const removed = (n.images ?? []).filter((im) => !images.includes(im));
+      if (removed.length) {
+        import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+          removed.forEach((img) => void deleteImageIfUnused(img));
+        }).catch(() => {});
+      }
       get().update(id, { body, tags, images, title: n.title || "" });
     },
     remove: (id) => {
       const n = get().byId(id);
       if (!n) return;
-      set({ trash: [...get().trash.slice(-9), n] });
+      const currentTrash = get().trash;
+      const dropped = currentTrash.length >= 10 ? currentTrash.slice(0, currentTrash.length - 9) : [];
+      set({ trash: [...currentTrash.slice(-9), n] });
       persist(get().notes.filter((x) => x.id !== id));
+      if (dropped.length) {
+        import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+          for (const d of dropped) {
+            d.images?.forEach((img) => void deleteImageIfUnused(img));
+          }
+        }).catch(() => {});
+      }
     },
     restoreLast: () => {
       const t = get().trash;
@@ -102,12 +138,27 @@ export const useNotes = create<NotesState>((set, get) => {
       const n = get().byId(id);
       if (n) get().update(id, { images: [...new Set([...n.images, name])] });
     },
+    removeAttachment: (id, name) => {
+      const n = get().byId(id);
+      if (!n) return;
+      const safe = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(`!\\[[^\\]]*\\]\\(dayflit-image://${safe}\\)\\s*`, "g");
+      const nextBody = n.body.replace(re, "").trim();
+      const nextImages = n.images.filter((img) => img !== name);
+      get().update(id, { body: nextBody, images: nextImages });
+      void import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => deleteImageIfUnused(name));
+    },
     byId: (id) => get().notes.find((n) => n.id === id),
   };
 });
 
 export function noteTitle(n: Note): string {
-  return n.title.trim() || firstLineTitle(n.body) || "Untitled";
+  const { title } = extractCleanTitleAndExcerpt(n.body, n.title, {
+    hasImages: Array.isArray(n.images) && n.images.length > 0,
+    defaultImageTitle: "Image Note",
+    date: n.createdAt,
+  });
+  return title;
 }
 
 export function sourceFromCapture(s: { app: string; title: string; exe?: string; url?: string }): CaptureSource {

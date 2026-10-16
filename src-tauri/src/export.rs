@@ -30,6 +30,7 @@ pub struct ExportReport {
     pub sessions: usize,
     pub clips: usize,
     pub attachments: usize,
+    pub life: usize,
 }
 
 fn s(v: &Value, k: &str) -> String {
@@ -57,10 +58,21 @@ fn safe_name(title: &str, fallback: &str) -> String {
     let cleaned: String = title.chars().map(|c| if r#"\/:*?"<>|"#.contains(c) || c.is_control() { ' ' } else { c }).collect::<String>().split_whitespace().collect::<Vec<_>>().join(" ");
     let trimmed = cleaned.trim_matches('.').trim();
     if trimmed.is_empty() {
-        fallback.to_string()
-    } else {
-        trimmed.chars().take(80).collect()
+        return fallback.to_string();
     }
+    let stem = trimmed.to_ascii_uppercase();
+    const RESERVED_NAMES: &[&str] = &[
+        "CON", "PRN", "AUX", "NUL",
+        "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+        "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+        "CONIN$", "CONOUT$",
+    ];
+    let sanitized = if RESERVED_NAMES.contains(&stem.as_str()) {
+        format!("{trimmed}_file")
+    } else {
+        trimmed.to_string()
+    };
+    sanitized.chars().take(80).collect()
 }
 fn unique(dir: &Path, base: &str, used: &mut HashSet<String>) -> PathBuf {
     let mut name = format!("{base}.md");
@@ -102,7 +114,7 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
         return Err(anyhow!("choose a folder"));
     }
     fs::create_dir_all(dir)?;
-    let mut report = ExportReport { dir: dir.to_string_lossy().into(), notes: 0, journal: 0, tasks: 0, habits: 0, sessions: 0, clips: 0, attachments: 0 };
+    let mut report = ExportReport { dir: dir.to_string_lossy().into(), notes: 0, journal: 0, tasks: 0, habits: 0, sessions: 0, clips: 0, attachments: 0, life: 0 };
     let mut referenced: HashSet<String> = HashSet::new();
     let collect_refs = |body: &str, set: &mut HashSet<String>| {
         for m in body.split("dayflit-image://").skip(1) {
@@ -132,7 +144,7 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
                 ("tags", tags_yaml(&tags)),
                 ("pinned", b(note, "pinned").to_string()),
                 ("archived", b(note, "archived").to_string()),
-                ("source", yaml_str("sid-note")),
+                ("source", yaml_str("dayflit-note")),
             ]);
             if !title.is_empty() {
                 md.push_str(&format!("# {title}\n\n"));
@@ -224,9 +236,13 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
         let mut out = format!("- [{}] {}{}\n", if done { "x" } else { " " }, s(t, "title"), if meta.is_empty() { String::new() } else { format!("  {}", meta.join(" ")) });
         let notes = s(t, "notes");
         if !notes.trim().is_empty() {
-            for l in notes.lines() {
+            let rewritten = rewrite_links(&notes, 1);
+            for l in rewritten.lines() {
                 out.push_str(&format!("    {l}\n"));
             }
+        }
+        for img in strs(t, "images") {
+            out.push_str(&format!("    - ![](../attachments/{img})\n"));
         }
         for st in arr(t, "subtasks") {
             out.push_str(&format!("    - [{}] {}\n", if b(st, "done") { "x" } else { " " }, s(st, "title")));
@@ -338,6 +354,108 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
     }
     fs::write(clips_dir.join("Clips.md"), cmd)?;
 
+    // ---- Life Vision & Pillars
+    let life = load(store, "life");
+    let domains: Vec<Value> = arr(&life, "domains").into_iter().cloned().collect();
+    if !domains.is_empty() {
+        let life_dir = dir.join("Life");
+        fs::create_dir_all(&life_dir)?;
+        let pillars_dir = life_dir.join("Pillars");
+        fs::create_dir_all(&pillars_dir)?;
+        let goals: Vec<Value> = arr(&life, "goals").into_iter().cloned().collect();
+        let projects: Vec<Value> = arr(&life, "projects").into_iter().cloned().collect();
+        let assessments: Vec<Value> = arr(&life, "assessments").into_iter().cloned().collect();
+
+        for d in &domains {
+            let id = s(d, "id");
+            let name = s(d, "name");
+            let score = n(d, "score");
+            let target_score = n(d, "targetScore");
+            let tagline = s(d, "tagline");
+            let desc = s(d, "description");
+            let reflection = s(d, "reflection");
+            let principles = strs(d, "principles");
+            let d_goals: Vec<&Value> = goals.iter().filter(|g| s(g, "domainId") == id).collect();
+            let d_projects: Vec<&Value> = projects.iter().filter(|p| s(p, "domainId") == id).collect();
+            let d_resources = arr(d, "resources");
+
+            let mut md = frontmatter(&[
+                ("pillar", yaml_str(&name)),
+                ("score", score.to_string()),
+                ("targetScore", target_score.to_string()),
+                ("tagline", yaml_str(&tagline)),
+            ]);
+            md.push_str(&format!("# {name}\n\n"));
+            if !tagline.is_empty() {
+                md.push_str(&format!("> {tagline}\n\n"));
+            }
+            if !desc.is_empty() {
+                md.push_str(&format!("## Philosophy\n\n{desc}\n\n"));
+            }
+            if !reflection.is_empty() {
+                collect_refs(&reflection, &mut referenced);
+                let rewritten = rewrite_links(&reflection, 2);
+                md.push_str(&format!("## Reflection\n\n{rewritten}\n\n"));
+            }
+            if !principles.is_empty() {
+                md.push_str("## Core Principles\n\n");
+                for p in principles {
+                    md.push_str(&format!("- {p}\n"));
+                }
+                md.push('\n');
+            }
+            if !d_goals.is_empty() {
+                md.push_str("## Goals\n\n");
+                for g in d_goals {
+                    let prog = n(g, "progress");
+                    md.push_str(&format!("- **{}** ({}%) · {}\n", s(g, "title"), prog, s(g, "status")));
+                }
+                md.push('\n');
+            }
+            if !d_projects.is_empty() {
+                md.push_str("## Projects\n\n");
+                for p in d_projects {
+                    md.push_str(&format!("- **{}** [{}]\n", s(p, "title"), s(p, "status")));
+                }
+                md.push('\n');
+            }
+            if !d_resources.is_empty() {
+                md.push_str("## Wisdom Vault\n\n");
+                for r in d_resources {
+                    let content = s(r, "content");
+                    collect_refs(&content, &mut referenced);
+                    let rewritten = rewrite_links(&content, 2);
+                    md.push_str(&format!("- **{}** (_{}_): {}\n", s(r, "title"), s(r, "type"), rewritten));
+                }
+                md.push('\n');
+            }
+            let safe_p = safe_name(&name, "Pillar");
+            fs::write(pillars_dir.join(format!("{safe_p}.md")), md)?;
+            report.life += 1;
+        }
+
+        // Life/Life.md overview
+        let mut life_summary = String::from("# Life Vision & Alignment\n\n");
+        life_summary.push_str("| Pillar | Score | Target | Goals | Projects |\n|---|---|---|---|---|\n");
+        for d in &domains {
+            let id = s(d, "id");
+            let d_goals_count = goals.iter().filter(|g| s(g, "domainId") == id).count();
+            let d_proj_count = projects.iter().filter(|p| s(p, "domainId") == id).count();
+            life_summary.push_str(&format!("| [[Pillars/{}|{}]] | {}/10 | {}/10 | {} | {} |\n", safe_name(&s(d, "name"), "Pillar"), s(d, "name"), n(d, "score"), n(d, "targetScore"), d_goals_count, d_proj_count));
+        }
+        life_summary.push('\n');
+        if !assessments.is_empty() {
+            life_summary.push_str("## Wheel of Life Assessments\n\n| Date | Notes |\n|---|---|\n");
+            for a in assessments {
+                let notes = s(&a, "reflectionNotes");
+                collect_refs(&notes, &mut referenced);
+                life_summary.push_str(&format!("| {} | {} |\n", s(&a, "date"), rewrite_links(&notes, 1).replace('|', "/")));
+            }
+            life_summary.push('\n');
+        }
+        fs::write(life_dir.join("Life.md"), life_summary)?;
+    }
+
     // ---- Attachments
     let att = dir.join("attachments");
     fs::create_dir_all(&att)?;
@@ -354,7 +472,7 @@ pub fn export_markdown(store: &Store, dir: &Path) -> Result<ExportReport> {
     fs::write(
         dir.join("README.md"),
         format!(
-            "# Sid export\n\nExported {} from Sid.\n\n- `Notes/` – one Markdown file per note (front matter: tags, created, updated)\n- `Journal/<year>/` – one file per entry, named by date\n- `Tasks/` – open, someday and completed tasks as Markdown checklists\n- `Habits/` – habit definitions and check-in logs\n- `Focus/` – focus session history\n- `Clips/` – clipboard captures\n- `attachments/` – images and voice memos referenced from the files above\n\nEverything is plain Markdown. Open this folder as an Obsidian vault to get backlinks, tags and search.\n",
+            "# DayFlit export\n\nExported {} from DayFlit.\n\n- `Notes/` – one Markdown file per note (front matter: tags, created, updated)\n- `Journal/<year>/` – one file per entry, named by date\n- `Tasks/` – open, someday and completed tasks as Markdown checklists\n- `Habits/` – habit definitions and check-in logs\n- `Life/` – life pillars, operating principles, goals, projects, and wheel assessments\n- `Focus/` – focus session history\n- `Clips/` – clipboard captures\n- `attachments/` – images and voice memos referenced from the files above\n\nEverything is plain Markdown. Open this folder as an Obsidian vault to get backlinks, tags and search.\n",
             now.format("%Y-%m-%d %H:%M")
         ),
     )

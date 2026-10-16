@@ -9,6 +9,7 @@ import type { PaletteAction, PaletteData } from "@/lib/actions";
 import { applyTheme } from "@/lib/themes";
 import { loadCollection } from "@/lib/persist";
 import { defaultSettings } from "@/stores/settings";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PaletteCore, type PaletteMode } from "@/components/CommandPalette";
 
 function PaletteWindow() {
@@ -31,26 +32,34 @@ function PaletteWindow() {
       setMode(mm);
       setGen((g) => g + 1);
       requestData();
-      if (mm === "capture") void ipc.clipboardReadNow().then(setClip).catch(() => setClip(null));
+      if (mm === "capture") {
+        setClip((prev) => {
+          if (prev && Date.now() - (prev.at || 0) < 5000) return prev;
+          void ipc.clipboardReadNow().then(setClip).catch(() => setClip(null));
+          return prev;
+        });
+      }
     }).then((u) => uns.push(u));
     void on<PaletteData>("sid://palette/data", setData).then((u) => uns.push(u));
-    void on<RawClip | null>("sid://clipboard/capture", (c) => setClip(c)).then((u) => uns.push(u));
+    void on<RawClip | null>("sid://clipboard/capture", (c) => {
+      if (c) setClip(c);
+    }).then((u) => uns.push(u));
     void on<unknown>("sid://settings/changed", () => void applyFromDisk()).then((u) => uns.push(u));
     requestData();
     return () => uns.forEach((u) => u());
   }, [requestData]);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  // Size the window to its content so the palette never shows empty space.
+  // Size the window to its content with ample padding for multi-sided ambient shadows
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
     let last = 0;
     const ro = new ResizeObserver(() => {
-      const h = Math.min(640, Math.max(120, Math.ceil(el.getBoundingClientRect().height) + 16));
+      const h = Math.min(720, Math.max(140, Math.ceil(el.getBoundingClientRect().height) + 40));
       if (Math.abs(h - last) < 2) return;
       last = h;
-      void getCurrentWindow().setSize(new LogicalSize(700, h)).catch(() => {});
+      void getCurrentWindow().setSize(new LogicalSize(712, h)).catch(() => {});
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -60,8 +69,8 @@ function PaletteWindow() {
   const act = (a: PaletteAction) => void emitTo("main", "sid://palette/action", a);
 
   return (
-    <div className="w-full p-2">
-      <div ref={rootRef}>
+    <div className="w-fit select-none flex justify-center p-5 bg-transparent">
+      <div ref={rootRef} className="w-[672px]">
         <PaletteCore key={gen} mode={mode} data={data} clip={clip} onAction={act} onClose={close} floating refreshData={requestData} />
       </div>
     </div>
@@ -70,6 +79,8 @@ function PaletteWindow() {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <PaletteWindow />
+    <ErrorBoundary fallbackTitle="Palette Error">
+      <PaletteWindow />
+    </ErrorBoundary>
   </StrictMode>,
 );

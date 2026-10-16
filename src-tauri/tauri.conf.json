@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Dayflit",
+  "productName": "DayFlit",
   "version": "1.0.0",
   "identifier": "app.dayflit.desktop",
   "build": {
@@ -14,13 +14,19 @@
     "macOSPrivateApi": false,
     "windows": [],
     "security": {
-      "csp": null,
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' asset: https://asset.localhost http://asset.localhost data: blob: https:; media-src 'self' asset: https://asset.localhost http://asset.localhost data: blob:; font-src 'self' data: https: https://fonts.gstatic.com; connect-src 'self' ipc: http://ipc.localhost https:; frame-src 'self' https: http:; object-src 'none'",
       "assetProtocol": {
         "enable": true,
         "scope": [
-          "$APPDATA/**",
-          "$HOME/**",
-          "**"
+          "$CONFIG/Dayflit/**",
+          "$CONFIG/DayFlit/**",
+          "$CONFIG/dayflit/**",
+          "$APPDATA/Dayflit/**",
+          "$APPDATA/DayFlit/**",
+          "$APPDATA/dayflit/**",
+          "$APPCONFIG/Dayflit/**",
+          "$APPCONFIG/DayFlit/**",
+          "$APPCONFIG/dayflit/**"
         ]
       }
     }
@@ -50,10 +56,10 @@
         ],
         "displayLanguageSelector": false,
         "installerHooks": "./nsis/hooks.nsh",
-        "startMenuFolder": "Dayflit"
+        "startMenuFolder": "DayFlit"
       }
     },
-    "shortDescription": "Dayflit \u2014 floating desktop productivity companion",
+    "shortDescription": "DayFlit — floating desktop productivity companion",
     "longDescription": "Tasks, notes, focus sessions, habits, calendar and clipboard capture in a floating Windows companion.",
     "createUpdaterArtifacts": false
   },
@@ -61,8 +67,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDgwNjYzMjA4M0Q3Qzg5NjgKUldSb2lYdzlDREptZ0ZPWDlFU21NOWJ2cnVUTHVZU2hNWGkvV1VuQjk4MHBjUk5yeEx4bytzYmUK",
       "endpoints": [
-        "https://github.com/sidhu1512/dayflit/releases/latest/download/latest.json",
-        "https://dayflit.example.com/updates/{{target}}/{{arch}}/{{current_version}}"
+        "https://github.com/sidhu1512/dayflit/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"

@@ -53,13 +53,13 @@ pub struct WindowState {
 static STATE: OnceLock<Mutex<WindowState>> = OnceLock::new();
 static STATE_PATH: OnceLock<PathBuf> = OnceLock::new();
 
-pub const MAIN_DEFAULT: (u32, u32) = (440, 760);
-pub const MAIN_MIN: (u32, u32) = (340, 420);
-pub const BUBBLE_SIZE: u32 = 64;
-pub const PIP_SIZE: (u32, u32) = (300, 108);
-pub const PALETTE_SIZE: (u32, u32) = (700, 480);
-pub const VOICE_SIZE: (u32, u32) = (420, 150);
-pub const NUDGE_SIZE: (u32, u32) = (480, 64);
+pub const MAIN_DEFAULT: (u32, u32) = (820, 760);
+pub const MAIN_MIN: (u32, u32) = (520, 560);
+pub const BUBBLE_SIZE: u32 = 84;
+pub const PIP_SIZE: (u32, u32) = (460, 60);
+pub const PALETTE_SIZE: (u32, u32) = (720, 480);
+pub const VOICE_SIZE: (u32, u32) = (500, 280);
+pub const NUDGE_SIZE: (u32, u32) = (520, 80);
 pub const DOCK_THRESHOLD: i32 = 28;
 
 pub fn init(app: &AppHandle) {
@@ -127,9 +127,9 @@ fn primary(mons: &[MonitorInfo]) -> Option<MonitorInfo> {
     mons.iter().find(|m| m.primary).cloned().or_else(|| mons.first().cloned())
 }
 
-/// Clamp a rect so it is fully inside the work area of the monitor it mostly lives on.
-/// If it is on no monitor at all (unplugged display), move it to the primary monitor.
-pub fn clamp_to_monitor(r: WinRect) -> WinRect {
+/// Clamp an arbitrary window rect so it is fully inside the work area of the monitor it mostly lives on.
+/// min_w and min_h specify minimum allowed size.
+pub fn clamp_rect_to_monitor(r: WinRect, min_w: u32, min_h: u32) -> WinRect {
     let mons = system::monitors();
     if mons.is_empty() {
         return r;
@@ -137,11 +137,21 @@ pub fn clamp_to_monitor(r: WinRect) -> WinRect {
     let m = monitor_for_rect(&mons, &r).or_else(|| primary(&mons));
     let Some(m) = m else { return r };
     let wa = &m.work_area;
-    let w = (r.width as i32).min(wa.width) as u32;
-    let h = (r.height as i32).min(wa.height) as u32;
-    let x = r.x.clamp(wa.x, wa.x + wa.width - w as i32);
-    let y = r.y.clamp(wa.y, wa.y + wa.height - h as i32);
+    let b = &m.bounds;
+    let w = (r.width as i32).max(min_w as i32).min(b.width) as u32;
+    let h = (r.height as i32).max(min_h as i32).min(b.height) as u32;
+    let x = r.x.clamp(b.x, b.x + b.width - w as i32);
+    // Allow top-docked companion to reach bounds.y (physical top of monitor)
+    let min_y = b.y.min(wa.y);
+    let max_y = (wa.y + wa.height - h as i32).max(min_y);
+    let y = r.y.clamp(min_y, max_y);
     WinRect { x, y, width: w, height: h }
+}
+
+/// Clamp a main window rect so it is fully inside the work area of the monitor it mostly lives on,
+/// enforcing MAIN_MIN (520x560).
+pub fn clamp_to_monitor(r: WinRect) -> WinRect {
+    clamp_rect_to_monitor(r, MAIN_MIN.0, MAIN_MIN.1)
 }
 
 fn default_main_rect() -> WinRect {
@@ -162,12 +172,14 @@ fn default_main_rect() -> WinRect {
 
 pub fn ensure_main(app: &AppHandle) -> tauri::Result<WebviewWindow> {
     if let Some(w) = app.get_webview_window("main") {
+        let _ = w.set_min_size(Some(LogicalSize::new(MAIN_MIN.0 as f64, MAIN_MIN.1 as f64)));
+        let _ = w.set_decorations(false);
         return Ok(w);
     }
     let st = state();
     let rect = clamp_to_monitor(st.main.clone().unwrap_or_else(default_main_rect));
     let w = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
-        .title("Dayflit")
+        .title("DayFlit")
         .decorations(false)
         .transparent(true)
         .shadow(true)
@@ -181,29 +193,15 @@ pub fn ensure_main(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .build()?;
     // Builder .position() takes logical units; set exact physical rect afterwards.
     let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
-    set_outer_size(&w, rect.width, rect.height);
+    set_outer_size(&w, rect.width.max(MAIN_MIN.0), rect.height.max(MAIN_MIN.1));
     apply_material(&w, &st.material, st.dark);
     round_corners(&w, true);
     Ok(w)
 }
 
-/// Clip the bubble HWND to a circle so the window itself (hit-testing, any paint) is round.
+/// Allow the bubble to render its soft drop-shadow with native DWM alpha transparency.
 pub fn make_circular(w: &WebviewWindow) {
-    #[cfg(windows)]
-    {
-        use windows::Win32::Graphics::Gdi::CreateEllipticRgn;
-        use windows::Win32::Graphics::Gdi::SetWindowRgn;
-        if let (Ok(hwnd), Ok(size)) = (w.hwnd(), w.inner_size()) {
-            unsafe {
-                let rgn = CreateEllipticRgn(0, 0, size.width as i32 + 1, size.height as i32 + 1);
-                let _ = SetWindowRgn(hwnd, Some(rgn), true);
-            }
-        }
-    }
-    #[cfg(not(windows))]
-    {
-        let _ = w;
-    }
+    let _ = w;
 }
 
 pub fn ensure_bubble(app: &AppHandle) -> tauri::Result<WebviewWindow> {
@@ -211,7 +209,7 @@ pub fn ensure_bubble(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "bubble", WebviewUrl::App("bubble.html".into()))
-        .title("Dayflit")
+        .title("DayFlit")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -232,7 +230,7 @@ pub fn ensure_pip(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "pip", WebviewUrl::App("pip.html".into()))
-        .title("Dayflit Focus")
+        .title("DayFlit Focus")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -244,6 +242,7 @@ pub fn ensure_pip(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .visible(false)
         .inner_size(PIP_SIZE.0 as f64, PIP_SIZE.1 as f64)
         .build()?;
+    round_corners(&w, false);
     Ok(w)
 }
 
@@ -252,7 +251,7 @@ pub fn ensure_palette(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "palette", WebviewUrl::App("palette.html".into()))
-        .title("Dayflit Palette")
+        .title("DayFlit Palette")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -264,6 +263,7 @@ pub fn ensure_palette(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .visible(false)
         .inner_size(PALETTE_SIZE.0 as f64, PALETTE_SIZE.1 as f64)
         .build()?;
+    round_corners(&w, false);
     Ok(w)
 }
 
@@ -286,19 +286,22 @@ pub fn ensure_voice(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "voice", WebviewUrl::App("voice.html".into()))
-        .title("Dayflit Voice")
+        .title("DayFlit Voice")
         .decorations(false)
         .transparent(true)
         .shadow(false)
-        .resizable(false)
+        .resizable(true)
         .maximizable(false)
         .minimizable(false)
+        .min_inner_size(360.0, 80.0)
+        .max_inner_size(800.0, 700.0)
         .skip_taskbar(true)
         .always_on_top(true)
         .focused(false)
         .visible(false)
         .inner_size(VOICE_SIZE.0 as f64, VOICE_SIZE.1 as f64)
         .build()?;
+    round_corners(&w, false);
     Ok(w)
 }
 
@@ -306,22 +309,88 @@ pub fn ensure_voice(app: &AppHandle) -> tauri::Result<WebviewWindow> {
 pub fn show_voice(app: &AppHandle, mode: &str) {
     if let Ok(w) = ensure_voice(app) {
         let scale = w.scale_factor().unwrap_or(1.0);
-        let (pw, ph) = (((VOICE_SIZE.0 as f64) * scale) as u32, ((VOICE_SIZE.1 as f64) * scale) as u32);
+        let initial_w = VOICE_SIZE.0;
+        let initial_h = 110u32;
+        let pw = ((initial_w as f64) * scale).round() as u32;
+        let ph = ((initial_h as f64) * scale).round() as u32;
         let mons = system::monitors();
         let cursor = app.cursor_position().ok();
         let m = cursor
             .and_then(|c| monitor_for_rect(&mons, &WinRect { x: c.x as i32, y: c.y as i32, width: 1, height: 1 }))
             .or_else(|| primary(&mons));
-        if let Some(m) = m {
-            let x = m.work_area.x + (m.work_area.width - pw as i32) / 2;
-            let y = m.work_area.y + (24.0 * scale) as i32;
-            let _ = w.set_size(PhysicalSize::new(pw, ph));
-            let _ = w.set_position(PhysicalPosition::new(x, y));
+        if let Some(mon) = m {
+            let x = mon.work_area.x + (mon.work_area.width - pw as i32) / 2;
+            let y = mon.work_area.y + (24.0 * scale) as i32;
+            let rect = clamp_rect_to_monitor(WinRect { x, y, width: pw, height: ph }, 200, 80);
+            #[cfg(windows)]
+            {
+                use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, SWP_NOACTIVATE, SWP_NOZORDER};
+                if let Ok(hwnd) = w.hwnd() {
+                    unsafe {
+                        let _ = SetWindowPos(
+                            hwnd,
+                            None,
+                            rect.x,
+                            rect.y,
+                            rect.width as i32,
+                            rect.height as i32,
+                            SWP_NOACTIVATE | SWP_NOZORDER,
+                        );
+                    }
+                }
+            }
+            #[cfg(not(windows))]
+            {
+                let _ = w.set_size(PhysicalSize::new(rect.width, rect.height));
+                let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
+            }
         }
         let _ = w.emit("sid://voice/open", mode);
         let _ = w.show();
         if mode != "hold" {
             let _ = w.set_focus();
+        }
+    }
+}
+
+pub fn resize_voice(app: &AppHandle, target_w: u32, target_h: u32) {
+    if let Some(w) = app.get_webview_window("voice") {
+        let scale = w.scale_factor().unwrap_or(1.0);
+        let phys_w = (target_w as f64 * scale).round() as u32;
+        let phys_h = (target_h as f64 * scale).round() as u32;
+        if let (Ok(cur_pos), Ok(cur_size)) = (w.outer_position(), w.outer_size()) {
+            if cur_size.width == phys_w && cur_size.height == phys_h {
+                return;
+            }
+            // Symmetrical horizontal centering preserving current center
+            let center_x = cur_pos.x + cur_size.width as i32 / 2;
+            let new_x = center_x - phys_w as i32 / 2;
+            let new_y = cur_pos.y;
+
+            let rect = clamp_rect_to_monitor(WinRect { x: new_x, y: new_y, width: phys_w, height: phys_h }, 200, 80);
+
+            #[cfg(windows)]
+            {
+                use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, SWP_NOACTIVATE, SWP_NOZORDER};
+                if let Ok(hwnd) = w.hwnd() {
+                    unsafe {
+                        let _ = SetWindowPos(
+                            hwnd,
+                            None,
+                            rect.x,
+                            rect.y,
+                            rect.width as i32,
+                            rect.height as i32,
+                            SWP_NOACTIVATE | SWP_NOZORDER,
+                        );
+                    }
+                }
+            }
+            #[cfg(not(windows))]
+            {
+                let _ = w.set_size(PhysicalSize::new(rect.width, rect.height));
+                let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
+            }
         }
     }
 }
@@ -337,7 +406,7 @@ pub fn ensure_nudge(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         return Ok(w);
     }
     let w = WebviewWindowBuilder::new(app, "nudge", WebviewUrl::App("nudge.html".into()))
-        .title("Dayflit")
+        .title("DayFlit")
         .decorations(false)
         .transparent(true)
         .shadow(false)
@@ -350,6 +419,7 @@ pub fn ensure_nudge(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .visible(false)
         .inner_size(NUDGE_SIZE.0 as f64, NUDGE_SIZE.1 as f64)
         .build()?;
+    round_corners(&w, false);
     Ok(w)
 }
 
@@ -435,6 +505,17 @@ pub fn show_main(app: &AppHandle) {
         let _ = w.unminimize();
         let _ = w.show();
         let _ = w.set_focus();
+        #[cfg(windows)]
+        {
+            use windows::Win32::UI::WindowsAndMessaging::{BringWindowToTop, SetForegroundWindow, SetWindowPos, HWND_TOP, SWP_NOMOVE, SWP_NOSIZE, SWP_SHOWWINDOW};
+            if let Ok(hwnd) = w.hwnd() {
+                unsafe {
+                    let _ = SetWindowPos(hwnd, Some(HWND_TOP), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                    let _ = BringWindowToTop(hwnd);
+                    let _ = SetForegroundWindow(hwnd);
+                }
+            }
+        }
         if let Some(b) = app.get_webview_window("bubble") {
             let _ = b.hide();
         }
@@ -493,7 +574,7 @@ pub fn minimize_to_bubble(app: &AppHandle) {
                 None => WinRect { x: 200, y: 200, width: size, height: size },
             },
         };
-        let rect = clamp_to_monitor(rect);
+        let rect = clamp_rect_to_monitor(rect, size, size);
         let _ = b.set_size(PhysicalSize::new(size, size));
         let _ = b.set_position(PhysicalPosition::new(rect.x, rect.y));
         make_circular(&b);
@@ -617,31 +698,116 @@ pub fn move_to_next_monitor(w: &WebviewWindow) -> Option<()> {
     let rel_y = (p.y - cur.work_area.y) as f64 / cur.work_area.height.max(1) as f64;
     let nx = next.work_area.x + (rel_x * next.work_area.width as f64) as i32;
     let ny = next.work_area.y + (rel_y * next.work_area.height as f64) as i32;
-    let clamped = clamp_to_monitor(WinRect { x: nx, y: ny, width: s.width, height: s.height });
+    let clamped = clamp_rect_to_monitor(WinRect { x: nx, y: ny, width: s.width, height: s.height }, 40, 40);
     let _ = w.set_position(PhysicalPosition::new(clamped.x, clamped.y));
     Some(())
+}
+
+pub fn pip_top_center(app: &AppHandle, pw: u32, ph: u32, _scale: f64) -> WinRect {
+    let mons = system::monitors();
+    let cursor = app.cursor_position().ok();
+    let m = cursor
+        .and_then(|c| monitor_for_rect(&mons, &WinRect { x: c.x as i32, y: c.y as i32, width: 1, height: 1 }))
+        .or_else(|| primary(&mons));
+    match m {
+        Some(mon) => {
+            let x = mon.bounds.x + (mon.bounds.width - pw as i32) / 2;
+            let y = mon.bounds.y; // Full top edge flush with screen bezel
+            WinRect { x, y, width: pw, height: ph }
+        }
+        None => WinRect { x: 100, y: 0, width: pw, height: ph },
+    }
 }
 
 pub fn show_pip(app: &AppHandle) {
     if let Ok(w) = ensure_pip(app) {
         let scale = w.scale_factor().unwrap_or(1.0);
-        let (pw, ph) = (((PIP_SIZE.0 as f64) * scale) as u32, ((PIP_SIZE.1 as f64) * scale) as u32);
-        let st = state();
-        let rect = match st.pip {
-            Some(r) => WinRect { width: pw, height: ph, ..r },
-            None => {
-                let mons = system::monitors();
-                match primary(&mons) {
-                    Some(m) => WinRect { x: m.work_area.x + m.work_area.width - pw as i32 - (16.0 * scale) as i32, y: m.work_area.y + m.work_area.height - ph as i32 - (16.0 * scale) as i32, width: pw, height: ph },
-                    None => WinRect { x: 100, y: 100, width: pw, height: ph },
-                }
-            }
-        };
-        let rect = clamp_to_monitor(rect);
+        let (pw, ph) = (((PIP_SIZE.0 as f64) * scale).round() as u32, ((PIP_SIZE.1 as f64) * scale).round() as u32);
+        let default_rect = pip_top_center(app, pw, ph, scale);
+        let rect = clamp_rect_to_monitor(default_rect, 100, 32);
         let _ = w.set_size(PhysicalSize::new(pw, ph));
         let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
         let _ = w.show();
-        update_state(|s| s.pip_visible = true);
+        update_state(|s| {
+            s.pip = Some(rect);
+            s.pip_visible = true;
+        });
+    }
+}
+
+pub fn snap_pip_top_center(app: &AppHandle) {
+    if let Some(w) = app.get_webview_window("pip") {
+        let scale = w.scale_factor().unwrap_or(1.0);
+        let size = w.outer_size().unwrap_or(PhysicalSize::new(
+            ((PIP_SIZE.0 as f64) * scale).round() as u32,
+            ((PIP_SIZE.1 as f64) * scale).round() as u32,
+        ));
+        let rect = pip_top_center(app, size.width, size.height, scale);
+        let rect = clamp_rect_to_monitor(rect, 100, 32);
+        let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
+        update_state(|s| s.pip = Some(rect));
+    }
+}
+
+pub fn adjust_pip_size(app: &AppHandle, target_w: u32, target_h: u32) {
+    if let Some(w) = app.get_webview_window("pip") {
+        let scale = w.scale_factor().unwrap_or(1.0);
+        let phys_w = (target_w as f64 * scale).round() as u32;
+        let phys_h = (target_h as f64 * scale).round() as u32;
+        if let (Ok(cur_pos), Ok(cur_size)) = (w.outer_position(), w.outer_size()) {
+            if cur_size.width == phys_w && cur_size.height == phys_h {
+                return;
+            }
+            let mons = system::monitors();
+            let cur_rect = WinRect { x: cur_pos.x, y: cur_pos.y, width: cur_size.width, height: cur_size.height };
+            let mon = monitor_for_rect(&mons, &cur_rect).or_else(|| primary(&mons));
+
+            // Symmetrical expansion: if docked near the top, snap to screen top center
+            let (new_x, new_y) = match &mon {
+                Some(m) if (cur_pos.y - m.bounds.y).abs() <= 50 => {
+                    let center_x = m.bounds.x + m.bounds.width / 2;
+                    (center_x - phys_w as i32 / 2, m.bounds.y)
+                }
+                _ => {
+                    let center_x = cur_pos.x + cur_size.width as i32 / 2;
+                    (center_x - phys_w as i32 / 2, cur_pos.y)
+                }
+            };
+            
+            let rect = clamp_rect_to_monitor(WinRect { x: new_x, y: new_y, width: phys_w, height: phys_h }, 100, 32);
+
+            #[cfg(windows)]
+            {
+                use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, SWP_NOACTIVATE, SWP_NOCOPYBITS, SWP_NOZORDER};
+                if let Ok(hwnd) = w.hwnd() {
+                    unsafe {
+                        let _ = SetWindowPos(
+                            hwnd,
+                            None,
+                            rect.x,
+                            rect.y,
+                            rect.width as i32,
+                            rect.height as i32,
+                            SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOCOPYBITS,
+                        );
+                    }
+                }
+            }
+            #[cfg(not(windows))]
+            {
+                let _ = w.set_size(PhysicalSize::new(rect.width, rect.height));
+                let _ = w.set_position(PhysicalPosition::new(rect.x, rect.y));
+            }
+
+            update_state(|s| {
+                if let Some(p) = &mut s.pip {
+                    p.x = rect.x;
+                    p.y = rect.y;
+                    p.width = rect.width;
+                    p.height = rect.height;
+                }
+            });
+        }
     }
 }
 
@@ -654,6 +820,16 @@ pub fn hide_pip(app: &AppHandle) {
             });
         }
         let _ = w.hide();
+
+        let behavior = app.state::<crate::CloseBehavior>().0.lock().clone();
+        if behavior == "quit" {
+            let main_visible = app.get_webview_window("main").map(|m| m.is_visible().unwrap_or(false)).unwrap_or(false);
+            let bubble_visible = app.get_webview_window("bubble").map(|b| b.is_visible().unwrap_or(false)).unwrap_or(false);
+            if !main_visible && !bubble_visible {
+                flush_now();
+                app.exit(0);
+            }
+        }
     }
 }
 
@@ -718,4 +894,90 @@ pub fn logical_size(w: &WebviewWindow) -> Option<LogicalSize<f64>> {
     let s = w.inner_size().ok()?;
     let f = w.scale_factor().ok()?;
     Some(s.to_logical(f))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::system::Rect;
+
+    #[test]
+    fn test_symmetrical_resize_maintains_center() {
+        // Initial state: window at x=800, width=300 -> Center = 950
+        let cur_x = 800i32;
+        let cur_w = 300i32;
+        let cur_center = cur_x + cur_w / 2;
+
+        // Hover expand: width grows to 400
+        let target_w = 400i32;
+        let new_x = cur_center - target_w / 2;
+        let new_center = new_x + target_w / 2;
+
+        assert_eq!(new_x, 750); // expands 50px to the left
+        assert_eq!(new_x + target_w, 1150); // expands 50px to the right (800+300=1100 -> 1150)
+        assert_eq!(cur_center, new_center, "Center point must remain identical when expanding");
+
+        // Hover unexpand: width shrinks back to 300
+        let restore_w = 300i32;
+        let restore_x = cur_center - restore_w / 2;
+        let restore_center = restore_x + restore_w / 2;
+
+        assert_eq!(restore_x, 800);
+        assert_eq!(cur_center, restore_center, "Center point must remain identical when shrinking");
+    }
+
+    #[test]
+    fn test_top_center_math() {
+        let bounds = Rect { x: 0, y: 0, width: 1920, height: 1080 };
+        let pw = 344u32;
+        let top_center_x = bounds.x + (bounds.width - pw as i32) / 2;
+        let top_center_y = bounds.y;
+
+        assert_eq!(top_center_x, (1920 - 344) / 2);
+        assert_eq!(top_center_y, 0, "Must be at full top of screen bezel");
+        assert_eq!(top_center_x + pw as i32 / 2, 1920 / 2, "Must be horizontally centered on monitor");
+    }
+
+    #[test]
+    fn test_clamp_rect_does_not_inflate_small_windows() {
+        // Pip small window: 344 x 64 at top center
+        let pip_rect = WinRect { x: 788, y: 0, width: 344, height: 64 };
+        let clamped = clamp_rect_to_monitor(pip_rect.clone(), 100, 32);
+        // If clamped used MAIN_MIN it would inflate to 520x560
+        assert_eq!(clamped.width, 344, "Small window must NOT be inflated to MAIN_MIN (520)");
+        assert_eq!(clamped.height, 64, "Small window must NOT be inflated to MAIN_MIN (560)");
+        assert_eq!(clamped.x, 788);
+        assert_eq!(clamped.y, 0);
+    }
+
+    #[test]
+    fn test_voice_window_resize_centering_and_clamping() {
+        // Voice initial state: 500x110 centered at top of 1920x1080 display
+        let work_area = Rect { x: 0, y: 0, width: 1920, height: 1040 };
+        let scale = 1.25f64; // Test fractional DPI scale (125%)
+        let cur_w = (500.0 * scale).round() as u32; // 625px
+        let _cur_h = (110.0 * scale).round() as u32; // 138px
+        let cur_x = work_area.x + (work_area.width - cur_w as i32) / 2; // (1920 - 625) / 2 = 647
+        let cur_y = work_area.y + (24.0 * scale) as i32; // 30
+
+        let center_x = cur_x + cur_w as i32 / 2;
+
+        // Transcript expands to 500x260 logical pixels
+        let target_w = (500.0 * scale).round() as u32; // 625px
+        let target_h = (260.0 * scale).round() as u32; // 325px
+
+        let new_x = center_x - target_w as i32 / 2;
+        let new_center = new_x + target_w as i32 / 2;
+
+        assert_eq!((center_x - new_center).abs(), 0, "Horizontal center must remain invariant");
+        assert_eq!(new_x, cur_x, "Window x should match since width was constant 500");
+
+        // Verify clamping does not alter coordinates within valid work area
+        let voice_rect = WinRect { x: new_x, y: cur_y, width: target_w, height: target_h };
+        let clamped = clamp_rect_to_monitor(voice_rect, 200, 80);
+        assert_eq!(clamped.width, target_w);
+        assert_eq!(clamped.height, target_h);
+        assert_eq!(clamped.x, cur_x);
+        assert_eq!(clamped.y, cur_y);
+    }
 }

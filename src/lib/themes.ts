@@ -101,16 +101,19 @@ function luminance(triplet: string): number {
 export function resolveDark(mode: Settings["appearance"]["mode"]): boolean {
   if (mode === "dark") return true;
   if (mode === "light") return false;
+  if (typeof window === "undefined") return true;
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? true;
 }
 
-export function applyTheme(a: Settings["appearance"], root: HTMLElement = document.documentElement) {
+export function applyTheme(a: Settings["appearance"], root?: HTMLElement) {
+  if (typeof document === "undefined" && !root) return;
+  const target = root ?? document.documentElement;
   const theme = THEMES.find((t) => t.id === a.themeId) ?? THEMES[0];
   const dark = resolveDark(a.mode);
   const pal = dark ? theme.dark : theme.light;
   const accent = (a.accent && hexToRgbTriplet(a.accent)) || pal.accent;
   const accentFg = luminance(accent) > 0.5 ? "10 10 14" : "255 255 255";
-  const s = root.style;
+  const s = target.style;
   s.setProperty("--bg", pal.bg);
   s.setProperty("--surface", pal.surface);
   s.setProperty("--surface-2", pal.surface2);
@@ -124,20 +127,35 @@ export function applyTheme(a: Settings["appearance"], root: HTMLElement = docume
   s.setProperty("--glow", a.accent ? accent : pal.glow);
   s.setProperty("--opacity", String(Math.min(1, Math.max(0.35, a.opacity))));
   s.setProperty("--radius", `${a.radius}px`);
-  s.setProperty("--font-size", `${a.fontSize}px`);
+  let adjustedFontSize = a.fontSize;
+  let lineHeight = "1.4";
+  if (a.fontFamily === "sacramento") {
+    adjustedFontSize = Math.round(a.fontSize * 1.22);
+    lineHeight = "1.35";
+  } else if (a.fontFamily === "pacifico") {
+    adjustedFontSize = Math.max(11, Math.round(a.fontSize * 0.91));
+    lineHeight = "1.25";
+  } else if (a.fontFamily === "caveat") {
+    adjustedFontSize = Math.round(a.fontSize * 1.08);
+    lineHeight = "1.32";
+  }
+  s.setProperty("--font-size", `${adjustedFontSize}px`);
+  s.setProperty("--line-height", lineHeight);
   s.setProperty("--density", a.density === "compact" ? "0.82" : a.density === "spacious" ? "1.18" : "1");
   const fonts: Record<string, string> = {
     system: '"Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif',
     inter: 'Inter, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif',
-    serif: '"Georgia", "Cambria", "Times New Roman", serif',
-    mono: '"Cascadia Code", "JetBrains Mono", Consolas, monospace',
+    sacramento: 'Sacramento, "Segoe UI Variable Text", cursive, sans-serif',
+    pacifico: 'Pacifico, "Segoe UI Variable Text", cursive, sans-serif',
+    caveat: 'Caveat, "Segoe UI Variable Text", cursive, sans-serif',
   };
   s.setProperty("--font", fonts[a.fontFamily] ?? fonts.system);
-  root.dataset.theme = theme.id;
-  root.dataset.mode = dark ? "dark" : "light";
-  root.dataset.material = a.material;
-  root.dataset.motion = a.reduceMotion ? "reduce" : "full";
-  root.dataset.glow = a.showBackgroundGlow ? "on" : "off";
-  root.style.colorScheme = dark ? "dark" : "light";
+  target.dataset.theme = theme.id;
+  target.dataset.font = a.fontFamily;
+  target.dataset.mode = dark ? "dark" : "light";
+  target.dataset.material = a.material;
+  target.dataset.motion = a.reduceMotion ? "reduce" : "full";
+  target.dataset.glow = a.showBackgroundGlow ? "on" : "off";
+  target.style.colorScheme = dark ? "dark" : "light";
   return { dark, theme };
 }

@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, format } from "date-fns";
-import { CheckSquare, Filter, Inbox, ListChecks, Search, Sparkles, Trash2 } from "lucide-react";
+import { CheckSquare, Filter, Inbox, ListChecks, Search, Sparkles, Trash2, X } from "lucide-react";
 import { useTasks, todayTasks, upcomingTasks, inboxTasks, backlogTasks, doneTasks, sortTasks, overdueTasks } from "@/stores/tasks";
 import { useSettings } from "@/stores/settings";
+import { useLife } from "@/stores/life";
 import { useUi } from "@/stores/ui";
 import { QuickAdd } from "@/components/QuickAdd";
 import { TaskItem } from "@/components/TaskItem";
 import { Empty } from "@/components/Empty";
 import { dateKey, relativeDay, parseKey } from "@/lib/dates";
 import { cn } from "@/lib/ids";
+import { HorizontalPillStrip, type PillStripItem } from "@/components/ui/HorizontalPillStrip";
 import type { Task } from "@/lib/types";
 
 const FILTERS = [
@@ -25,6 +27,7 @@ export function TasksView() {
   const reorder = useTasks((s) => s.reorder);
   const archiveOld = useTasks((s) => s.archiveOld);
   const lists = useSettings((s) => s.settings.tasks.lists);
+  const domains = useLife((s) => s.data.domains);
   const filter = useUi((s) => s.tasksFilter);
   const setFilter = useUi((s) => s.setTasksFilter);
   const viewParam = useUi((s) => s.viewParam);
@@ -32,6 +35,7 @@ export function TasksView() {
   const setSelected = useUi((s) => s.setSelectedTask);
   const [q, setQ] = useState("");
   const [tag, setTag] = useState<string | null>(null);
+  const [domainFilter, setDomainFilter] = useState<string | null>(null);
   const dragId = useRef<string | null>(null);
   const [quickFocus, setQuickFocus] = useState(false);
 
@@ -44,6 +48,7 @@ export function TasksView() {
   }, [viewParam]);
 
   const allTags = useMemo(() => [...new Set(tasks.filter((t) => t.status === "open").flatMap((t) => t.tags))].sort(), [tasks]);
+  const customLists = useMemo(() => lists.filter((l) => !FILTERS.some((f) => f.label.toLowerCase() === l.toLowerCase() || f.id.toLowerCase() === l.toLowerCase())), [lists]);
   const isList = !FILTERS.some((f) => f.id === filter);
 
   const base: Task[] = useMemo(() => {
@@ -67,13 +72,14 @@ export function TasksView() {
 
   const shown = useMemo(() => {
     let list = base;
+    if (domainFilter) list = list.filter((t) => t.domainId === domainFilter);
     if (tag) list = list.filter((t) => t.tags.includes(tag));
     if (q.trim()) {
       const s = q.toLowerCase();
       list = list.filter((t) => t.title.toLowerCase().includes(s) || t.notes.toLowerCase().includes(s) || t.tags.some((x) => x.includes(s)));
     }
     return list;
-  }, [base, tag, q]);
+  }, [base, domainFilter, tag, q]);
 
   // group upcoming by day
   const groups = useMemo(() => {
@@ -95,6 +101,9 @@ export function TasksView() {
     }
     return [...m.entries()];
   }, [shown, filter]);
+
+  const [showSearch, setShowSearch] = useState(false);
+  const activeFilterLabel = FILTERS.find((f) => f.id === filter)?.label ?? filter;
 
   // keyboard navigation
   useEffect(() => {
@@ -137,7 +146,8 @@ export function TasksView() {
         useTasks.getState().update(selectedId, { priority: p });
       } else if (e.key === "/") {
         e.preventDefault();
-        document.querySelector<HTMLInputElement>("[data-task-search]")?.focus();
+        setShowSearch(true);
+        setTimeout(() => document.querySelector<HTMLInputElement>("[data-task-search]")?.focus(), 50);
       } else if (e.key === "n" && !e.ctrlKey) {
         e.preventDefault();
         document.querySelector<HTMLInputElement>("[data-quickadd]")?.focus();
@@ -176,45 +186,186 @@ export function TasksView() {
     />
   );
 
+  const handleAddList = async () => {
+    const name = await useUi.getState().promptUser({
+      title: "New Task List",
+      body: "Enter a name for your custom task list:",
+      placeholder: "e.g. Work, Personal, Side Projects, Sprint…",
+      confirmLabel: "Create List",
+    });
+    if (name && name.trim()) {
+      const listName = name.trim();
+      const currentLists = useSettings.getState().settings.tasks.lists || [];
+      if (!currentLists.includes(listName)) {
+        useSettings.getState().update({
+          tasks: {
+            ...useSettings.getState().settings.tasks,
+            lists: [...currentLists, listName],
+          },
+        });
+      }
+      setFilter(listName);
+    }
+  };
+
+  const handleDeleteList = (listName: string) => {
+    const currentLists = useSettings.getState().settings.tasks.lists || [];
+    useSettings.getState().update({
+      tasks: {
+        ...useSettings.getState().settings.tasks,
+        lists: currentLists.filter((l) => l !== listName),
+      },
+    });
+    for (const t of tasks) {
+      if (t.list === listName) {
+        useTasks.getState().update(t.id, { list: undefined });
+      }
+    }
+    if (filter === listName) {
+      setFilter("today");
+    }
+  };
+
+  const handleRenameList = (oldName: string, newName: string) => {
+    const cleanNew = newName.trim();
+    if (!cleanNew || cleanNew === oldName) return;
+    const currentLists = useSettings.getState().settings.tasks.lists || [];
+    useSettings.getState().update({
+      tasks: {
+        ...useSettings.getState().settings.tasks,
+        lists: currentLists.map((l) => (l === oldName ? cleanNew : l)),
+      },
+    });
+    for (const t of tasks) {
+      if (t.list === oldName) {
+        useTasks.getState().update(t.id, { list: cleanNew });
+      }
+    }
+    if (filter === oldName) {
+      setFilter(cleanNew);
+    }
+  };
+
+  const taskPillItems = useMemo<PillStripItem[]>(() => {
+    const items: PillStripItem[] = FILTERS.map((f) => ({
+      id: f.id,
+      label: f.label,
+      icon: f.icon,
+      badge:
+        f.id === "today" && overdueTasks(tasks).length > 0 ? (
+          <span className="rounded-full bg-danger/20 px-1 text-[0.72em] font-bold text-danger tabular">
+            {overdueTasks(tasks).length}
+          </span>
+        ) : undefined,
+      active: filter === f.id,
+      onSelect: () => setFilter(f.id),
+    }));
+
+    for (const l of customLists) {
+      const count = tasks.filter((t) => t.status === "open" && t.list === l).length;
+      items.push({
+        id: l,
+        label: l,
+        badge: count ? <span className="text-faint text-[0.85em] tabular">{count}</span> : undefined,
+        active: filter === l,
+        onSelect: () => setFilter(l),
+      });
+    }
+
+    return items;
+  }, [filter, tasks, customLists, setFilter]);
+
   return (
-    <div className="flex h-full flex-col">
-      <div className="px-4 pt-1">
-        <div className="scroll flex items-center gap-1 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          {FILTERS.map((f) => (
-            <button key={f.id} className={cn("btn btn-sm btn-ghost shrink-0", filter === f.id && "!bg-accent/15 !text-accent")} onClick={() => setFilter(f.id)}>
-              {f.icon} {f.label}
-              {f.id === "today" && overdueTasks(tasks).length > 0 && <span className="rounded-full bg-danger/20 px-1.5 text-[0.75em] text-danger">{overdueTasks(tasks).length}</span>}
+    <div className="flex h-full flex-col min-w-0">
+      <div className="px-4 pt-1 min-w-0 max-w-full">
+        <div className="flex items-center justify-between pb-1.5 pt-1 min-w-0 flex-nowrap">
+          <div className="flex items-baseline gap-2 min-w-0 flex-1 mr-2">
+            <h1 className="text-[1.25em] font-semibold tracking-tight truncate">{activeFilterLabel}</h1>
+            <span className="text-[0.78em] font-medium text-muted tabular shrink-0">{shown.length} {shown.length === 1 ? "task" : "tasks"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              className={cn("btn btn-ghost btn-icon btn-sm text-muted", (showSearch || q) && "text-accent bg-accent/10")}
+              onClick={() => {
+                setShowSearch((v) => !v);
+                if (!showSearch) setTimeout(() => document.querySelector<HTMLInputElement>("[data-task-search]")?.focus(), 50);
+              }}
+              aria-label="Filter tasks (/)"
+              title="Filter tasks (/)"
+            >
+              <Search size={14} />
             </button>
-          ))}
-          <span className="mx-1 h-4 w-px bg-surface-3" />
-          {lists.map((l) => (
-            <button key={l} className={cn("btn btn-sm btn-ghost shrink-0", filter === l && "!bg-accent/15 !text-accent")} onClick={() => setFilter(l)}>
-              {l}
-              <span className="text-faint">{tasks.filter((t) => t.status === "open" && t.list === l).length || ""}</span>
-            </button>
-          ))}
+            {allTags.length > 0 && (
+              <select className="input !w-auto max-w-[120px] truncate !py-0.5 !px-2 text-[0.8em]" value={tag ?? ""} onChange={(e) => setTag(e.target.value || null)}>
+                <option value="">all tags</option>
+                {allTags.map((t) => (
+                  <option key={t} value={t}>
+                    #{t}
+                  </option>
+                ))}
+              </select>
+            )}
+            {domains.length > 0 && (
+              <select
+                className="input !w-auto max-w-[120px] truncate !py-0.5 !px-2 text-[0.8em]"
+                value={domainFilter ?? ""}
+                onChange={(e) => setDomainFilter(e.target.value || null)}
+                aria-label="Filter tasks by Life Pillar"
+              >
+                <option value="">all pillars</option>
+                {domains.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
-        <div className="mt-2">
+
+        {(showSearch || q) && (
+          <div className="anim-fade mb-2 flex items-center gap-2 rounded-xl bg-surface-2/60 px-2.5 py-1">
+            <Search size={13} className="text-faint shrink-0" />
+            <input
+              data-task-search
+              className="flex-1 bg-transparent text-[0.85em] outline-none placeholder:text-faint"
+              placeholder="Filter tasks… (Esc to clear)"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setQ("");
+                  setShowSearch(false);
+                }
+              }}
+            />
+            {q && (
+              <button className="btn btn-ghost btn-icon btn-sm !p-0.5 text-faint hover:text-text" onClick={() => setQ("")}>
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        )}
+
+        <HorizontalPillStrip
+          activeKey={filter}
+          className="pb-2 min-h-[36px]"
+          items={taskPillItems}
+          onAdd={handleAddList}
+          onDelete={handleDeleteList}
+          onRename={handleRenameList}
+          canModify={(id) => !FILTERS.some((f) => f.id === id)}
+          addLabel="Add new task list"
+          addAriaLabel="Add Task List"
+          quickSwitcherLabel={(n) => `All (${n}) ▾`}
+          quickSwitcherThreshold={5}
+        />
+
+        <div className="pb-1">
           <QuickAdd extra={quickExtra} autoFocus={quickFocus} />
         </div>
-        <div className="mt-2 flex items-center gap-2">
-          <div className="flex flex-1 items-center gap-2 rounded-lg bg-surface-2/50 px-2.5 py-1">
-            <Search size={13} className="text-faint" />
-            <input data-task-search className="flex-1 bg-transparent text-[0.85em] outline-none placeholder:text-faint" placeholder="Filter…  ( / )" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && (setQ(""), (e.target as HTMLInputElement).blur())} />
-          </div>
-          {allTags.length > 0 && (
-            <select className="input !w-auto !py-1 text-[0.82em]" value={tag ?? ""} onChange={(e) => setTag(e.target.value || null)}>
-              <option value="">all tags</option>
-              {allTags.map((t) => (
-                <option key={t} value={t}>
-                  #{t}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
       </div>
-      <div className="scroll flex-1 px-2.5 pb-3 pt-2">
+      <div className="scroll min-h-0 flex-1 px-2.5 pb-10 pt-2">
         {shown.length === 0 ? (
           <Empty icon={<CheckSquare size={28} />} title={q ? "No matching tasks" : filter === "done" ? "Nothing completed yet" : filter === "inbox" ? "Inbox zero" : "All clear"} body={filter === "today" ? "Add something above, or press n." : undefined} />
         ) : groups ? (
@@ -243,8 +394,9 @@ export function TasksView() {
         ) : (
           shown.map(renderItem)
         )}
+        <div className="h-8 shrink-0 pointer-events-none" />
       </div>
-      <div className="hide-in-focus flex items-center gap-3 border-t hairline px-4 py-1 text-[0.72em] text-faint">
+      <div className="hide-in-focus shrink-0 flex items-center gap-3 border-t hairline px-4 py-1 text-[0.72em] text-faint bg-surface/50 backdrop-blur-xs">
         <span>j/k move</span>
         <span>x done</span>
         <span>e edit</span>

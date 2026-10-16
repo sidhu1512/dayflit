@@ -33,6 +33,8 @@ pub const COLLECTIONS: &[&str] = &[
     "onboarding",
     "journal",
     "activity",
+    "life",
+    "canvas",
 ];
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -119,6 +121,20 @@ impl Store {
             Some(c) if c.data_dir.is_dir() || fs::create_dir_all(&c.data_dir).is_ok() => c.data_dir,
             _ => default_data,
         };
+        let store = Self {
+            app_config_dir,
+            data_dir: RwLock::new(data_dir),
+            write_lock: parking_lot::Mutex::new(()),
+        };
+        store.ensure_layout()?;
+        store.write_config()?;
+        Ok(store)
+    }
+
+    #[allow(dead_code)]
+    pub fn new_with_dirs(app_config_dir: PathBuf, data_dir: PathBuf) -> Result<Self> {
+        fs::create_dir_all(&app_config_dir)?;
+        fs::create_dir_all(&data_dir)?;
         let store = Self {
             app_config_dir,
             data_dir: RwLock::new(data_dir),
@@ -280,11 +296,78 @@ impl Store {
         Ok(name)
     }
 
+    pub fn is_safe_attachment_filename(name: &str) -> bool {
+        let trimmed = name.trim();
+        if name != trimmed || trimmed.is_empty() || trimmed.len() > 255 {
+            return false;
+        }
+        // Disallow path separators, traversal sequences, NTFS alternate data streams, control characters, and invalid Windows filename characters
+        if trimmed.contains('/')
+            || trimmed.contains('\\')
+            || trimmed.contains("..")
+            || trimmed.contains(':')
+            || trimmed.contains('*')
+            || trimmed.contains('?')
+            || trimmed.contains('"')
+            || trimmed.contains('<')
+            || trimmed.contains('>')
+            || trimmed.contains('|')
+            || trimmed.chars().any(|c| c.is_control())
+        {
+            return false;
+        }
+        // Windows auto-trims trailing dots and spaces, which causes file truncation / ADS bypass
+        if trimmed.ends_with('.') || trimmed.ends_with(' ') {
+            return false;
+        }
+        // Reject URL-encoded path traversal sequences (%2e = ., %2f = /, %5c = \, %00 = null byte)
+        let lower = trimmed.to_ascii_lowercase();
+        if lower.contains("%2e")
+            || lower.contains("%2f")
+            || lower.contains("%5c")
+            || lower.contains("%00")
+            || lower.contains("%25")
+        {
+            return false;
+        }
+        // Disallow Windows DOS reserved device names (both with and without extension)
+        // E.g., CON, CON.png, AUX.txt, NUL.jpg, COM1.dat, LPT1.pdf
+        let stem = Path::new(trimmed)
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or(trimmed)
+            .to_ascii_uppercase();
+        const RESERVED_NAMES: &[&str] = &[
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+            "CONIN$", "CONOUT$",
+        ];
+        if RESERVED_NAMES.contains(&stem.as_str()) {
+            return false;
+        }
+        // Extension whitelist
+        let ext = Path::new(trimmed)
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
+        const ALLOWED_EXTS: &[&str] = &[
+            "png", "jpg", "jpeg", "gif", "webp", "wav", "webm", "mp3", "m4a", "ogg", "mp4", "pdf", "txt", "md",
+        ];
+        ALLOWED_EXTS.contains(&ext.as_str())
+    }
+
     pub fn image_path(&self, name: &str) -> Result<PathBuf> {
-        if name.contains('/') || name.contains('\\') || name.contains("..") {
+        let trimmed = name.trim();
+        if !Self::is_safe_attachment_filename(trimmed) {
             return Err(anyhow!("invalid image name"));
         }
-        Ok(self.images_dir().join(name))
+        let p = self.images_dir().join(trimmed);
+        if p.parent() != Some(self.images_dir().as_path()) {
+            return Err(anyhow!("image path escape detected"));
+        }
+        Ok(p)
     }
 
     pub fn delete_image(&self, name: &str) -> Result<()> {
@@ -434,8 +517,12 @@ impl Store {
                     restored.push(stem.to_string());
                 }
             } else if let Some(img) = n.strip_prefix("images/") {
-                if !img.is_empty() && !img.contains('/') && !img.contains("..") {
-                    atomic_write(&self.images_dir().join(img), &bytes)?;
+                let img_clean = img.trim();
+                if Self::is_safe_attachment_filename(img_clean) {
+                    let target = self.images_dir().join(img_clean);
+                    if target.parent() == Some(self.images_dir().as_path()) {
+                        atomic_write(&target, &bytes)?;
+                    }
                 }
             }
         }
@@ -483,16 +570,21 @@ impl Store {
     }
 
     pub fn append_log(&self, line: &str) {
-        let p = self.logs_dir().join("sid.log");
+        let p = self.logs_dir().join("dayflit.log");
         if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(&p) {
             let _ = writeln!(f, "{} {}", Utc::now().format("%Y-%m-%dT%H:%M:%SZ"), line);
         }
         if let Ok(m) = fs::metadata(&p) {
             if m.len() > 2_000_000 {
-                let _ = fs::rename(&p, self.logs_dir().join("sid.log.1"));
+                let _ = fs::rename(&p, self.logs_dir().join("dayflit.log.1"));
             }
         }
     }
+}
+
+#[allow(dead_code)]
+pub fn is_safe_attachment_filename(name: &str) -> bool {
+    Store::is_safe_attachment_filename(name)
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path, skip: &[&str]) -> Result<()> {
@@ -543,3 +635,95 @@ pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
     let _ = fs::remove_file(&tmp);
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_safe_attachment_filename() {
+        // Windows reserved DOS device names must all be rejected
+        let reserved = ["CON.png", "prn.wav", "AUX.jpg", "nul.txt", "COM1.webp", "com9.mp3", "LPT1.pdf", "lpt9.md", "conin$.png", "conout$.wav"];
+        for r in reserved {
+            assert!(!is_safe_attachment_filename(r), "Reserved name {r} must be rejected");
+        }
+
+        // Path traversal and NTFS ADS
+        let traversal = ["../photo.png", "..\\photo.png", "nested/../../photo.png", "photo.png:hidden", "C:\\autoexec.bat", "d:/secret.png"];
+        for t in traversal {
+            assert!(!is_safe_attachment_filename(t), "Traversal/ADS {t} must be rejected");
+        }
+
+        // Invalid Windows chars
+        let invalid_chars = ["pic*.png", "pic?.png", "pic\"name.png", "pic<name.png", "pic>name.png", "pic|name.png"];
+        for ic in invalid_chars {
+            assert!(!is_safe_attachment_filename(ic), "Invalid char {ic} must be rejected");
+        }
+
+        // Trailing dots and spaces (NTFS auto-truncation issues)
+        assert!(!is_safe_attachment_filename("image.png."));
+        assert!(!is_safe_attachment_filename("image.png "));
+
+        // Disallowed extensions
+        let bad_exts = ["payload.exe", "script.bat", "run.cmd", "code.ps1", "lib.dll", "macro.vbs", "shell.sh"];
+        for b in bad_exts {
+            assert!(!is_safe_attachment_filename(b), "Bad extension {b} must be rejected");
+        }
+
+        // Allowed safe attachments
+        let allowed = ["diagram-2026.png", "voice_memo.wav", "audio_track.mp3", "notes.md", "document.pdf", "photo.jpg", "sticker.webp"];
+        for a in allowed {
+            assert!(is_safe_attachment_filename(a), "Allowed attachment {a} should pass");
+        }
+    }
+
+    #[test]
+    fn test_store_image_path_safety() {
+        let temp_base = std::env::temp_dir().join(format!("dayflit_test_store_{}", uuid::Uuid::new_v4()));
+        let cfg_dir = temp_base.join("cfg");
+        let data_dir = temp_base.join("data");
+        let store = Store::new_with_dirs(cfg_dir.clone(), data_dir.clone()).expect("init test store");
+
+        // Safe filename should resolve inside images_dir
+        let safe_p = store.image_path("valid_photo.png").expect("safe path");
+        assert_eq!(safe_p.parent(), Some(store.images_dir().as_path()));
+
+        // Unsafe filenames must error
+        assert!(store.image_path("CON.png").is_err());
+        assert!(store.image_path("../evil.png").is_err());
+        assert!(store.image_path("evil.png:ads").is_err());
+        assert!(store.image_path("payload.exe").is_err());
+
+        let _ = fs::remove_dir_all(&temp_base);
+    }
+
+    #[test]
+    fn test_store_recovery_from_bak() {
+        let temp_base = std::env::temp_dir().join(format!("dayflit_test_recovery_{}", uuid::Uuid::new_v4()));
+        let cfg_dir = temp_base.join("cfg");
+        let data_dir = temp_base.join("data");
+        let store = Store::new_with_dirs(cfg_dir.clone(), data_dir.clone()).expect("init test store");
+
+        // 1. Initial save of tasks
+        let tasks_v1 = serde_json::json!([{"id": "t1", "title": "First Task"}]);
+        store.save("tasks", tasks_v1.clone()).expect("first save");
+
+        // 2. Second save creates .bak of v1
+        let tasks_v2 = serde_json::json!([{"id": "t1", "title": "First Task"}, {"id": "t2", "title": "Second Task"}]);
+        store.save("tasks", tasks_v2.clone()).expect("second save");
+
+        // 3. Corrupt primary file with garbage bytes
+        let primary_p = store.path_for("tasks");
+        fs::write(&primary_p, b"corrupted byte stream payload").expect("corrupt primary");
+
+        // 4. Load should detect corruption and recover from .bak
+        let load_res = store.load("tasks").expect("load with recovery");
+        assert_eq!(load_res.recovered_from.as_deref(), Some("bak"));
+        let loaded_tasks = load_res.data.expect("recovered data");
+        assert_eq!(loaded_tasks, tasks_v1);
+
+        // Clean up
+        let _ = fs::remove_dir_all(&temp_base);
+    }
+}
+

@@ -11,10 +11,11 @@ import { useMedia } from "@/stores/media";
 import { useUi } from "@/stores/ui";
 import { useSettings } from "@/stores/settings";
 import { useCalendar, nextMeeting } from "@/stores/calendar";
+import { useLife } from "@/stores/life";
 import { freeSlots, formatSlots, nextDays } from "./availability";
 import { openExternal } from "./open";
 import { addDays, startOfDay } from "date-fns";
-import { plainText } from "./markdown";
+import { plainText, extractCleanTitleAndExcerpt } from "./markdown";
 
 export function collectPaletteData(): PaletteData {
   const tasks = useTasks.getState().tasks;
@@ -22,18 +23,28 @@ export function collectPaletteData(): PaletteData {
   const habits = useHabits.getState().habits;
   const clips = useClips.getState().clips;
   const snap = useFocus.getState().snap;
+  const life = useLife.getState().data;
   const today = dateKey();
   return {
     tasks: tasks.filter((t) => t.status === "open").concat(tasks.filter((t) => t.status === "done").slice(0, 200)).map((t) => ({ id: t.id, title: t.title, status: t.status, due: t.due, hasTime: t.hasTime, priority: t.priority, tags: t.tags, list: t.list, notes: t.notes.slice(0, 300) })),
-    notes: notes.filter((n) => !n.archived).map((n) => ({ id: n.id, title: n.title || plainText(n.body).slice(0, 60) || "Untitled", body: plainText(n.body).slice(0, 2000), tags: n.tags })),
+    notes: notes.filter((n) => !n.archived).map((n) => {
+      const { title, excerpt } = extractCleanTitleAndExcerpt(n.body, n.title, { defaultImageTitle: "Image Note", date: n.createdAt });
+      return { id: n.id, title, body: excerpt || plainText(n.body).slice(0, 2000), tags: n.tags };
+    }),
     events: useCalendar
       .getState()
       .eventsBetween(Date.now() - 7 * 86_400_000, Date.now() + 60 * 86_400_000)
       .slice(0, 300)
       .map((e) => ({ id: e.id, title: e.title, when: new Date(e.start).toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }), url: e.meeting?.url ?? null, body: [e.location, e.attendees.join(" "), e.description.slice(0, 300)].join(" ") })),
-    journal: useJournal.getState().entries.slice(0, 500).map((e) => ({ id: e.id, title: e.title || plainText(e.body).slice(0, 60) || "Journal entry", body: plainText(e.body).slice(0, 2000), tags: e.tags, date: e.date })),
+    journal: useJournal.getState().entries.slice(0, 500).map((e) => {
+      const { title, excerpt } = extractCleanTitleAndExcerpt(e.body, e.title, { defaultImageTitle: "Photo Entry", date: e.createdAt });
+      return { id: e.id, title, body: excerpt || plainText(e.body).slice(0, 2000), tags: e.tags, date: e.date };
+    }),
     habits: habits.filter((h) => !h.archived).map((h) => ({ id: h.id, name: h.name, icon: h.icon, doneToday: isDoneOn(h, today) })),
     clips: clips.slice(0, 200).map((c) => ({ id: c.id, text: c.text, kind: c.kind, app: c.source.app })),
+    domains: life.domains.map((d) => ({ id: d.id, name: d.name, color: d.color, score: d.score })),
+    goals: life.goals.map((g) => ({ id: g.id, title: g.title, domainId: g.domainId })),
+    projects: life.projects.map((p) => ({ id: p.id, title: p.title, domainId: p.domainId })),
     focusRunning: !!snap.session && snap.session.status !== "finished",
     focusPaused: snap.session?.status === "paused" || snap.session?.status === "awaiting",
     lists: useSettings.getState().settings.tasks.lists,
@@ -48,7 +59,8 @@ export async function exportToMarkdown() {
   if (typeof dir !== "string") return;
   try {
     const r = await ipc.exportMarkdown(dir);
-    toast({ title: "Export complete", body: `${r.notes} notes, ${r.journal} journal entries, ${r.tasks} tasks, ${r.attachments} attachments`, kind: "success", ttl: 8000, action: { label: "Open folder", onClick: () => void import("@tauri-apps/plugin-opener").then((m) => m.openPath(dir)) } });
+    const lifePart = r.life ? `${r.life} life pillars, ` : "";
+    toast({ title: "Export complete", body: `${r.notes} notes, ${r.journal} journal entries, ${r.tasks} tasks, ${lifePart}${r.attachments} attachments`, kind: "success", ttl: 8000, action: { label: "Open folder", onClick: () => void import("@tauri-apps/plugin-opener").then((m) => m.openPath(dir)) } });
   } catch (e) {
     toast({ title: "Export failed", body: String(e), kind: "error" });
   }
@@ -106,7 +118,7 @@ export async function runAction(a: PaletteAction) {
       if (isTauri) void ipc.showMain();
       break;
     case "complete-task":
-      useTasks.getState().complete(a.id);
+      useTasks.getState().toggle(a.id);
       break;
     case "focus-task":
       await useFocus.getState().startForTask(a.id);
@@ -138,7 +150,25 @@ export async function runAction(a: PaletteAction) {
       break;
     case "capture-clip": {
       const clips = useClips.getState();
-      let clip = clips.clips.find((c) => c.id === a.clip.id) ?? clips.addRaw(a.clip);
+      const normText = (t?: string) => (t || "").replace(/\r\n/g, "\n").trim();
+      const normImg = (im?: string | null) => (im || "").replace(/^dayflit-?image:\/\//, "").trim();
+      let clip =
+        clips.clips.find((c) => c.id === a.clip.id) ||
+        clips.clips.find((c) => {
+          if (c.kind !== a.clip.kind) return false;
+          if (c.kind === "image") {
+            return Boolean(normImg(c.image) && normImg(a.clip.image) && normImg(c.image) === normImg(a.clip.image));
+          }
+          return normText(c.text) === normText(a.clip.text);
+        }) ||
+        (clips.lastCaptured &&
+        clips.lastCaptured.kind === a.clip.kind &&
+        (a.clip.kind === "image"
+          ? Boolean(normImg(clips.lastCaptured.image) && normImg(a.clip.image) && normImg(clips.lastCaptured.image) === normImg(a.clip.image))
+          : normText(clips.lastCaptured.text) === normText(a.clip.text))
+          ? clips.lastCaptured
+          : null) ||
+        clips.addRaw(a.clip);
       const src = { app: clip.source.app, title: clip.source.title, exe: clip.source.exe };
       if (a.as === "note") {
         const body = clip.kind === "image" && clip.image ? `![clipboard image](dayflit-image://${clip.image})` : clip.text;
@@ -167,6 +197,9 @@ export async function runAction(a: PaletteAction) {
     case "settings":
       ui.navigate("settings", a.section ?? null);
       if (isTauri) void ipc.showMain();
+      break;
+    case "update-settings":
+      useSettings.getState().update(a.patch);
       break;
     case "quit":
       if (isTauri) await ipc.quit();

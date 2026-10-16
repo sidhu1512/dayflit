@@ -1,15 +1,28 @@
 import { isTauri } from "./ipc";
 
+export function isSafeExternalUrl(url: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const clean = url.trim().replace(/[\x00-\x1f\x7f]/g, "");
+  if (!/^https?:\/\//i.test(clean) && !/^mailto:/i.test(clean)) return false;
+  // Guard against internal asset URLs (e.g. Tauri custom protocol for local audio/images)
+  if (/^https?:\/\/asset\.localhost/i.test(clean) || /^asset:\/\//i.test(clean) || /^dayflit-image:\/\//i.test(clean)) {
+    return false;
+  }
+  return true;
+}
+
 export async function openExternal(url: string) {
-  if (!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) return;
+  if (!isSafeExternalUrl(url)) return;
+  const clean = url.trim().replace(/[\x00-\x1f\x7f]/g, "");
   if (!isTauri) {
-    window.open(url, "_blank", "noopener");
+    if (typeof window !== "undefined") window.open(clean, "_blank", "noopener,noreferrer");
     return;
   }
   try {
     const { openUrl } = await import("@tauri-apps/plugin-opener");
-    await openUrl(url);
+    await openUrl(clean);
   } catch {
-    window.open(url, "_blank", "noopener");
+    if (typeof window !== "undefined") window.open(clean, "_blank", "noopener,noreferrer");
   }
 }
+

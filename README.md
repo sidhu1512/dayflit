@@ -1,10 +1,21 @@
 # Dayflit
 
-A floating desktop productivity companion for Windows: tasks, notes, focus sessions, habits, calendar, clipboard capture and media controls in one translucent window that is always a keystroke away.
+[![Website](https://img.shields.io/badge/Website-sidhu1512.github.io%2Fdayflit-60a5fa?style=flat-square)](https://sidhu1512.github.io/dayflit/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078d4?style=flat-square&logo=windows)](https://sidhu1512.github.io/dayflit/)
+[![Tests](https://img.shields.io/badge/Tests-266%20Passed-success?style=flat-square)](https://github.com/sidhu1512/dayflit)
+[![Built with](https://img.shields.io/badge/Built%20with-Tauri%20v2%20%2B%20React%2019-ea580c?style=flat-square)](https://tauri.app)
+[![License](https://img.shields.io/badge/License-MIT-gray?style=flat-square)](LICENSE)
+
+> **A floating desktop productivity companion for Windows.** Tasks, canvas boards, notes, focus sessions, habits, calendar timeboxing, clipboard capture, and media controls in one translucent, high-performance window that is always a keystroke away. 100% offline, local JSON storage, zero telemetry.
+
+🌐 **Live Website & Interactive Preview:** [https://sidhu1512.github.io/dayflit/](https://sidhu1512.github.io/dayflit/)
 
 ## Features
 
 - **Instant capture** with natural language: `Call Sam tomorrow 3pm #work !high every week for 30m`
+- **Interactive Canvas Board & Life Map**: Visual spatial workspace with live embeds, connections, radar balance instrument, and smart object cards
+- **Dynamic Island & Floating Bubble**: Seamless micro-interactions, spring physics, and quick access floating widgets
+
 - **Tasks**: priorities, due dates/times, recurrence (schedule or after completion), lists, tags, subtasks, estimates, snooze, someday backlog, keyboard-first (j/k/x/e/f…)
 - **Focus**: Pomodoro / deep work / custom / stopwatch, Rust-authoritative timers that survive a hidden window, task linking, floating PiP timer, completion sounds, ambient soundscapes, media hooks (play on start, pause on break/end), pause on Windows lock
 - **Notes**: Markdown, checklists, #tags, link previews, pasted/dropped images stored locally

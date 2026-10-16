@@ -78,9 +78,16 @@ export function parseEstimate(text: string): [number | null, string] {
   return [null, ""];
 }
 
+// Warm up chrono parser lazily so regex compilation doesn't add latency during parsing
+try {
+  chrono.casual.parse("today", new Date());
+} catch {
+  // ignore
+}
+
 export function parseQuickAdd(input: string, opts: { now?: Date; knownLists?: string[]; forwardDate?: boolean } = {}): ParsedTask {
   const now = opts.now ?? new Date();
-  let text = input.trim();
+  let text = input.replace(/\s+/g, " ").trim();
   const chips: ParsedTask["chips"] = [];
 
   // tags
@@ -125,9 +132,9 @@ export function parseQuickAdd(input: string, opts: { now?: Date; knownLists?: st
 
   // recurrence
   const [recurrence, recText] = parseRecurrence(text);
-  if (recurrence) {
-    const idx = text.toLowerCase().indexOf(recText);
-    if (idx >= 0) text = text.slice(0, idx) + " " + text.slice(idx + recText.length);
+  if (recurrence && recText) {
+    const escaped = recText.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    text = text.replace(new RegExp(`\\b${escaped}\\b`, "gi"), " ").replace(/\s+/g, " ");
     chips.push({ kind: "recurrence", text: recText });
   }
 

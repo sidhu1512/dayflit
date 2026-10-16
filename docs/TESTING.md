@@ -1,4 +1,4 @@
-# Testing Sid
+# Testing DayFlit
 
 ## Unit tests
 - `npm test` — parser (chrono + custom recurrence/priority/estimate), recurrence engine.

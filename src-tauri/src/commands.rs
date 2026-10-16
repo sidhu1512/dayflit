@@ -396,6 +396,14 @@ pub fn window_toggle_pip(app: AppHandle) -> bool {
     }
 }
 #[tauri::command]
+pub fn window_adjust_pip(app: AppHandle, width: u32, height: u32) {
+    windows::adjust_pip_size(&app, width, height);
+}
+#[tauri::command]
+pub fn window_snap_pip_top_center(app: AppHandle) {
+    windows::snap_pip_top_center(&app);
+}
+#[tauri::command]
 pub fn window_show_palette(app: AppHandle, mode: String) {
     windows::show_palette(&app, &mode);
 }
@@ -481,6 +489,11 @@ pub fn window_hide_voice(app: AppHandle) {
     windows::hide_voice(&app);
 }
 
+#[tauri::command]
+pub fn window_resize_voice(app: AppHandle, width: u32, height: u32) {
+    windows::resize_voice(&app, width, height);
+}
+
 // ---------- distraction nudges ----------
 
 #[tauri::command]
@@ -497,6 +510,28 @@ pub fn nudge_snooze(app: AppHandle) {
 #[tauri::command]
 pub fn window_hide_nudge(app: AppHandle) {
     windows::hide_nudge(&app);
+}
+
+// ---------- OS activity timeline ----------
+
+#[tauri::command]
+pub fn activity_get_sessions() -> Vec<distraction::ActivitySession> {
+    distraction::get_activity_sessions()
+}
+
+#[tauri::command]
+pub fn activity_set_paused(paused: bool) {
+    distraction::set_activity_paused(paused);
+}
+
+#[tauri::command]
+pub fn activity_is_paused() -> bool {
+    distraction::is_activity_paused()
+}
+
+#[tauri::command]
+pub fn activity_clear() {
+    distraction::clear_activity_sessions();
 }
 
 // ---------- sound & shortcuts ----------
@@ -516,11 +551,16 @@ pub fn app_quit(app: AppHandle) {
     if let Some(w) = app.get_webview_window("main") {
         windows::remember_main(&w);
     }
+    windows::flush_now();
     app.exit(0);
 }
 
 #[tauri::command]
 pub fn app_relaunch(app: AppHandle) {
+    if let Some(w) = app.get_webview_window("main") {
+        windows::remember_main(&w);
+    }
+    windows::flush_now();
     app.restart();
 }
 

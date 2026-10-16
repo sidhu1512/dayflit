@@ -5,6 +5,7 @@ import { useTasks } from "@/stores/tasks";
 import { useUi } from "@/stores/ui";
 import { useSettings } from "@/stores/settings";
 import { useFocus } from "@/stores/focus";
+import { useLife } from "@/stores/life";
 import { parseDue, toDueString } from "@/lib/dates";
 import { describeRecurrence } from "@/lib/recurrence";
 import { extractLinks } from "@/lib/nlp";
@@ -25,6 +26,9 @@ export function TaskEditor({ taskId }: { taskId: string }) {
   const close = () => useUi.getState().setEditingTask(null);
   const lists = useSettings((s) => s.settings.tasks.lists);
   const startForTask = useFocus((s) => s.startForTask);
+  const domains = useLife((s) => s.data.domains);
+  const goals = useLife((s) => s.data.goals);
+  const projects = useLife((s) => s.data.projects);
   const [title, setTitle] = useState(task?.title ?? "");
   const [notes, setNotes] = useState(task?.notes ?? "");
   const [dueText, setDueText] = useState("");
@@ -80,18 +84,18 @@ export function TaskEditor({ taskId }: { taskId: string }) {
   const links = [...new Set([...t.links, ...extractLinks(t.notes)])];
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-bg/95 backdrop-blur-sm anim-fade">
-      <div className="flex items-center gap-2 px-4 pt-3">
-        <span className="section-title">Edit task</span>
-        <div className="flex-1" />
-        <button className="btn btn-sm" onClick={() => { close(); void startForTask(t.id); }} aria-label="Start a focus session on this task" data-tip="Start a focus session on this task">
+    <div className="absolute inset-0 z-50 flex flex-col min-w-0 min-h-0 overflow-hidden bg-bg/95 backdrop-blur-sm things-sheet-expand">
+      <div className="flex items-center gap-2 px-4 pt-3 min-w-0">
+        <span className="section-title truncate">Edit task</span>
+        <div className="flex-1 min-w-0" />
+        <button className="btn btn-sm shrink-0" onClick={() => { close(); void startForTask(t.id); }} aria-label="Start a focus session on this task">
           <Play size={13} /> Focus
         </button>
-        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => { commitTitle(); commitNotes(); close(); }} aria-label="Done (Esc)" data-tip="Done (Esc)">
+        <button className="btn btn-ghost btn-icon btn-sm shrink-0" onClick={() => { commitTitle(); commitNotes(); close(); }} aria-label="Done (Esc)">
           <X size={16} />
         </button>
       </div>
-      <div className="scroll flex-1 px-4 pb-4 pt-2">
+      <div className="scroll flex-1 min-h-0 overflow-y-auto px-4 pb-4 pt-2">
         <div className="flex items-start gap-2">
           <button className="checkbox mt-2" data-checked={t.status === "done"} data-priority={t.priority} onClick={() => useTasks.getState().toggle(t.id)}>
             {t.status === "done" && <Check size={12} strokeWidth={3} />}
@@ -210,6 +214,58 @@ export function TaskEditor({ taskId }: { taskId: string }) {
             <input className="input w-[110px]" type="number" min={0} placeholder="Est. min" value={t.estimateMin ?? ""} onChange={(e) => update(t.id, { estimateMin: e.target.value ? parseInt(e.target.value, 10) : null })} />
           </div>
           <input className="input mt-2" placeholder="Tags, comma separated" defaultValue={t.tags.join(", ")} onBlur={(e) => update(t.id, { tags: e.target.value.split(",").map((x) => x.trim().replace(/^#/, "").toLowerCase()).filter(Boolean) })} />
+        </Section>
+
+        <Section title="Life Alignment">
+          <div className="flex flex-col gap-2">
+            <select
+              className="input w-full text-[0.85em]"
+              value={t.domainId ?? ""}
+              onChange={(e) => {
+                const domainId = e.target.value || null;
+                update(t.id, { domainId, goalId: null, projectId: null });
+              }}
+            >
+              <option value="">No Life Pillar linked</option>
+              {domains.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+            {t.domainId && goals.filter((g) => g.domainId === t.domainId).length > 0 && (
+              <select
+                className="input w-full text-[0.85em]"
+                value={t.goalId ?? ""}
+                onChange={(e) => update(t.id, { goalId: e.target.value || null })}
+              >
+                <option value="">No specific goal</option>
+                {goals
+                  .filter((g) => g.domainId === t.domainId)
+                  .map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.title}
+                    </option>
+                  ))}
+              </select>
+            )}
+            {t.domainId && projects.filter((p) => p.domainId === t.domainId).length > 0 && (
+              <select
+                className="input w-full text-[0.85em]"
+                value={t.projectId ?? ""}
+                onChange={(e) => update(t.id, { projectId: e.target.value || null })}
+              >
+                <option value="">No specific project</option>
+                {projects
+                  .filter((p) => p.domainId === t.domainId)
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+              </select>
+            )}
+          </div>
         </Section>
 
         <Section title={`Subtasks${t.subtasks.length ? ` · ${t.subtasks.filter((s) => s.done).length}/${t.subtasks.length}` : ""}`}>

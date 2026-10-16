@@ -55,6 +55,9 @@ export interface Task {
   backlog: boolean;
   /** number of times a recurring task was completed */
   completions: number;
+  domainId?: string | null;
+  goalId?: string | null;
+  projectId?: string | null;
 }
 
 export interface Note {
@@ -69,6 +72,7 @@ export interface Note {
   updatedAt: number;
   images: string[];
   source: CaptureSource | null;
+  domainId?: string | null;
 }
 
 export type HabitSchedule = { type: "daily" } | { type: "weekdays"; days: number[] } | { type: "timesPerWeek"; times: number };
@@ -89,6 +93,8 @@ export interface Habit {
   reminderTime: string | null;
   order: number;
   notes: string;
+  domainId?: string | null;
+  goalId?: string | null;
 }
 
 export interface Clip {
@@ -102,6 +108,24 @@ export interface Clip {
   width: number;
   height: number;
   convertedTo: { type: "task" | "note"; id: string } | null;
+}
+
+export type ActivityCategory =
+  | "Deep Work / Coding"
+  | "Design"
+  | "Communication"
+  | "Browsing"
+  | "Distraction";
+
+export interface ActivitySession {
+  id: string;
+  exe: string;
+  processName: string;
+  title: string;
+  category: string;
+  startTime: number;
+  endTime: number;
+  durationSecs: number;
 }
 
 export interface Journal {
@@ -135,6 +159,7 @@ export interface JournalEntry {
   location: string | null;
   /** capture context, e.g. the app that was in front during a voice capture */
   context: CaptureSource | null;
+  domainId?: string | null;
 }
 
 export interface JournalTemplate {
@@ -147,6 +172,81 @@ export interface JournalData {
   journals: Journal[];
   entries: JournalEntry[];
   templates: JournalTemplate[];
+}
+
+export interface LifeResource {
+  id: string;
+  title: string;
+  type: "note" | "book" | "quote" | "link" | "guideline";
+  content: string;
+  url?: string;
+  author?: string;
+  createdAt: number;
+}
+
+export interface LifeDomain {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  icon: string;
+  color: string;
+  score: number; // 1 - 10 satisfaction score
+  targetScore: number; // 1 - 10 target
+  reflection: string;
+  principles?: string[];
+  resources?: LifeResource[];
+  order?: number;
+  isCustom?: boolean;
+  updatedAt: number;
+}
+
+export interface LifeGoal {
+  id: string;
+  domainId: string;
+  title: string;
+  description?: string;
+  status: "not_started" | "in_progress" | "achieved" | "paused";
+  targetDate?: string;
+  timeframe?: "quarterly" | "annual" | "lifetime";
+  progress: number; // 0 - 100
+  metric?: string;
+  linkedHabitIds?: string[];
+  linkedTaskIds?: string[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface LifeProject {
+  id: string;
+  domainId: string;
+  goalId?: string;
+  title: string;
+  description?: string;
+  status: "planned" | "active" | "completed" | "on_hold";
+  tags: string[];
+  coverColor?: string;
+  targetDate?: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface WheelAssessment {
+  id: string;
+  date: string;
+  scores: Record<string, number>;
+  overallScore: number;
+  reflectionNotes?: string;
+  balanceIndex?: number;
+  createdAt: number;
+}
+
+export interface LifeData {
+  domains: LifeDomain[];
+  goals: LifeGoal[];
+  projects: LifeProject[];
+  assessments: WheelAssessment[];
+  version: number;
 }
 
 export interface CalendarSource {
@@ -313,7 +413,7 @@ export interface Settings {
     fontSize: number;
     radius: number;
     reduceMotion: boolean;
-    fontFamily: "system" | "inter" | "serif" | "mono";
+    fontFamily: "system" | "inter" | "sacramento" | "pacifico" | "caveat";
     showBackgroundGlow: boolean;
   };
   window: {
@@ -325,6 +425,9 @@ export interface Settings {
     smartDock: boolean;
     autostart: boolean;
     bubbleShowsTimer: boolean;
+    widgetTrayMode?: "island" | "expanded" | "compact";
+    enabledWidgets?: string[];
+    activeWidget?: string;
   };
   focus: {
     defaults: Omit<FocusConfig, "taskId" | "taskTitle" | "label">;
@@ -417,3 +520,13 @@ export interface WindowStateInfo {
   dark: boolean;
   pipVisible: boolean;
 }
+
+export interface StashPin {
+  id: string;
+  type: "text" | "url" | "file" | "image";
+  title: string;
+  content: string;
+  preview?: string;
+  createdAt: number;
+}
+

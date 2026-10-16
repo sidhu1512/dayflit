@@ -370,7 +370,7 @@ pub async fn fetch_source_text(url: &str) -> Result<String> {
 
 async fn fetch_http(url: &str) -> Result<String> {
     let client = reqwest::Client::builder()
-        .user_agent("Sid/1.0 (Windows; calendar)")
+        .user_agent("DayFlit/1.0 (Windows; calendar)")
         .timeout(std::time::Duration::from_secs(25))
         .build()?;
     let resp = client.get(url).send().await?;

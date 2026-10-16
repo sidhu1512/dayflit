@@ -1,4 +1,4 @@
-# Sid — project memory
+# DayFlit — project memory
 
 Floating desktop productivity companion for Windows. Built 2026-09-25 onward.
 No prior codebase existed on this machine; the functional brief (docs/BRIEF.md) is the spec.

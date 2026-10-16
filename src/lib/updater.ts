@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { isTauri } from "./ipc";
+import { ipc, isTauri } from "./ipc";
 
 export interface UpdateInfo {
   version: string;
@@ -26,7 +26,7 @@ let pending: import("@tauri-apps/plugin-updater").Update | null = null;
 
 function friendly(e: unknown): string {
   const s = String(e);
-  if (/OWNER\/dayflit|example\.com|Could not fetch|dns|resolve|404|Not Found|ENOTFOUND|failed to connect/i.test(s)) return "No update server is configured yet. See docs/UPDATES.md to point Dayflit at your releases.";
+  if (/OWNER\/dayflit|example\.com|Could not fetch|dns|resolve|404|Not Found|ENOTFOUND|failed to connect/i.test(s)) return "No update server is configured yet. See docs/UPDATES.md to point DayFlit at your releases.";
   if (/signature/i.test(s)) return "The update's signature did not match. The download was discarded.";
   return s;
 }
@@ -82,6 +82,19 @@ export const useUpdater = create<UpdaterState>((set, get) => ({
     }
   },
   relaunch: async () => {
+    try {
+      const { flushAll } = await import("./persist");
+      await flushAll();
+    } catch {
+      /* ignore */
+    }
+    if (isTauri) {
+      try {
+        await ipc.backupNow(false, "pre-update");
+      } catch {
+        /* ignore */
+      }
+    }
     const { relaunch } = await import("@tauri-apps/plugin-process");
     await relaunch();
   },

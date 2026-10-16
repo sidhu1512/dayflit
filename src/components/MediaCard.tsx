@@ -62,13 +62,13 @@ export function MediaCard({ compact }: { compact?: boolean }) {
           )}
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
-          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => void control("prev", cur.appId)} aria-label="Previous" data-tip="Previous">
+          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => void control("prev", cur.appId)} aria-label="Previous">
             <SkipBack size={15} />
           </button>
-          <button className="btn btn-icon !rounded-full bg-accent text-accent-fg hover:bg-accent/85" onClick={() => void control("toggle", cur.appId)} aria-label={playing ? "Pause" : "Play"} data-tip={playing ? "Pause" : "Play"}>
+          <button className="btn btn-icon !rounded-full bg-accent text-accent-fg hover:bg-accent/85" onClick={() => void control("toggle", cur.appId)} aria-label={playing ? "Pause" : "Play"}>
             {playing ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
           </button>
-          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => void control("next", cur.appId)} aria-label="Next" data-tip="Next">
+          <button className="btn btn-ghost btn-icon btn-sm" onClick={() => void control("next", cur.appId)} aria-label="Next">
             <SkipForward size={15} />
           </button>
         </div>
@@ -77,10 +77,10 @@ export function MediaCard({ compact }: { compact?: boolean }) {
         <div className="relative mt-2.5 flex items-center gap-2">
           <span className="chip text-[0.72em]">{cur.appName}</span>
           <div className="flex-1" />
-          <button className="btn btn-ghost btn-icon btn-sm text-muted" onClick={() => void toggleMute()} aria-label={media.muted ? "Unmute" : "Mute"} data-tip={media.muted ? "Unmute" : "Mute"}>
+          <button className="btn btn-ghost btn-icon btn-sm text-muted" onClick={() => void toggleMute()} aria-label={media.muted ? "Unmute" : "Mute"}>
             {media.muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </button>
-          <input type="range" min={0} max={100} value={Math.round((media.muted ? 0 : media.volume) * 100)} onChange={(e) => void setVolume(parseInt(e.target.value, 10) / 100)} className="range w-24" aria-label="System volume" data-tip="System volume" />
+          <input type="range" min={0} max={100} value={Math.round((media.muted ? 0 : media.volume) * 100)} onChange={(e) => void setVolume(parseInt(e.target.value, 10) / 100)} className="range w-24" aria-label="System volume" />
         </div>
       )}
     </div>

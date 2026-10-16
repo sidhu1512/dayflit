@@ -13,6 +13,9 @@ import { Heatmap } from "@/components/Heatmap";
 import { ReviewView } from "@/views/Review";
 import { subDays } from "date-fns";
 import { cn } from "@/lib/ids";
+import { IntelligencePatterns } from "@/components/IntelligencePatterns";
+import { SlidingPillContainer } from "@/components/ui/MotionPrimitives";
+import { InfoHint } from "@/components/ui/InfoHint";
 
 const RANGES = [7, 14, 30, 90] as const;
 
@@ -27,15 +30,23 @@ export function StatsView() {
   }, [viewParam]);
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 pt-1">
-        <div className="flex-1 text-[1.05em] font-semibold">Insights</div>
-        <div className="flex rounded-lg bg-surface-2/60 p-0.5">
+      <div className="flex items-center justify-between gap-2 px-4 pt-1 flex-nowrap min-w-0">
+        <div className="text-[1.05em] font-semibold truncate min-w-0 flex-1 flex items-center gap-1.5">
+          <span>Insights</span>
+          <InfoHint text="Productivity patterns, focus metrics, and daily consistency trends." />
+        </div>
+        <SlidingPillContainer activeKey={tab} className="flex rounded-lg bg-surface-2/60 p-0.5 shrink-0" pillClassName="bg-surface-3 shadow-xs rounded-md">
           {([["overview", "Overview"], ["review", "Weekly review"], ["consistency", "Consistency"]] as const).map(([id, label]) => (
-            <button key={id} className={cn("rounded-md px-2 py-0.5 text-[0.8em]", tab === id ? "bg-surface-3 text-text" : "text-muted")} onClick={() => setTab(id)}>
+            <button
+              key={id}
+              data-active={tab === id ? "true" : undefined}
+              className={cn("relative z-10 rounded-md px-2 py-0.5 text-[0.8em] transition-colors shrink-0 whitespace-nowrap", tab === id ? "text-text font-medium" : "text-muted")}
+              onClick={() => setTab(id)}
+            >
               {label}
             </button>
           ))}
-        </div>
+        </SlidingPillContainer>
       </div>
       <div className="min-h-0 flex-1">
         {tab === "overview" && <Overview />}
@@ -57,14 +68,14 @@ function Consistency() {
   return (
     <div className="scroll h-full px-4 pb-4 pt-2">
       <div className="card p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <div>
-            <div className="text-[0.85em] font-medium">Consistency</div>
-            <div className="text-[0.72em] text-faint">Completed tasks, focus time, journal entries and habits, every day.</div>
+        <div className="mb-2 flex items-center justify-between flex-nowrap min-w-0 gap-2">
+          <div className="min-w-0 flex-1 flex items-center gap-1.5">
+            <div className="text-[0.85em] font-medium truncate">Consistency</div>
+            <InfoHint text="Completed tasks, focus time, journal entries and habits, every day. Levels are relative to your own typical day." />
           </div>
-          <div className="flex rounded-lg bg-surface-2/60 p-0.5">
+          <div className="flex rounded-lg bg-surface-2/60 p-0.5 shrink-0">
             {([26, 52] as const).map((w) => (
-              <button key={w} className={cn("rounded-md px-2 py-0.5 text-[0.8em]", weeks === w ? "bg-surface-3 text-text" : "text-muted")} onClick={() => setWeeks(w)}>
+              <button key={w} className={cn("rounded-md px-2 py-0.5 text-[0.8em] shrink-0 whitespace-nowrap", weeks === w ? "bg-surface-3 text-text font-medium" : "text-muted")} onClick={() => setWeeks(w)}>
                 {w === 26 ? "6 months" : "1 year"}
               </button>
             ))}
@@ -142,6 +153,10 @@ function Overview() {
         <Tile icon={<Repeat size={13} />} label="Habits" value={habitRate === null ? "—" : `${Math.round(habitRate * 100)}%`} sub="completion rate" />
       </div>
 
+      <div className="mt-4">
+        <IntelligencePatterns />
+      </div>
+
       <Chart title="Focus per day" subtitle={peakHour >= 0 && hours[peakHour] > 0 ? `Peak hour: ${format(new Date(2000, 0, 1, peakHour), "h a")}` : undefined}>
         <Bars data={focusDays.map((d) => ({ key: d.key, v: d.secs / maxFocus, label: formatDuration(d.secs) }))} days={days} />
       </Chart>
@@ -203,9 +218,11 @@ function Tile({ icon, label, value, sub }: { icon: React.ReactNode; label: strin
 function Chart({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <div className="card mt-3 p-3">
-      <div className="mb-2 flex items-baseline justify-between">
-        <div className="text-[0.85em] font-medium">{title}</div>
-        {subtitle && <div className="text-[0.72em] text-faint">{subtitle}</div>}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-[0.85em] font-medium">
+          <span>{title}</span>
+          {subtitle && <InfoHint text={subtitle} />}
+        </div>
       </div>
       {children}
     </div>

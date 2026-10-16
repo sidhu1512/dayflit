@@ -1,5 +1,5 @@
 import type { View } from "@/stores/ui";
-import type { CaptureSource, Task } from "./types";
+import type { CaptureSource, Settings, Task } from "./types";
 import type { RawClip } from "./ipc";
 
 /** Actions the command palette can request. Executed in the main window (see runAction). */
@@ -28,7 +28,8 @@ export type PaletteAction =
   | { type: "availability"; days: number }
   | { type: "join-next-meeting" }
   | { type: "open-event"; id: string; url: string | null }
-  | { type: "habit-toggle"; id: string };
+  | { type: "habit-toggle"; id: string }
+  | { type: "update-settings"; patch: { [K in keyof Settings]?: Settings[K] extends object ? Partial<Settings[K]> : Settings[K] } };
 
 export interface PaletteData {
   tasks: Pick<Task, "id" | "title" | "status" | "due" | "hasTime" | "priority" | "tags" | "list" | "notes">[];
@@ -37,6 +38,9 @@ export interface PaletteData {
   events: { id: string; title: string; when: string; url: string | null; body: string }[];
   habits: { id: string; name: string; icon: string; doneToday: boolean }[];
   clips: { id: string; text: string; kind: string; app: string }[];
+  domains?: { id: string; name: string; color: string; score: number }[];
+  goals?: { id: string; title: string; domainId: string }[];
+  projects?: { id: string; title: string; domainId: string }[];
   focusRunning: boolean;
   focusPaused: boolean;
   lists: string[];
@@ -59,16 +63,21 @@ export function commandList(data: PaletteData | null): CommandDef[] {
     { id: "nav-today", label: "Go to Today", section: "Navigate", action: { type: "navigate", view: "today" }, shortcut: "Ctrl+1" },
     { id: "nav-tasks", label: "Go to Tasks", section: "Navigate", action: { type: "navigate", view: "tasks" }, shortcut: "Ctrl+2" },
     { id: "nav-notes", label: "Go to Notes", section: "Navigate", action: { type: "navigate", view: "notes" }, shortcut: "Ctrl+3" },
+    { id: "nav-canvas", label: "Go to Visual Canvas", hint: "Infinite spatial workspace & Obsidian Canvas", section: "Navigate", action: { type: "navigate", view: "canvas" }, keywords: "infinite canvas edgeless visual whiteboard obsidian affine mindmap" },
     { id: "nav-journal", label: "Go to Journal", section: "Navigate", action: { type: "navigate", view: "journal" }, shortcut: "Ctrl+4" },
     { id: "nav-calendar", label: "Go to Calendar", section: "Navigate", action: { type: "navigate", view: "calendar" }, shortcut: "Ctrl+5" },
     { id: "nav-focus", label: "Go to Focus", section: "Navigate", action: { type: "navigate", view: "focus" }, shortcut: "Ctrl+6" },
     { id: "nav-habits", label: "Go to Habits", section: "Navigate", action: { type: "navigate", view: "habits" }, shortcut: "Ctrl+7" },
-    { id: "nav-clips", label: "Go to Clips", section: "Navigate", action: { type: "navigate", view: "clips" }, shortcut: "Ctrl+8" },
+    { id: "nav-life", label: "Go to Life Vision & Map", hint: "Life Library, Wheel of Life, and Life Map", section: "Navigate", action: { type: "navigate", view: "life" }, shortcut: "Ctrl+8", keywords: "domains pillars wheel balance library" },
+    { id: "nav-life-wheel", label: "Wheel of Life", hint: "Life balance assessment and satisfaction radar", section: "Navigate", action: { type: "navigate", view: "life", param: "wheel" }, keywords: "wheel radar balance satisfaction assessment" },
+    { id: "nav-life-map", label: "Life Map", hint: "Alignment from Life Vision to Daily Momentum", section: "Navigate", action: { type: "navigate", view: "life", param: "map" }, keywords: "life map alignment cascade flow" },
+    { id: "nav-clips", label: "Go to Clips", section: "Navigate", action: { type: "navigate", view: "clips" }, keywords: "clipboard history" },
     { id: "nav-stats", label: "Go to Insights", section: "Navigate", action: { type: "navigate", view: "stats" }, shortcut: "Ctrl+9" },
     { id: "nav-review", label: "Weekly review", hint: "This week versus last, and what to carry forward", section: "Navigate", action: { type: "navigate", view: "stats", param: "review" }, keywords: "digest summary week" },
     { id: "nav-heatmap", label: "Consistency heatmap", section: "Navigate", action: { type: "navigate", view: "stats", param: "consistency" }, keywords: "activity streak github" },
     { id: "nav-settings", label: "Open Settings", section: "Navigate", action: { type: "settings" }, shortcut: "Ctrl+," },
     { id: "new-task", label: "New task…", hint: "Type + then your task", section: "Create", action: { type: "navigate", view: "tasks", param: "new" }, keywords: "add create todo" },
+    { id: "new-canvas", label: "New Canvas Board…", section: "Create", action: { type: "navigate", view: "canvas", param: "new" }, keywords: "canvas board edgeless whiteboard diagram" },
     { id: "new-note", label: "New note…", section: "Create", action: { type: "add-note", text: "" }, keywords: "add create scratch" },
     { id: "new-journal", label: "New journal entry", hint: "Capture what happened, thought or learned", section: "Create", action: { type: "navigate", view: "journal", param: "new" }, keywords: "diary write reflect" },
     { id: "voice", label: "Voice capture", hint: "Speak a task, note or journal entry", section: "Create", action: { type: "voice" }, keywords: "dictate record microphone speak", shortcut: "Alt+Shift+V" },
@@ -101,6 +110,6 @@ export function commandList(data: PaletteData | null): CommandDef[] {
     { id: "backup", label: "Back up data now", section: "App", action: { type: "backup" } },
     { id: "export", label: "Export to Markdown (Obsidian)", hint: "Notes, journal, tasks, habits and attachments as plain files", section: "App", action: { type: "export" }, keywords: "obsidian markdown vault" },
     { id: "update", label: "Check for updates", section: "App", action: { type: "update-check" }, keywords: "upgrade version release" },
-    { id: "quit", label: "Quit Dayflit", section: "App", action: { type: "quit" }, keywords: "exit close" },
+    { id: "quit", label: "Quit DayFlit", section: "App", action: { type: "quit" }, keywords: "exit close" },
   ];
 }

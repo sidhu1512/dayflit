@@ -68,7 +68,11 @@ export function ReviewView() {
   const meetingSecs = sum(events.filter((e) => !e.allDay), (e) => (e.end - e.start) / 1000);
   const timeboxed = tasks.filter((t) => { const b = timeboxOf(t); return b && b.start >= wStart && b.start < wEnd; });
   const timeboxedDone = timeboxed.filter((t) => t.status === "done").length;
-  const unfinished: Task[] = tasks.filter((t) => t.status === "open" && !t.backlog && t.due && parseDue(t.due)!.getTime() < wEnd && parseDue(t.due)!.getTime() >= wStart - 30 * 86_400_000);
+  const unfinished: Task[] = tasks.filter((t) => {
+    if (t.status !== "open" || t.backlog || !t.due) return false;
+    const d = parseDue(t.due);
+    return !!d && d.getTime() < wEnd && d.getTime() >= wStart - 30 * 86_400_000;
+  });
   const overdueNow = tasks.filter((t) => t.status === "open" && !t.backlog && t.due && t.due.slice(0, 10) < dateKey());
   const topTasks = useMemo(() => {
     const m = new Map<string, { title: string; secs: number }>();

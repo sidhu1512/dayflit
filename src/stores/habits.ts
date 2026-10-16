@@ -43,6 +43,8 @@ export function makeHabit(input: HabitInput): Habit {
     reminderTime: input.reminderTime ?? null,
     order: input.order ?? t,
     notes: input.notes ?? "",
+    domainId: input.domainId ?? null,
+    goalId: input.goalId ?? null,
   };
 }
 
@@ -78,9 +80,9 @@ export const useHabits = create<HabitsState>((set, get) => {
     increment: (id, key = dateKey(), delta = 1) => {
       const h = get().byId(id);
       if (!h) return;
-      const cur = h.log[key] ?? 0;
+      const cur = (h.log ?? {})[key] ?? 0;
       const next = Math.max(0, cur + delta);
-      const log = { ...h.log };
+      const log = { ...(h.log ?? {}) };
       if (next === 0) delete log[key];
       else log[key] = next;
       get().update(id, { log });
@@ -88,7 +90,7 @@ export const useHabits = create<HabitsState>((set, get) => {
     setCount: (id, key, count) => {
       const h = get().byId(id);
       if (!h) return;
-      const log = { ...h.log };
+      const log = { ...(h.log ?? {}) };
       if (count <= 0) delete log[key];
       else log[key] = count;
       get().update(id, { log });
@@ -96,7 +98,7 @@ export const useHabits = create<HabitsState>((set, get) => {
     toggle: (id, key = dateKey()) => {
       const h = get().byId(id);
       if (!h) return;
-      const cur = h.log[key] ?? 0;
+      const cur = (h.log ?? {})[key] ?? 0;
       get().setCount(id, key, cur >= h.target ? 0 : h.target);
     },
     reorder: (ids) => {
@@ -117,7 +119,7 @@ export function isScheduledOn(h: Habit, d: Date): boolean {
 }
 
 export function isDoneOn(h: Habit, key: string): boolean {
-  return (h.log[key] ?? 0) >= h.target;
+  return ((h.log ?? {})[key] ?? 0) >= h.target;
 }
 
 export function describeSchedule(s: HabitSchedule): string {
@@ -135,33 +137,44 @@ export function streak(h: Habit, today = new Date()): number {
     // count consecutive weeks meeting the target
     let weeks = 0;
     let cursor = new Date(today);
+    cursor.setHours(12, 0, 0, 0);
     for (let i = 0; i < 260; i++) {
-      const start = addDays(cursor, -((cursor.getDay() + 6) % 7)); // Monday
+      const start = new Date(cursor);
+      start.setDate(start.getDate() - ((cursor.getDay() + 6) % 7)); // Monday noon
       let count = 0;
-      for (let d = 0; d < 7; d++) if (isDoneOn(h, dateKey(addDays(start, d)))) count++;
-      if (count >= h.schedule.times) weeks++;
-      else if (i > 0) break;
-      else if (count === 0 && i === 0) {
-        // current week may be in progress; don't break yet
+      const dayCursor = new Date(start);
+      for (let d = 0; d < 7; d++) {
+        if (d > 0) dayCursor.setDate(dayCursor.getDate() + 1);
+        if (isDoneOn(h, dateKey(dayCursor))) count++;
       }
-      cursor = addDays(start, -1);
+      if (count >= h.schedule.times) {
+        weeks++;
+      } else if (i > 0) {
+        break;
+      }
+      // If i === 0 and count < target, current week is still in progress; continue checking prior weeks
+      cursor = new Date(start);
+      cursor.setDate(cursor.getDate() - 1);
     }
     return weeks;
   }
   let n = 0;
   let d = new Date(today);
+  d.setHours(12, 0, 0, 0);
   // If today isn't done yet, start from yesterday so the streak isn't broken prematurely.
-  if (!isDoneOn(h, dateKey(d))) d = addDays(d, -1);
+  if (!isDoneOn(h, dateKey(d))) d.setDate(d.getDate() - 1);
+  const createdMs = typeof h.createdAt === "number" && !isNaN(h.createdAt) ? h.createdAt : typeof (h as unknown as { created?: number }).created === "number" ? (h as unknown as { created: number }).created : 0;
+  const minTime = createdMs > 0 ? createdMs - 86_400_000 * 2 : 0;
   for (let i = 0; i < 3650; i++) {
     const key = dateKey(d);
     if (!isScheduledOn(h, d)) {
-      d = addDays(d, -1);
+      d.setDate(d.getDate() - 1);
       continue;
     }
     if (isDoneOn(h, key)) n++;
     else break;
-    d = addDays(d, -1);
-    if (parseKey(key).getTime() < h.createdAt - 86_400_000 * 2) break;
+    d.setDate(d.getDate() - 1);
+    if (minTime > 0 && d.getTime() < minTime) break;
   }
   return n;
 }
@@ -169,12 +182,17 @@ export function streak(h: Habit, today = new Date()): number {
 export function completionRate(h: Habit, days = 30, today = new Date()): number {
   let scheduled = 0;
   let done = 0;
+  const createdMs = typeof h.createdAt === "number" && !isNaN(h.createdAt) ? h.createdAt : typeof (h as unknown as { created?: number }).created === "number" ? (h as unknown as { created: number }).created : 0;
+  const minKey = createdMs > 0 ? dateKey(new Date(createdMs)) : "";
+  const d = new Date(today);
+  d.setHours(12, 0, 0, 0);
   for (let i = 0; i < days; i++) {
-    const d = addDays(today, -i);
-    if (dateKey(d) < dateKey(new Date(h.createdAt))) break;
+    if (i > 0) d.setDate(d.getDate() - 1);
+    const dk = dateKey(d);
+    if (minKey && dk < minKey) break;
     if (!isScheduledOn(h, d)) continue;
     scheduled++;
-    if (isDoneOn(h, dateKey(d))) done++;
+    if (isDoneOn(h, dk)) done++;
   }
   return scheduled ? done / scheduled : 0;
 }

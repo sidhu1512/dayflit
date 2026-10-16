@@ -4,6 +4,7 @@ import { uid } from "@/lib/ids";
 import { dateKey, parseKey } from "@/lib/dates";
 import { loadCollection, scheduleSave } from "@/lib/persist";
 import { extractTags } from "@/lib/nlp";
+import { extractCleanTitleAndExcerpt, stripMediaAndMarkdown } from "@/lib/markdown";
 import type { CaptureSource, Journal, JournalData, JournalEntry, JournalTemplate } from "@/lib/types";
 
 export type EntryInput = Partial<Omit<JournalEntry, "id" | "createdAt" | "updatedAt">>;
@@ -19,11 +20,13 @@ interface JournalState {
   reload: () => Promise<void>;
   addJournal: (input: Partial<Journal> & { name: string }) => Journal;
   updateJournal: (id: string, patch: Partial<Journal>) => void;
+  renameJournal: (id: string, name: string) => void;
   removeJournal: (id: string) => void;
   addEntry: (input?: EntryInput) => JournalEntry;
   updateEntry: (id: string, patch: Partial<JournalEntry>) => void;
   setBody: (id: string, body: string) => void;
   removeEntry: (id: string) => void;
+  removeAttachment: (id: string, name: string, type?: "image" | "audio") => void;
   toggleFavorite: (id: string) => void;
   addTemplate: (name: string, body: string) => JournalTemplate;
   removeTemplate: (id: string) => void;
@@ -61,6 +64,7 @@ export function makeEntry(input: EntryInput): JournalEntry {
     prompt: input.prompt ?? null,
     location: input.location ?? null,
     context: input.context ?? null,
+    domainId: input.domainId ?? null,
   };
 }
 
@@ -86,11 +90,12 @@ export const useJournal = create<JournalState>((set, get) => {
       set(normalize(data));
     },
     addJournal: (input) => {
-      const j: Journal = { id: uid(), name: input.name.trim() || "Journal", color: input.color ?? "#60a5fa", icon: input.icon ?? "book-open", createdAt: Date.now(), order: get().journals.length };
+      const j: Journal = { id: uid(), name: (input.name ?? "").trim() || "Journal", color: input.color ?? "#60a5fa", icon: input.icon ?? "book-open", createdAt: Date.now(), order: get().journals.length };
       persist({ journals: [...get().journals, j] });
       return j;
     },
     updateJournal: (id, patch) => persist({ journals: get().journals.map((j) => (j.id === id ? { ...j, ...patch } : j)) }),
+    renameJournal: (id, name) => get().updateJournal(id, { name }),
     removeJournal: (id) => {
       if (id === "default") return;
       persist({ journals: get().journals.filter((j) => j.id !== id), entries: get().entries.map((e) => (e.journalId === id ? { ...e, journalId: "default" } : e)) });
@@ -100,14 +105,64 @@ export const useJournal = create<JournalState>((set, get) => {
       persist({ entries: [e, ...get().entries] });
       return e;
     },
-    updateEntry: (id, patch) => persist({ entries: get().entries.map((e) => (e.id === id ? { ...e, ...patch, updatedAt: Date.now() } : e)) }),
+    updateEntry: (id, patch) =>
+      persist({
+        entries: get().entries.map((e) => {
+          if (e.id !== id) return e;
+          const body = patch.body !== undefined ? patch.body : e.body;
+          const images =
+            patch.images !== undefined
+              ? patch.images
+              : patch.body !== undefined
+                ? [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))]
+                : e.images;
+          const tags =
+            patch.tags !== undefined
+              ? patch.tags
+              : patch.body !== undefined
+                ? extractTags(body)
+                : e.tags;
+          return { ...e, ...patch, body, images, tags, updatedAt: Date.now() };
+        }),
+      }),
     setBody: (id, body) => {
       const e = get().byId(id);
       if (!e || e.body === body) return;
       const images = [...new Set([...body.matchAll(/dayflit-image:\/\/([\w.-]+)/g)].map((m) => m[1]))];
+      const removed = (e.images ?? []).filter((im) => !images.includes(im));
+      if (removed.length) {
+        import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+          removed.forEach((img) => void deleteImageIfUnused(img));
+        }).catch(() => {});
+      }
       get().updateEntry(id, { body, tags: extractTags(body), images });
     },
-    removeEntry: (id) => persist({ entries: get().entries.filter((e) => e.id !== id) }),
+    removeAttachment: (id, name, type = "image") => {
+      const e = get().byId(id);
+      if (!e) return;
+      if (type === "audio") {
+        const nextAudio = (e.audio ?? []).filter((a) => a !== name);
+        get().updateEntry(id, { audio: nextAudio });
+        void import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => deleteImageIfUnused(name));
+        return;
+      }
+      const safe = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(`!\\[[^\\]]*\\]\\(dayflit-image://${safe}\\)\\s*`, "g");
+      const nextBody = e.body.replace(re, "").trim();
+      const nextImages = (e.images ?? []).filter((im) => im !== name);
+      get().updateEntry(id, { body: nextBody, images: nextImages });
+      void import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => deleteImageIfUnused(name));
+    },
+    removeEntry: (id) => {
+      const e = get().byId(id);
+      persist({ entries: get().entries.filter((x) => x.id !== id) });
+      if (e?.images?.length || e?.audio?.length) {
+        import("@/lib/imageUrl").then(({ deleteImageIfUnused }) => {
+          e.images?.forEach((img) => void deleteImageIfUnused(img));
+          e.audio?.forEach((aud) => void deleteImageIfUnused(aud));
+        }).catch(() => {});
+      }
+    },
     toggleFavorite: (id) => {
       const e = get().byId(id);
       if (e) get().updateEntry(id, { favorite: !e.favorite });
@@ -142,7 +197,8 @@ export function journalStreak(entries: JournalEntry[], today = new Date()): numb
 }
 
 export function wordCount(body: string): number {
-  return body.trim() ? body.trim().split(/\s+/).length : 0;
+  const clean = stripMediaAndMarkdown(body).trim();
+  return clean ? clean.split(/\s+/).filter(Boolean).length : 0;
 }
 
 /** "On this day": same calendar day in earlier years, plus one month and one week ago. */
@@ -159,12 +215,12 @@ export function onThisDay(entries: JournalEntry[], today = new Date()): { label:
 }
 
 export function entryTitle(e: JournalEntry): string {
-  if (e.title.trim()) return e.title.trim();
-  const first = e.body
-    .split("\n")
-    .map((l) => l.replace(/^#+\s*/, "").replace(/[*_`>]/g, "").trim())
-    .find((l) => l.length > 0);
-  return first ? first.slice(0, 80) : "Untitled entry";
+  const { title } = extractCleanTitleAndExcerpt(e.body, e.title, {
+    hasImages: Array.isArray(e.images) && e.images.length > 0,
+    defaultImageTitle: "Photo Entry",
+    date: e.createdAt,
+  });
+  return title;
 }
 
 export function contextFrom(s: { app: string; title: string; exe?: string }): CaptureSource {

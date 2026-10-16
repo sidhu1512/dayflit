@@ -58,7 +58,7 @@ export function Heatmap({ days, weeks = 26, weekStartsOn = 1, onSelect }: { days
           more
         </span>
       </div>
-      <div className="scroll overflow-x-auto pb-1">
+      <div className="overflow-x-auto overflow-y-hidden pb-1">
         <div className="relative inline-block">
           <div className="mb-0.5 flex h-3 text-[0.65em] text-faint" style={{ paddingLeft: 0 }}>
             {cols.map((col, i) => {

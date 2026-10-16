@@ -15,25 +15,51 @@ import { cn } from "@/lib/ids";
 import type { CalEvent, Task } from "@/lib/types";
 import { Timeline, UnscheduledList, autoPlan, timeboxOf } from "@/components/Timeline";
 import { CalendarClock, Wand2 } from "lucide-react";
+import { HorizontalPillStrip, type PillStripItem } from "@/components/ui/HorizontalPillStrip";
 
 export function CalendarView() {
   const now = useNow(60_000);
   const [anchor, setAnchor] = useState(() => startOfDay(new Date()));
   const [mode, setMode] = useState<"day" | "week">("day");
-  const settings = useSettings((s) => s.settings.calendar);
+  const settings = useSettings((s) => s.settings?.calendar);
   const eventsBetween = useCalendar((s) => s.eventsBetween);
   const cache = useCalendar((s) => s.cache);
   const sources = useCalendar((s) => s.sources);
+  const removeSource = useCalendar((s) => s.removeSource);
+  const updateSource = useCalendar((s) => s.updateSource);
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const refresh = useCalendar((s) => s.refresh);
   const refreshing = useCalendar((s) => s.refreshing);
   const tasks = useTasks((s) => s.tasks);
   const navigate = useUi((s) => s.navigate);
-  const days = useMemo(() => weekDays(anchor, settings.weekStartsOn), [anchor, settings.weekStartsOn]);
+  const weekStartsOn = (settings?.weekStartsOn as 0 | 1 | 6) ?? 1;
+  const days = useMemo(() => weekDays(anchor, weekStartsOn), [anchor, weekStartsOn]);
   const rangeStart = days[0].getTime();
   const rangeEnd = addDays(days[6], 1).getTime();
-  const events = useMemo(() => eventsBetween(rangeStart, rangeEnd), [cache, sources, rangeStart, rangeEnd]);
+  const events = useMemo(() => eventsBetween(rangeStart, rangeEnd), [eventsBetween, cache, sources, rangeStart, rangeEnd]);
   const busy = Object.values(refreshing).some(Boolean);
   const errors = sources.filter((s) => s.enabled && cache[s.id]?.error).map((s) => `${s.name}: ${cache[s.id].error}`);
+
+  const feedPillItems = useMemo<PillStripItem[]>(() => {
+    const list: PillStripItem[] = [
+      {
+        id: "all",
+        label: "All Feeds",
+        active: !selectedSourceId,
+        onSelect: () => setSelectedSourceId(null),
+      },
+    ];
+    for (const src of sources) {
+      list.push({
+        id: src.id,
+        label: src.name,
+        color: src.color,
+        active: selectedSourceId === src.id,
+        onSelect: () => setSelectedSourceId(src.id),
+      });
+    }
+    return list;
+  }, [sources, selectedSourceId]);
 
   useEffect(() => {
     void refresh();
@@ -53,36 +79,58 @@ export function CalendarView() {
     return () => window.removeEventListener("keydown", onKey);
   }, [mode]);
 
-  const dayEvents = (d: Date) => eventsOnDay(events, d);
+  const dayEvents = (d: Date) => {
+    const evs = eventsOnDay(events, d);
+    if (!selectedSourceId) return evs;
+    return evs.filter((e) => e.sourceId === selectedSourceId);
+  };
   const dayTasks = (d: Date) => sortTasks(tasks.filter((t) => t.status === "open" && !t.backlog && t.due?.slice(0, 10) === dateKey(d)));
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-1 px-3 pt-1">
-        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setAnchor((a) => addDays(a, mode === "day" ? -1 : -7))} aria-label="Previous (←)" data-tip="Previous (←)">
+      <div className="flex items-center gap-1 px-3 pt-1 flex-nowrap min-w-0">
+        <button className="btn btn-ghost btn-icon btn-sm shrink-0" onClick={() => setAnchor((a) => addDays(a, mode === "day" ? -1 : -7))} aria-label="Previous (←)">
           <ChevronLeft size={16} />
         </button>
-        <button className="btn btn-ghost btn-sm" onClick={() => setAnchor(startOfDay(new Date()))} aria-label="Today (t)" data-tip="Today (t)">
+        <button className="btn btn-ghost btn-sm shrink-0" onClick={() => setAnchor(startOfDay(new Date()))} aria-label="Today (t)">
           Today
         </button>
-        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => setAnchor((a) => addDays(a, mode === "day" ? 1 : 7))} aria-label="Next (→)" data-tip="Next (→)">
+        <button className="btn btn-ghost btn-icon btn-sm shrink-0" onClick={() => setAnchor((a) => addDays(a, mode === "day" ? 1 : 7))} aria-label="Next (→)">
           <ChevronRight size={16} />
         </button>
         <div className="ml-1 min-w-0 flex-1 truncate text-[0.95em] font-semibold">{mode === "day" ? format(anchor, "EEEE, d MMMM yyyy") : `${format(days[0], "d MMM")} – ${format(days[6], "d MMM yyyy")}`}</div>
-        <div className="flex rounded-lg bg-surface-2/60 p-0.5">
+        <div className="flex rounded-lg bg-surface-2/60 p-0.5 shrink-0">
           {(["day", "week"] as const).map((m) => (
-            <button key={m} className={cn("rounded-md px-2 py-0.5 text-[0.8em] capitalize", mode === m ? "bg-surface-3 text-text" : "text-muted")} onClick={() => setMode(m)}>
+            <button key={m} className={cn("rounded-md px-2 py-0.5 text-[0.8em] capitalize shrink-0", mode === m ? "bg-surface-3 text-text font-medium" : "text-muted")} onClick={() => setMode(m)}>
               {m}
             </button>
           ))}
         </div>
-        <button className={cn("btn btn-ghost btn-icon btn-sm", busy && "spin")} onClick={() => void refresh(undefined, true)} aria-label="Refresh calendars" data-tip="Refresh calendars" disabled={busy || sources.length === 0}>
+        <button className={cn("btn btn-ghost btn-icon btn-sm shrink-0", busy && "spin")} onClick={() => void refresh(undefined, true)} aria-label="Refresh calendars" disabled={busy || sources.length === 0}>
           <RefreshCw size={14} />
         </button>
-        <button className="btn btn-ghost btn-icon btn-sm" onClick={() => navigate("settings", "calendar")} aria-label="Calendar sources" data-tip="Calendar sources">
+        <button className="btn btn-ghost btn-icon btn-sm shrink-0" onClick={() => navigate("settings", "calendar")} aria-label="Calendar sources">
           <Settings2 size={14} />
         </button>
       </div>
+
+      {sources.length > 0 && (
+        <div className="px-3 pt-1">
+          <HorizontalPillStrip
+            activeKey={selectedSourceId ?? "all"}
+            className="min-h-[34px] shrink-0"
+            items={feedPillItems}
+            onDelete={(id) => {
+              removeSource(id);
+              if (selectedSourceId === id) setSelectedSourceId(null);
+            }}
+            onRename={(id, newName) => updateSource(id, { name: newName })}
+            canModify={(id) => id !== "all"}
+            quickSwitcherThreshold={4}
+            pillClassName="bg-accent/20 rounded-full"
+          />
+        </div>
+      )}
 
       {/* week strip */}
       <div className="mt-2 grid grid-cols-7 gap-1 px-3">
@@ -111,7 +159,7 @@ export function CalendarView() {
       )}
 
       {mode === "day" ? (
-        <DayView day={anchor} events={dayEvents(anchor)} tasks={dayTasks(anchor)} now={now} startHour={settings.dayStartHour} endHour={settings.dayEndHour} noSources={sources.length === 0} onAddSource={() => navigate("settings", "calendar")} />
+        <DayView day={anchor} events={dayEvents(anchor)} tasks={dayTasks(anchor)} now={now} startHour={settings?.dayStartHour ?? 7} endHour={settings?.dayEndHour ?? 22} noSources={sources.length === 0} onAddSource={() => navigate("settings", "calendar")} />
       ) : (
         <div className="scroll flex-1 px-3 pb-3 pt-2">
           {days.map((d) => {
@@ -172,7 +220,7 @@ function DayView({ day, events, tasks, now, startHour, endHour, noSources, onAdd
           </button>
         </div>
       )}
-      <UnscheduledList tasks={unscheduled} day={day} />
+      <UnscheduledList tasks={unscheduled} day={day} events={events} />
       {empty && noSources && (
         <div className="mt-2 flex items-center justify-between rounded-lg bg-surface-2/50 px-3 py-2 text-[0.8em] text-faint">
           <span className="inline-flex items-center gap-1.5">

@@ -10,7 +10,7 @@ export function HabitRow({ habit, day, onOpen, dense }: { habit: Habit; day?: Da
   const key = dateKey(day ?? new Date());
   const increment = useHabits((s) => s.increment);
   const toggle = useHabits((s) => s.toggle);
-  const count = habit.log[key] ?? 0;
+  const count = habit.log?.[key] ?? 0;
   const done = isDoneOn(habit, key);
   const st = streak(habit);
   const multi = habit.target > 1;
@@ -18,15 +18,15 @@ export function HabitRow({ habit, day, onOpen, dense }: { habit: Habit; day?: Da
   return (
     <div className={cn("group flex items-center gap-2.5 rounded-xl px-2.5 hover:bg-surface-2/60", dense ? "py-1.5" : "py-2")} onDoubleClick={onOpen}>
       <button
-        className={cn("relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[1.05em] transition", done ? "scale-105" : "opacity-90")}
-        style={{ background: done ? habit.color : `color-mix(in srgb, ${habit.color} 22%, transparent)`, boxShadow: done ? `0 0 14px ${habit.color}66` : undefined }}
+        className={cn("relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[1.05em] transition active:scale-95", done ? "scale-100 shadow-sm" : "opacity-90 hover:opacity-100")}
+        style={{ background: done ? habit.color : `color-mix(in srgb, ${habit.color} 20%, transparent)` }}
         onClick={() => {
           if (!done) uiSound("complete", 0.3);
           multi ? increment(habit.id, key, 1) : toggle(habit.id, key);
         }}
-        aria-label={multi ? "Log one" : done ? "Undo" : "Done"} data-tip={multi ? "Log one" : done ? "Undo" : "Done"}
+        aria-label={multi ? "Log one" : done ? "Undo" : "Done"}
       >
-        {done ? <Check size={16} strokeWidth={3} className="text-white drop-shadow" /> : <HabitIcon name={habit.icon} size={16} color={habit.color} />}
+        {done ? <Check size={15} strokeWidth={3} className="text-white" /> : <HabitIcon name={habit.icon} size={15} color={habit.color} />}
       </button>
       <div className="min-w-0 flex-1 cursor-default" onClick={onOpen}>
         <div className={cn("truncate text-[0.93em]", done && "text-muted")}>{habit.name}</div>

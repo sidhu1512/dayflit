@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { addDays, format } from "date-fns";
 import { Check, Flame, Plus, Repeat, Trash2, X } from "lucide-react";
 import { useHabits, HABIT_COLORS, HABIT_ICONS, streak, completionRate, describeSchedule, isDoneOn, isScheduledOn, habitsForDay } from "@/stores/habits";
+import { useLife } from "@/stores/life";
 import { useUi } from "@/stores/ui";
 import { HabitRow } from "@/components/HabitRow";
 import { Empty } from "@/components/Empty";
 import { dateKey } from "@/lib/dates";
 import { cn } from "@/lib/ids";
 import { HabitIcon } from "@/components/icons";
+import { HabitHeatmap } from "@/components/HabitHeatmap";
 import type { Habit, HabitSchedule } from "@/lib/types";
 
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -16,6 +18,7 @@ export function HabitsView() {
   const habits = useHabits((s) => s.habits);
   const viewParam = useUi((s) => s.viewParam);
   const [editing, setEditing] = useState<string | "new" | null>(null);
+  const [historyMode, setHistoryMode] = useState<"heatmaps" | "table">("heatmaps");
   const today = new Date();
   const active = useMemo(() => habits.filter((h) => !h.archived).sort((a, b) => a.order - b.order), [habits]);
   const todays = habitsForDay(active, today);
@@ -57,44 +60,87 @@ export function HabitsView() {
                 ))}
               </>
             )}
-            <div className="section-title px-2 pb-1 pt-4">Last two weeks</div>
-            <div className="card overflow-x-auto p-2">
-              <table className="w-full border-separate border-spacing-y-1 text-[0.78em]">
-                <thead>
-                  <tr>
-                    <th className="w-[38%] text-left font-normal text-faint"></th>
-                    {last14.map((d) => (
-                      <th key={d.toISOString()} className={cn("text-center font-normal text-faint", dateKey(d) === dateKey(today) && "text-accent")}>
-                        {format(d, "d")}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {active.map((h) => (
-                    <tr key={h.id}>
-                      <td className="truncate pr-2">
-                        <span className="mr-1.5 inline-flex align-middle" style={{ color: h.color }}>
-                          <HabitIcon name={h.icon} size={12} />
-                        </span>
-                        {h.name}
-                      </td>
-                      {last14.map((d) => {
-                        const k = dateKey(d);
-                        const done = isDoneOn(h, k);
-                        const sched = isScheduledOn(h, d);
-                        const partial = !done && (h.log[k] ?? 0) > 0;
-                        return (
-                          <td key={k} className="text-center">
-                            <button className={cn("mx-auto block h-4 w-4 rounded-[5px] transition", !sched && !done && "opacity-20")} style={{ background: done ? h.color : partial ? `color-mix(in srgb, ${h.color} 45%, transparent)` : "rgb(var(--surface-3))" }} onClick={() => useHabits.getState().toggle(h.id, k)} aria-label={`${k}${done ? " done" : ""}`} />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between px-2 pb-1 pt-4 flex-nowrap min-w-0 gap-2">
+              <div className="section-title truncate min-w-0 flex-1">Habit Consistency</div>
+              <div className="flex items-center rounded-lg bg-surface-2/70 p-0.5 text-[0.74em] shrink-0">
+                <button
+                  className={cn("rounded-md px-2 py-0.5 font-medium transition shrink-0 whitespace-nowrap", historyMode === "heatmaps" ? "bg-surface text-text shadow-sm" : "text-muted hover:text-text")}
+                  onClick={() => setHistoryMode("heatmaps")}
+                >
+                  Heatmaps (18w)
+                </button>
+                <button
+                  className={cn("rounded-md px-2 py-0.5 font-medium transition shrink-0 whitespace-nowrap", historyMode === "table" ? "bg-surface text-text shadow-sm" : "text-muted hover:text-text")}
+                  onClick={() => setHistoryMode("table")}
+                >
+                  14-Day Table
+                </button>
+              </div>
             </div>
+
+            {historyMode === "heatmaps" ? (
+              <div className="flex flex-col gap-2.5">
+                {active.map((h) => (
+                  <div key={h.id} className="card p-3">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-lg text-white" style={{ background: h.color }}>
+                          <HabitIcon name={h.icon} size={14} color="#ffffff" />
+                        </span>
+                        <span className="text-[0.88em] font-semibold text-text">{h.name}</span>
+                        {h.target > 1 && <span className="text-[0.72em] text-muted">({h.target} {h.unit}/day)</span>}
+                      </div>
+                      <button className="btn btn-ghost btn-sm text-[0.74em]" onClick={() => setEditing(h.id)}>
+                        Configure
+                      </button>
+                    </div>
+                    <HabitHeatmap
+                      habit={h}
+                      weeks={18}
+                      onToggleDate={(k) => useHabits.getState().toggle(h.id, k)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="card overflow-x-auto p-2">
+                <table className="w-full border-separate border-spacing-y-1 text-[0.78em]">
+                  <thead>
+                    <tr>
+                      <th className="w-[38%] text-left font-normal text-faint"></th>
+                      {last14.map((d) => (
+                        <th key={d.toISOString()} className={cn("text-center font-normal text-faint", dateKey(d) === dateKey(today) && "text-accent")}>
+                          {format(d, "d")}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {active.map((h) => (
+                      <tr key={h.id}>
+                        <td className="truncate pr-2">
+                          <span className="mr-1.5 inline-flex align-middle" style={{ color: h.color }}>
+                            <HabitIcon name={h.icon} size={12} />
+                          </span>
+                          {h.name}
+                        </td>
+                        {last14.map((d) => {
+                          const k = dateKey(d);
+                          const done = isDoneOn(h, k);
+                          const sched = isScheduledOn(h, d);
+                          const partial = !done && (h.log[k] ?? 0) > 0;
+                          return (
+                            <td key={k} className="text-center">
+                              <button className={cn("mx-auto block h-4 w-4 rounded-[5px] transition", !sched && !done && "opacity-20")} style={{ background: done ? h.color : partial ? `color-mix(in srgb, ${h.color} 45%, transparent)` : "rgb(var(--surface-3))" }} onClick={() => useHabits.getState().toggle(h.id, k)} aria-label={`${k}${done ? " done" : ""}`} />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -109,6 +155,8 @@ function HabitEditor({ id, onClose }: { id: string | null; onClose: () => void }
   const update = useHabits((s) => s.update);
   const remove = useHabits((s) => s.remove);
   const ask = useUi((s) => s.ask);
+  const domains = useLife((s) => s.data.domains);
+  const goals = useLife((s) => s.data.goals);
   const [name, setName] = useState(habit?.name ?? "");
   const [icon, setIcon] = useState(habit?.icon ?? HABIT_ICONS[Math.floor(Math.random() * HABIT_ICONS.length)]);
   const [color, setColor] = useState(habit?.color ?? HABIT_COLORS[Math.floor(Math.random() * HABIT_COLORS.length)]);
@@ -116,6 +164,8 @@ function HabitEditor({ id, onClose }: { id: string | null; onClose: () => void }
   const [target, setTarget] = useState(habit?.target ?? 1);
   const [unit, setUnit] = useState(habit?.unit ?? "");
   const [reminder, setReminder] = useState(habit?.reminderTime ?? "");
+  const [domainId, setDomainId] = useState(habit?.domainId ?? "");
+  const [goalId, setGoalId] = useState(habit?.goalId ?? "");
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && (e.stopPropagation(), onClose());
@@ -125,7 +175,17 @@ function HabitEditor({ id, onClose }: { id: string | null; onClose: () => void }
 
   const save = () => {
     if (!name.trim()) return;
-    const patch: Partial<Habit> = { name: name.trim(), icon, color, schedule, target: Math.max(1, target), unit: unit.trim(), reminderTime: reminder || null };
+    const patch: Partial<Habit> = {
+      name: name.trim(),
+      icon,
+      color,
+      schedule,
+      target: Math.max(1, target),
+      unit: unit.trim(),
+      reminderTime: reminder || null,
+      domainId: domainId || null,
+      goalId: (domainId && goalId) ? goalId : null,
+    };
     if (habit) update(habit.id, patch);
     else add({ name: name.trim(), ...patch });
     onClose();
@@ -200,6 +260,42 @@ function HabitEditor({ id, onClose }: { id: string | null; onClose: () => void }
         <div className="section-title mt-4 mb-1.5">Reminder</div>
         <input type="time" className="input w-40" value={reminder} onChange={(e) => setReminder(e.target.value)} />
         <div className="mt-1 text-[0.75em] text-faint">A notification if the habit isn't done by this time.</div>
+
+        <div className="section-title mt-4 mb-1.5">Life Pillar (Optional)</div>
+        <select
+          className="input w-full text-[0.88em]"
+          value={domainId}
+          onChange={(e) => {
+            setDomainId(e.target.value);
+            setGoalId("");
+          }}
+        >
+          <option value="">No Life Pillar linked</option>
+          {domains.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
+        {domainId && goals.filter((g) => g.domainId === domainId).length > 0 && (
+          <div className="mt-2">
+            <div className="text-[0.78em] text-faint mb-1">Target Goal (Optional)</div>
+            <select
+              className="input w-full text-[0.85em]"
+              value={goalId}
+              onChange={(e) => setGoalId(e.target.value)}
+            >
+              <option value="">No specific goal</option>
+              {goals
+                .filter((g) => g.domainId === domainId)
+                .map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.title}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
         {habit && (
           <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[0.85em]">
             <div className="card py-2">
